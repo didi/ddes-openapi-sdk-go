@@ -44,6 +44,10 @@ func (builder *GetLoginEncryptStrApiReqBuilder) Timestamp(timestamp string) *Get
 	builder.apiReq.QueryParams.Set("timestamp", timestamp)
 	return builder
 }
+func (builder *GetLoginEncryptStrApiReqBuilder) CompanyId(companyid string) *GetLoginEncryptStrApiReqBuilder {
+	builder.apiReq.QueryParams.Set("company_id", companyid)
+	return builder
+}
 func (builder *GetLoginEncryptStrApiReqBuilder) Sign(sign string) *GetLoginEncryptStrApiReqBuilder {
 	builder.apiReq.QueryParams.Set("sign", sign)
 	return builder

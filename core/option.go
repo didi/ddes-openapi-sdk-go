@@ -16,6 +16,7 @@ type Option struct {
 	TokenCache       TokenCache        // TOKEN缓存自定义实现，不传则使用默认缓存
 	EnableEncryption bool              // 是否启用加密传输
 	EncryptionOption *EncryptionOption // 加密相关参数
+	SignMethod       int               // 签名方式 1:MD5 2:SHA256 (默认MD5)
 	Serializer       Serializer        // 序列化
 	LogLevel         LogLevel
 	Logger           Logger
@@ -56,6 +57,7 @@ func NewDefaultOption(appId, appSecret, signKey string) *Option {
 		TokenCache:       NewLocalTokenCache(),
 		EnableEncryption: false,
 		EncryptionOption: nil,
+		SignMethod:       1,
 		Serializer:       &DefaultSerializer{},
 		LogLevel:         LogLevelInfo,
 		Logger:           NewLoggerImpl(LogLevelInfo, NewDefaultLogger(LogLevelInfo)),

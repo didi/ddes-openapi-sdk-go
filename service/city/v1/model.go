@@ -77,6 +77,10 @@ func (builder *ListCarCityApiReqBuilder) Timestamp(timestamp string) *ListCarCit
 	builder.apiReq.QueryParams.Set("timestamp", timestamp)
 	return builder
 }
+func (builder *ListCarCityApiReqBuilder) CompanyId(companyid string) *ListCarCityApiReqBuilder {
+	builder.apiReq.QueryParams.Set("company_id", companyid)
+	return builder
+}
 func (builder *ListCarCityApiReqBuilder) Sign(sign string) *ListCarCityApiReqBuilder {
 	builder.apiReq.QueryParams.Set("sign", sign)
 	return builder
