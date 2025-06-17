@@ -1,0 +1,105 @@
+package v1
+
+// GetCarOrderDetailReply struct for GetCarOrderDetailReply
+type GetCarOrderDetailReply struct {
+	OrderId               *string                `json:"order_id,omitempty"`                 // 订单的唯一标识
+	CompanyId             *string                `json:"company_id,omitempty"`               // 所属公司的唯一标识
+	CallPhone             *string                `json:"call_phone,omitempty"`               // 叫车人的手机号码
+	CallEmployeeNumber    *string                `json:"call_employee_number,omitempty"`     // 叫车人的员工编号
+	PassengerPhone        *string                `json:"passenger_phone,omitempty"`          // 乘车人的手机号码
+	PassengerName         *string                `json:"passenger_name,omitempty"`           // 乘车人的姓名
+	City                  *string                `json:"city,omitempty"`                     // 出发地所在城市的标识
+	CityName              *string                `json:"city_name,omitempty"`                // 出发地所在城市的名称
+	StartName             *string                `json:"start_name,omitempty"`               // 出发地的名称
+	Flat                  *string                `json:"flat,omitempty"`                     // 出发地的纬度
+	Flng                  *string                `json:"flng,omitempty"`                     // 出发地的经度
+	ActualStartName       *string                `json:"actual_start_name,omitempty"`        // 司机实际开始行程的地点名称
+	ActualStartAddress    *string                `json:"actual_start_address,omitempty"`     // 司机实际开始行程的地点地址
+	ActualEndAddress      *string                `json:"actual_end_address,omitempty"`       // 司机实际结束行程的地点地址
+	DepartureCountyId     *int32                 `json:"departure_county_id,omitempty"`      // 出发地所在区县的标识
+	DepartureCountyName   *string                `json:"departure_county_name,omitempty"`    // 出发地所在区县的名称
+	DestinationCountyId   *int32                 `json:"destination_county_id,omitempty"`    // 目的地所在区县的标识
+	DestinationCountyName *string                `json:"destination_county_name,omitempty"`  // 目的地所在区县的名称
+	ActualFlat            *string                `json:"actual_flat,omitempty"`              // 司机实际开始行程地点的纬度
+	ActualFlng            *string                `json:"actual_flng,omitempty"`              // 司机实际开始行程地点的经度
+	DestCity              *int32                 `json:"dest_city,omitempty"`                // 目的地所在城市的标识
+	DestCityName          *string                `json:"dest_city_name,omitempty"`           // 目的地所在城市的名称
+	EndName               *string                `json:"end_name,omitempty"`                 // 目的地的名称
+	Tlat                  *string                `json:"tlat,omitempty"`                     // 目的地的纬度
+	Tlng                  *string                `json:"tlng,omitempty"`                     // 目的地的经度
+	ActualEndName         *string                `json:"actual_end_name,omitempty"`          // 司机实际结束行程的地点名称
+	ActualTlat            *string                `json:"actual_tlat,omitempty"`              // 司机实际结束行程地点的纬度
+	ActualTlng            *string                `json:"actual_tlng,omitempty"`              // 司机实际结束行程地点的经度
+	CreateTime            *string                `json:"create_time,omitempty"`              // 订单创建的时间，格式可能为标准时间格式
+	DepartureTime         *string                `json:"departure_time,omitempty"`           // 出发时间，预约单为预约出发时间
+	StriveTime            *string                `json:"strive_time,omitempty"`              // 接单的时间
+	MeetTime              *string                `json:"meet_time,omitempty"`                // 接驾的时间
+	BeginChargeTime       *string                `json:"begin_charge_time,omitempty"`        // 开始计价的时间
+	FinishTime            *string                `json:"finish_time,omitempty"`              // 结束计价的时间
+	PayTime               *string                `json:"pay_time,omitempty"`                 // 支付的时间
+	RefundTime            *string                `json:"refund_time,omitempty"`              // 退款的时间
+	RequireLevel          *string                `json:"require_level,omitempty"`            // 用车的车型，如100-专车舒适型等
+	UseCarSrv             *string                `json:"use_car_srv,omitempty"`              // 计价的类型，如101-出租车等
+	UseCarType            *string                `json:"use_car_type,omitempty"`             // 用车车型的大类，如2-专车等
+	SubUseCarType         *int32                 `json:"sub_use_car_type,omitempty"`         // 用车的场景，如0 - 市内用车等
+	Status                *string                `json:"status,omitempty"`                   // 订单的状态，如0-行程中、1-下单失败等
+	Type                  *string                `json:"type,omitempty"`                     // 订单的类型，如0-实时、1-预约
+	PayType               *string                `json:"pay_type,omitempty"`                 // 支付的类型，如0-企业支付等
+	OrderSource           *string                `json:"order_source,omitempty"`             // 订单的来源，如0-Web等
+	SupplierType          *int32                 `json:"supplier_type,omitempty"`            // 运力的来源，如0自营等
+	PricingMode           *int32                 `json:"pricing_mode,omitempty"`             // 计价的模型，如0-实时计价等
+	IsCarpool             *string                `json:"is_carpool,omitempty"`               // 是否为拼车，0-非拼车，1-拼车
+	IsInvoice             *int32                 `json:"is_invoice,omitempty"`               // 是否已开票，0-未开票，1-已开票
+	EstimatePrice         *string                `json:"estimate_price,omitempty"`           // 订单的预估金额，单位为元
+	ReimbursementFlag     *int32                 `json:"reimbursement_flag,omitempty"`       // 是否为个人垫付订单，0-非个人垫付订单，1-个人订单
+	TotalPrice            *string                `json:"total_price,omitempty"`              // 订单的总金额，单位为元，包含呼返立减，不包含尊享折扣
+	ActualPrice           *string                `json:"actual_price,omitempty"`             // 订单的实付金额，单位为元，总金额减去券抵扣金额
+	VoucherPay            *string                `json:"voucher_pay,omitempty"`              // 券抵扣的金额，单位为元
+	CompanyPay            *string                `json:"company_pay,omitempty"`              // 公司支付的金额，单位为元
+	CompanyCardPay        *string                `json:"company_card_pay,omitempty"`         // 公司出行卡支付的金额，单位为元
+	PersonalPay           *string                `json:"personal_pay,omitempty"`             // 个人支付的金额，单位为元
+	CompanyRealPay        *string                `json:"company_real_pay,omitempty"`         // 公司实际支付的金额，单位为元
+	CompanyCardRealPay    *string                `json:"company_card_real_pay,omitempty"`    // 公司出行卡实际支付的金额，单位为元
+	PersonalRealPay       *string                `json:"personal_real_pay,omitempty"`        // 个人实际支付的金额，单位为元
+	CompanyRealRefund     *string                `json:"company_real_refund,omitempty"`      // 公司实际退款的金额，单位为元
+	CompanyCardRealRefund *string                `json:"company_card_real_refund,omitempty"` // 公司出行卡实际退款的金额，单位为元
+	PersonalRealRefund    *string                `json:"personal_real_refund,omitempty"`     // 个人实际退款的金额，单位为元
+	Price                 []PriceInfo            `json:"price,omitempty"`                    // 费用的明细，返回值大于0的订单金额信息
+	NormalDistance        *string                `json:"normal_distance,omitempty"`          // 订单的总里程，单位为千米
+	EstimatedDistance     *string                `json:"estimated_distance,omitempty"`       // 订单的预估里程，单位为千米
+	BudgetCenterId        *string                `json:"budget_center_id,omitempty"`         // 成本中心的标识，可对应budget_center_list中的字段
+	UseCarConfigId        *string                `json:"use_car_config_id,omitempty"`        // 用车规则的标识
+	IsSensitive           *int32                 `json:"is_sensitive,omitempty"`             // 是否为敏感订单，0-不是，1-是，1.0方案，新用户可忽略
+	SensitiveExplanation  *string                `json:"sensitive_explanation,omitempty"`    // 敏感订单的解释，1.0方案，新用户可忽略
+	SensitiveRuleId       *string                `json:"sensitive_rule_id,omitempty"`        // 命中的敏感规则的标识，1.0方案，新用户可忽略
+	SensitiveReason       *string                `json:"sensitive_reason,omitempty"`         // 敏感订单的原因，多个原因用英文分号隔开，1.0方案，新用户可忽略
+	ApprovalId            *string                `json:"approval_id,omitempty"`              // 滴滴内部审批单的标识
+	OutApprovalId         *string                `json:"out_approval_id,omitempty"`          // 接入方审批单的标识
+	CallbackInfo          *string                `json:"callback_info,omitempty"`            // 下单时用户携带的额外信息
+	ExtraInfo             *string                `json:"extra_info,omitempty"`               // 订单的扩展信息，如创建审批单的扩展信息
+	EncryptedInfo         *string                `json:"encrypted_info,omitempty"`           // 订单的加密信息，可忽略
+	GroupId               *string                `json:"group_id,omitempty"`                 // 部门的标识
+	IsAbnormal            *int32                 `json:"is_abnormal,omitempty"`              // 是否为敏感订单，0-否，1-是
+	AbnormalExplanation   *string                `json:"abnormal_explanation,omitempty"`     // 敏感订单员工的说明文案，need_abnormal_msg为1时返回
+	AbnormalType          *string                `json:"abnormal_type,omitempty"`            // 敏感订单的类型，need_abnormal_msg为1时返回
+	ReasonType            *string                `json:"reason_type,omitempty"`              // 敏感订单解释的原因类型，need_abnormal_msg为1时返回
+	OperationType         *int32                 `json:"operation_type,omitempty"`           // 敏感订单的干预方式，如0 - 无等，need_abnormal_msg为1时返回
+	MemberId              *int64                 `json:"member_id,omitempty"`                // 员工的标识
+	RuleName              *string                `json:"rule_name,omitempty"`                // 制度的名称，need_rule_info为1时返回
+	RegulationId          *int64                 `json:"regulation_id,omitempty"`            // 制度的标识，need_rule_info为1时返回
+	ExtendFieldList       *string                `json:"extend_field_list,omitempty"`        // 申请单的基础信息，拓展信息列表
+	UpgradeType           *int32                 `json:"upgrade_type,omitempty"`             // 升舱的类型，如0非升舱等
+	LevelType             *int32                 `json:"level_type,omitempty"`               // 是否为特快，0 非特快，1 特快
+	ComboType             *int32                 `json:"combo_type,omitempty"`               // 快车的计价类型，如4 拼车等
+	ChangeEndCount        *int32                 `json:"change_end_count,omitempty"`         // 修改目的地的次数
+	Remark                *string                `json:"remark,omitempty"`                   // 用车的备注信息
+	TotalCost             *string                `json:"total_cost,omitempty"`               // 折后的车费与折后的服务费之和，单位为元
+	RefundPrice           *string                `json:"refund_price,omitempty"`             // 退款的金额，单位为元
+	PreTotalFee           *string                `json:"pre_total_fee,omitempty"`            // 特惠快车的原价金额，单位为元，包含尊享折扣+呼返立减
+	FixedDiscountFee      *string                `json:"fixed_discount_fee,omitempty"`       // 特惠快车尊享折扣金额，单位为元，尊享折扣金额+呼返立减金额
+	DiscountFee           *string                `json:"discount_fee,omitempty"`             // 补贴金额，单位为元，在使用企业券时，补贴金额 = 尊享折扣 + 券金额，其他情况直接等于尊享折扣，企业节省金额。
+	CutCompanyCost        *string                `json:"cut_company_cost,omitempty"`         // 尊享企业立减，单位为元，尊享折扣+呼返立减=尊享企业支付+尊享个人支付
+	CutPersonalCost       *string                `json:"cut_personal_cost,omitempty"`        // 尊享个人立减，单位为元
+	BudgetCenterList      []BudgetCenterListItem `json:"budget_center_list,omitempty"`       // 多成本中心信息，参考BudgetCenter对象
+	StopoverPoints        []StopoverPoint        `json:"stopover_points,omitempty"`          // 途径点信息，参考StopoverPoint对象
+}
