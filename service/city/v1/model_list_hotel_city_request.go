@@ -5,6 +5,7 @@ type ListHotelCityRequest struct {
 	ClientId    *string `json:"client_id,omitempty"`    // 申请应用时分配的AppKey
 	AccessToken *string `json:"access_token,omitempty"` // 授权后的access token
 	Timestamp   *int64  `json:"timestamp,omitempty"`    // 当前时间戳
+	CompanyId   *string `json:"company_id,omitempty"`   // 企业ID
 	Sign        *string `json:"sign,omitempty"`         // 签名
 	CountryId   *int32  `json:"country_id,omitempty"`   // 国家ID
 }
@@ -16,6 +17,8 @@ type ListHotelCityRequestBuilder struct {
 	accessTokenSet bool
 	timestamp      int64 // 当前时间戳
 	timestampSet   bool
+	companyId      string // 企业ID
+	companyIdSet   bool
 	sign           string // 签名
 	signSet        bool
 	countryId      int32 // 国家ID
@@ -40,6 +43,11 @@ func (builder *ListHotelCityRequestBuilder) Timestamp(timestamp int64) *ListHote
 	builder.timestampSet = true
 	return builder
 }
+func (builder *ListHotelCityRequestBuilder) CompanyId(companyId string) *ListHotelCityRequestBuilder {
+	builder.companyId = companyId
+	builder.companyIdSet = true
+	return builder
+}
 func (builder *ListHotelCityRequestBuilder) Sign(sign string) *ListHotelCityRequestBuilder {
 	builder.sign = sign
 	builder.signSet = true
@@ -61,6 +69,9 @@ func (builder *ListHotelCityRequestBuilder) Build() *ListHotelCityRequest {
 	}
 	if builder.timestampSet {
 		data.Timestamp = &builder.timestamp
+	}
+	if builder.companyIdSet {
+		data.CompanyId = &builder.companyId
 	}
 	if builder.signSet {
 		data.Sign = &builder.sign

@@ -4,7 +4,7 @@ package v1
 type PassengerInfo struct {
 	Name             *string                `json:"name,omitempty"`
 	Phone            *string                `json:"phone,omitempty"`
-	PassengerType    *string                `json:"passenger_type,omitempty"`
+	PassengerType    *int32                 `json:"passenger_type,omitempty"`
 	EmployeeNumber   *string                `json:"employee_number,omitempty"`
 	Email            *string                `json:"email,omitempty"`
 	BudgetCenterList []BudgetCenterListItem `json:"budget_center_list,omitempty"`
@@ -15,7 +15,7 @@ type PassengerInfoBuilder struct {
 	nameSet             bool
 	phone               string
 	phoneSet            bool
-	passengerType       string
+	passengerType       int32
 	passengerTypeSet    bool
 	employeeNumber      string
 	employeeNumberSet   bool
@@ -38,7 +38,7 @@ func (builder *PassengerInfoBuilder) Phone(phone string) *PassengerInfoBuilder {
 	builder.phoneSet = true
 	return builder
 }
-func (builder *PassengerInfoBuilder) PassengerType(passengerType string) *PassengerInfoBuilder {
+func (builder *PassengerInfoBuilder) PassengerType(passengerType int32) *PassengerInfoBuilder {
 	builder.passengerType = passengerType
 	builder.passengerTypeSet = true
 	return builder

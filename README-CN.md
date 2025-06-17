@@ -53,15 +53,15 @@ option := core.Option{
 	EnableTokenCache: false, // 是否启用token缓存
 	TokenCache:       nil, // 自定义缓存实现，不传则使用默认实现
 	EnableEncryption: false, // 是否启用接口传输加密
+	SignMethod:       1, // 签名方式(1:MD5 2:SHA256)
 	EncryptionOption: &core.EncryptionOption{
-		Ent: 1, // 1: Md5 2: sha256
-		Key: "your key(md5Key/sha256Key)", 
+		Ent: 1, // 0 普通传输，1 AES128位加密传输， 2 AES256位加密传输
+		Key: "your key(AES128Key/AES256Key)", 
 	}, // 加密传输配置参数
 	LogLevel:         core.LogLevelDebug, // 日志级别
 	Logger:           nil, // 自定义日志实现，不传则使用默认实现
 }
 ```
-
 
 
 ### 启用加密传输

@@ -5,6 +5,7 @@ type ListTrainCityRequest struct {
 	ClientId    *string `json:"client_id,omitempty"`    // 申请应用时分配的AppKey
 	AccessToken *string `json:"access_token,omitempty"` // 授权后的access token
 	Timestamp   *int64  `json:"timestamp,omitempty"`    // 当前时间戳
+	CompanyId   *string `json:"company_id,omitempty"`   // 企业ID
 	Sign        *string `json:"sign,omitempty"`         // 签名
 }
 
@@ -15,6 +16,8 @@ type ListTrainCityRequestBuilder struct {
 	accessTokenSet bool
 	timestamp      int64 // 当前时间戳
 	timestampSet   bool
+	companyId      string // 企业ID
+	companyIdSet   bool
 	sign           string // 签名
 	signSet        bool
 }
@@ -37,6 +40,11 @@ func (builder *ListTrainCityRequestBuilder) Timestamp(timestamp int64) *ListTrai
 	builder.timestampSet = true
 	return builder
 }
+func (builder *ListTrainCityRequestBuilder) CompanyId(companyId string) *ListTrainCityRequestBuilder {
+	builder.companyId = companyId
+	builder.companyIdSet = true
+	return builder
+}
 func (builder *ListTrainCityRequestBuilder) Sign(sign string) *ListTrainCityRequestBuilder {
 	builder.sign = sign
 	builder.signSet = true
@@ -53,6 +61,9 @@ func (builder *ListTrainCityRequestBuilder) Build() *ListTrainCityRequest {
 	}
 	if builder.timestampSet {
 		data.Timestamp = &builder.timestamp
+	}
+	if builder.companyIdSet {
+		data.CompanyId = &builder.companyId
 	}
 	if builder.signSet {
 		data.Sign = &builder.sign

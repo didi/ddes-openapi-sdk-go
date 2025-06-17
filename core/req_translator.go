@@ -46,7 +46,7 @@ func (translator *RequestTranslator) translate(ctx context.Context, apiReq *ApiR
 				return nil, err
 			}
 		}
-		newMap := signer.SignPostBody(option.signKey, toSignDataMap)
+		newMap := signer.SignPostBody(option, toSignDataMap)
 		marshal, err := json.Marshal(newMap)
 		if err != nil {
 			return nil, err
@@ -68,7 +68,7 @@ func (translator *RequestTranslator) translate(ctx context.Context, apiReq *ApiR
 		}
 		//log.Println("转换加密后：", apiReq.QueryParams.Encode())
 
-		signeValue, err := signer.SignQueryParams(apiReq.QueryParams, option.signKey)
+		signeValue, err := signer.SignQueryParams(apiReq.QueryParams, option)
 		if err != nil {
 			return nil, err
 		}

@@ -14,14 +14,14 @@ import (
 type Signer struct{}
 
 // SignQueryParams 对查询参数进行签名
-func (signer *Signer) SignQueryParams(params url.Values, signKey string) (string, error) {
+func (signer *Signer) SignQueryParams(params url.Values, option *Option) (string, error) {
 	// 忽略sign字段
 	if params.Has("sign") {
 		params.Del("sign")
 	}
 	// 添加signKey
 	if !params.Has("sign_key") {
-		params.Set("sign_key", signKey)
+		params.Set("sign_key", option.signKey)
 	}
 	// TODO 处理__obj__字段，实现对象自动转json字符串
 	//for key, value := range params {
@@ -73,62 +73,22 @@ func (signer *Signer) SignQueryParams(params url.Values, signKey string) (string
 	}
 	toSignStr := paramStr.String()
 
-	//log.Printf("toSignStr: %s", toSignStr)
-	h := md5.New()
-	h.Write([]byte(toSignStr))
-	encodeToString := hex.EncodeToString(h.Sum(nil))
+	var encodeToString string
+	switch option.SignMethod {
+	case 2: // sha256
+		encodeToString = Sha256([]byte(toSignStr))
+	default: // 1 MD5
+		encodeToString = MD5([]byte(toSignStr))
+	}
+	//h := md5.New()
+	//h.Write([]byte(toSignStr))
+	//encodeToString := hex.EncodeToString(h.Sum(nil))
 	return encodeToString, nil
-	//bytes, err := json.Marshal(params)
-	//if err != nil {
-	//	return "", nil
-	//}
-	//var m map[string]interface{}
-	//if err := json.Unmarshal(bytes, &m); err != nil {
-	//	return "", err
-	//}
-	////m["sign_key"] = signKey
-	//if _, ok := m["timestamp"]; !ok {
-	//	m["timestamp"] = time.Now().Unix()
-	//}
-	//var keys []string
-	//// 提取所有的键
-	//for key := range m {
-	//	keys = append(keys, key)
-	//}
-	//// 对键进行排序
-	//sort.Strings(keys)
-	//
-	//var parts []string
-	//// 遍历排序后的键，将键值对按 key=Value 格式组装+
-	//for _, key := range keys {
-	//	// 忽律sign字段本身
-	//	if key == "sign" {
-	//		continue
-	//	}
-	//	if Value, ok := m[key]; ok {
-	//		var valueStr string
-	//		switch v := Value.(type) {
-	//		case string:
-	//			valueStr = v
-	//		case int:
-	//			valueStr = strconv.Itoa(v)
-	//		case int64:
-	//			valueStr = strconv.FormatInt(v, 10)
-	//		case float64:
-	//			valueStr = strconv.FormatFloat(v, 'f', -1, 64)
-	//		default:
-	//			valueStr = fmt.Sprintf("%v", v)
-	//		}
-	//		parts = append(parts, fmt.Sprintf("%s=%s", key, fmt.Sprintf("%v", valueStr)))
-	//	}
-	//}
-	//// 使用 & 连接所有的键值对
-	//toSignStr := strings.Join(parts, "&")
 }
 
 // SignPostBody 对post请求体进行签名
-func (signer *Signer) SignPostBody(signKey string, m map[string]interface{}) map[string]interface{} {
-	m["sign_key"] = signKey
+func (signer *Signer) SignPostBody(option *Option, m map[string]interface{}) map[string]interface{} {
+	m["sign_key"] = option.signKey
 
 	// 处理__obj__字段,实现对象自动替换
 	for key, value := range m {
@@ -187,9 +147,16 @@ func (signer *Signer) SignPostBody(signKey string, m map[string]interface{}) map
 	// 使用 & 连接所有的键值对
 	toSignStr := strings.Join(parts, "&")
 	//log.Printf("toSignStr: %s", toSignStr)
-	h := md5.New()
-	h.Write([]byte(toSignStr))
-	encodeToString := hex.EncodeToString(h.Sum(nil))
+	var encodeToString string
+	switch option.SignMethod {
+	case 2: // sha256
+		encodeToString = Sha256([]byte(toSignStr))
+	default: // 1 MD5
+		encodeToString = MD5([]byte(toSignStr))
+	}
+	//h := md5.New()
+	//h.Write([]byte(toSignStr))
+	//encodeToString := hex.EncodeToString(h.Sum(nil))
 	m["sign"] = encodeToString
 	delete(m, "sign_key")
 	return m

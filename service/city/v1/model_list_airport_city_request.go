@@ -5,6 +5,7 @@ type ListAirportCityRequest struct {
 	ClientId     *string `json:"client_id,omitempty"`     // 申请应用时分配的AppKey
 	AccessToken  *string `json:"access_token,omitempty"`  // 授权后的access token
 	Timestamp    *int64  `json:"timestamp,omitempty"`     // 当前时间戳
+	CompanyId    *string `json:"company_id,omitempty"`    // 企业ID
 	Sign         *string `json:"sign,omitempty"`          // 签名
 	CountryLevel *int32  `json:"country_level,omitempty"` // 国家类型, 枚举值数字 1：国内城市（默认） 2：国外城市 3：国内和国外城市
 }
@@ -16,6 +17,8 @@ type ListAirportCityRequestBuilder struct {
 	accessTokenSet  bool
 	timestamp       int64 // 当前时间戳
 	timestampSet    bool
+	companyId       string // 企业ID
+	companyIdSet    bool
 	sign            string // 签名
 	signSet         bool
 	countryLevel    int32 // 国家类型, 枚举值数字 1：国内城市（默认） 2：国外城市 3：国内和国外城市
@@ -40,6 +43,11 @@ func (builder *ListAirportCityRequestBuilder) Timestamp(timestamp int64) *ListAi
 	builder.timestampSet = true
 	return builder
 }
+func (builder *ListAirportCityRequestBuilder) CompanyId(companyId string) *ListAirportCityRequestBuilder {
+	builder.companyId = companyId
+	builder.companyIdSet = true
+	return builder
+}
 func (builder *ListAirportCityRequestBuilder) Sign(sign string) *ListAirportCityRequestBuilder {
 	builder.sign = sign
 	builder.signSet = true
@@ -61,6 +69,9 @@ func (builder *ListAirportCityRequestBuilder) Build() *ListAirportCityRequest {
 	}
 	if builder.timestampSet {
 		data.Timestamp = &builder.timestamp
+	}
+	if builder.companyIdSet {
+		data.CompanyId = &builder.companyId
 	}
 	if builder.signSet {
 		data.Sign = &builder.sign

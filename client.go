@@ -72,7 +72,9 @@ func NewClientWithOption(clientId, clientSecret, signKey string, option *core.Op
 		if nil != option.EncryptionOption {
 			defaultOption.EncryptionOption = option.EncryptionOption
 		}
-		// 日志初始化
+		if option.SignMethod == 1 || option.SignMethod == 2 {
+			defaultOption.SignMethod = option.SignMethod
+		}
 		if option.LogLevel >= core.LogLevelDebug && option.LogLevel <= core.LogLevelError {
 			defaultOption.LogLevel = option.LogLevel
 		}
