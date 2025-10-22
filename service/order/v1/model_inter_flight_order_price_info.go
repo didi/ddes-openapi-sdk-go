@@ -12,7 +12,7 @@ type InterFlightOrderPriceInfo struct {
 	CompanyRealRefund        *int32                    `json:"company_real_refund,omitempty"`      // 订单公司收入金额，单位：分 逻辑金额。跟随收费配置和退票改签，订单的公司收入金额会变更。按照钱收入方向累计
 	PersonalRealRefund       *int32                    `json:"personal_real_refund,omitempty"`     // 订单个人收入金额，单位：分 逻辑金额。跟随收费配置和退票改签，订单的个人收入付金额会变更。按照钱收入方向累计
 	Currency                 *string                   `json:"currency,omitempty"`                 // 币种，默认 CNY
-	PersonalPayDetail        *PersonalPayDetail        `json:"personal_pay_detail,omitempty"`      // 员工支付金额明细
+	PersonalPayDetail        *PersonalPayDetail        `json:"personal_pay_detail,omitempty"`
 	PersonalRealPayDetail    *PersonalRealPayDetail    `json:"personal_real_pay_detail,omitempty"`
 	PersonalRealRefundDetail *PersonalRealRefundDetail `json:"personal_real_refund_detail,omitempty"`
 	SrvPackCompanyRealPay    *int32                    `json:"srv_pack_company_real_pay,omitempty"` // 服务包企业实付金额 单位：分，退服务包时，金额会变
@@ -40,7 +40,7 @@ type InterFlightOrderPriceInfoBuilder struct {
 	personalRealRefundSet       bool
 	currency                    string // 币种，默认 CNY
 	currencySet                 bool
-	personalPayDetail           PersonalPayDetail // 员工支付金额明细
+	personalPayDetail           PersonalPayDetail
 	personalPayDetailSet        bool
 	personalRealPayDetail       PersonalRealPayDetail
 	personalRealPayDetailSet    bool

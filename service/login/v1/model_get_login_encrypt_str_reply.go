@@ -3,7 +3,7 @@ package v1
 // GetLoginEncryptStrReply struct for GetLoginEncryptStrReply
 type GetLoginEncryptStrReply struct {
 	EncryptStr         *string               `json:"encrypt_str,omitempty"` // 跳转链接
-	CallCarNow         *H5CallCarNow         `json:"callCarNow,omitempty"`  // 实时用车需要用到的参数
+	CallCarNow         *H5CallCarNow         `json:"callCarNow,omitempty"`
 	CallCarAppointment *H5CallCarAppointment `json:"callCarAppointment,omitempty"`
 	AirportPickUpNow   *H5AirportPickUpNow   `json:"airportPickUpNow,omitempty"`
 	AirportPickUp      *H5AirportPickUp      `json:"airportPickUp,omitempty"`

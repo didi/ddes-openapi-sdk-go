@@ -21,7 +21,7 @@ type UpdateApprovalBusinessByTimesRequest struct {
 	BudgetCenterList      *string                    `json:"budget_center_list,omitempty"`   // 多成本中心
 	ExtendFieldList       *string                    `json:"extend_field_list,omitempty"`    // 扩展信息list，自定义字段，最长不大于 500 字符，将extend_field_list转为 json 字符串，三个字段仅作为备注性字段。详见extend_field_list
 	BudgetCenterId        *string                    `json:"budget_center_id,omitempty"`     // 滴滴侧成本中心ID，滴滴侧成本中心ID；获取方式接口返回的 ID（可为项目/部门ID) eg : 1125920020961744 关联部门 时， id和out_budget_id 优先处理id关联项目时 id和 out_budget_id与 name 组合唯一值时 优先处理id ，out_budget_id与 name 同时有值时按照项目处理，out_budget_id有值且name为空时，按照部门处理
-	TravelBudgetObj       *TravelBudget              `json:"travel_budget__obj__,omitempty"` // 差旅预算总额,可使用脚本将其转换为json后赋值给 travel_budget 字段
+	TravelBudgetObj       *TravelBudget              `json:"travel_budget__obj__,omitempty"`
 	TravelManagementObj   *TravelManagement          `json:"travel_management__obj__,omitempty"`
 	ExtraInfoObj          *map[string]string         `json:"extra_info__obj__,omitempty"` // 扩展信息,可使用脚本将其转换为json后赋值给 extra_info 字段
 	BusinessTripDetailObj *BusinessTripDetailByTimes `json:"business_trip_detail__obj__,omitempty"`
@@ -69,7 +69,7 @@ type UpdateApprovalBusinessByTimesRequestBuilder struct {
 	extendFieldListSet       bool
 	budgetCenterId           string // 滴滴侧成本中心ID，滴滴侧成本中心ID；获取方式接口返回的 ID（可为项目/部门ID) eg : 1125920020961744 关联部门 时， id和out_budget_id 优先处理id关联项目时 id和 out_budget_id与 name 组合唯一值时 优先处理id ，out_budget_id与 name 同时有值时按照项目处理，out_budget_id有值且name为空时，按照部门处理
 	budgetCenterIdSet        bool
-	travelBudgetObj          TravelBudget // 差旅预算总额,可使用脚本将其转换为json后赋值给 travel_budget 字段
+	travelBudgetObj          TravelBudget
 	travelBudgetObjSet       bool
 	travelManagementObj      TravelManagement
 	travelManagementObjSet   bool

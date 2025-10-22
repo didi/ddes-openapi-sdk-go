@@ -56,7 +56,7 @@ func (translator *RequestTranslator) translate(ctx context.Context, apiReq *ApiR
 	}
 	// 对查询参数进行签名，原http.MethodGet, http.MethodDelete内逻辑
 	if len(apiReq.QueryParams) > 0 {
-		if !apiReq.QueryParams.Has("timestamp") {
+		if _, exists := apiReq.QueryParams["timestamp"]; !exists {
 			apiReq.QueryParams.Set("timestamp", strconv.FormatInt(time.Now().Unix(), 10))
 		}
 		if option.EnableEncryption && nil != option.EncryptionOption {
@@ -74,7 +74,7 @@ func (translator *RequestTranslator) translate(ctx context.Context, apiReq *ApiR
 		}
 
 		apiReq.QueryParams.Set("sign", signeValue)
-		if apiReq.QueryParams.Has("sign_key") {
+		if _, exists := apiReq.QueryParams["sign_key"]; exists {
 			apiReq.QueryParams.Del("sign_key")
 		}
 	}

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -33,7 +34,7 @@ func Request(ctx context.Context, apiReq *ApiReq, option *Option, reqOption *Req
 		if _, err := io.Copy(&buf, request.Body); err != nil {
 			return nil, err
 		}
-		request.Body = io.NopCloser(bytes.NewReader(buf.Bytes()))
+		request.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
 		option.Logger.Debug(ctx, "Request Body:", string(buf.Bytes()))
 	}
 
@@ -61,7 +62,7 @@ func Request(ctx context.Context, apiReq *ApiReq, option *Option, reqOption *Req
 		Body:       nil,
 	}
 	if nil != response.Body {
-		body, err := io.ReadAll(response.Body)
+		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			return nil, err
 		}

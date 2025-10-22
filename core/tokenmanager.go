@@ -140,11 +140,11 @@ func ApiReqParamsAssembly(apiReq *ApiReq, option *Option) error {
 
 	// 自动赋值client_id,client_secret
 	if nil != apiReq.QueryParams && len(apiReq.QueryParams) > 0 {
-		if !apiReq.QueryParams.Has("client_id") {
+		if _, exists := apiReq.QueryParams["client_id"]; !exists {
 			apiReq.QueryParams.Set("client_id", option.clientId)
 		}
 		if _, ok := noneAccessTokenParamPathMap[apiReq.ApiPath]; ok {
-			if !apiReq.QueryParams.Has("client_secret") {
+			if _, exists := apiReq.QueryParams["client_secret"]; !exists {
 				apiReq.QueryParams.Set("client_secret", option.clientSecret)
 			}
 		}

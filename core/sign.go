@@ -16,11 +16,11 @@ type Signer struct{}
 // SignQueryParams 对查询参数进行签名
 func (signer *Signer) SignQueryParams(params url.Values, option *Option) (string, error) {
 	// 忽略sign字段
-	if params.Has("sign") {
+	if _, exists := params["sign"]; exists {
 		params.Del("sign")
 	}
 	// 添加signKey
-	if !params.Has("sign_key") {
+	if _, exists := params["sign_key"]; !exists {
 		params.Set("sign_key", option.signKey)
 	}
 	// TODO 处理__obj__字段，实现对象自动转json字符串

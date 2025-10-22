@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/didi/ddes-openapi-sdk-go/core/internal/xmath"
 	"math"
 	"reflect"
 	"strconv"
@@ -311,7 +312,7 @@ func isIntInRange(value int64, kind reflect.Kind) bool {
 	case reflect.Int32:
 		return value >= math.MinInt32 && value <= math.MaxInt32
 	case reflect.Int:
-		return value >= math.MinInt && value <= math.MaxInt
+		return value >= xmath.MinInt && value <= xmath.MaxInt
 	case reflect.Int64:
 		return true
 	default:
@@ -329,7 +330,7 @@ func isUintInRange(value uint64, kind reflect.Kind) bool {
 		return value <= math.MaxUint32
 	case reflect.Uint:
 		// 取决于平台，简化处理
-		return value <= math.MaxUint
+		return value <= xmath.MaxUint
 	case reflect.Uint64:
 		return true
 	default:
