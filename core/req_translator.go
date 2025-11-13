@@ -98,7 +98,7 @@ func (translator *RequestTranslator) translate(ctx context.Context, apiReq *ApiR
 		}
 	}
 	// 往header中添加用于统计的字段；
-	didiAgent := "didi-open-sdk-go" + "/" + version
+	didiAgent := "didies-open-sdk-go" + "/" + version
 	request.Header.Add("User-Agent", didiAgent)
 
 	return request, nil
