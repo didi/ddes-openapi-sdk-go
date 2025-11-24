@@ -1,8 +1,8 @@
-package workspace
+package workplace
 
 import (
 	"github.com/didi/ddes-openapi-sdk-go/core"
-	v1 "github.com/didi/ddes-openapi-sdk-go/service/workspace/v1"
+	v1 "github.com/didi/ddes-openapi-sdk-go/service/workplace/v1"
 )
 
 type Service struct {

@@ -20,7 +20,7 @@ import (
 	"github.com/didi/ddes-openapi-sdk-go/service/regulation"
 	"github.com/didi/ddes-openapi-sdk-go/service/role"
 	"github.com/didi/ddes-openapi-sdk-go/service/traveler"
-	"github.com/didi/ddes-openapi-sdk-go/service/workspace"
+	"github.com/didi/ddes-openapi-sdk-go/service/workplace"
 
 	"net/http"
 )
@@ -28,7 +28,6 @@ import (
 type Client struct {
 	option *core.Option // 配置项
 
-	WorkspaceService     *workspace.Service
 	RoleService          *role.Service
 	TravelerService      *traveler.Service
 	AuthService          *auth.Service
@@ -44,6 +43,7 @@ type Client struct {
 	MemberService        *member.Service
 	AfterapprovalService *afterapproval.Service
 	RankService          *rank.Service
+	WorkplaceService     *workplace.Service
 	OrderService         *order.Service
 }
 
@@ -93,7 +93,6 @@ func NewClientWithOption(clientId, clientSecret, signKey string, option *core.Op
 }
 
 func initService(client *Client, option *core.Option) {
-	client.WorkspaceService = workspace.NewService(option)
 	client.RoleService = role.NewService(option)
 	client.TravelerService = traveler.NewService(option)
 	client.AuthService = auth.NewService(option)
@@ -109,6 +108,7 @@ func initService(client *Client, option *core.Option) {
 	client.MemberService = member.NewService(option)
 	client.AfterapprovalService = afterapproval.NewService(option)
 	client.RankService = rank.NewService(option)
+	client.WorkplaceService = workplace.NewService(option)
 	client.OrderService = order.NewService(option)
 }
 

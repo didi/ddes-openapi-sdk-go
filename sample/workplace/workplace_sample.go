@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/didi/ddes-openapi-sdk-go"
 	"github.com/didi/ddes-openapi-sdk-go/core"
-	v1 "github.com/didi/ddes-openapi-sdk-go/service/workspace/v1"
+	v1 "github.com/didi/ddes-openapi-sdk-go/service/workplace/v1"
 	"log"
 	"net/http"
 	"os"
@@ -41,7 +41,7 @@ func CreateWorkplace() {
 				Build()).
 			Build()).
 		Build()
-	apiResp, err := client.WorkspaceService.V1.Workspace.CreateWorkplace(context.Background(), apiReq, nil)
+	apiResp, err := client.WorkplaceService.V1.Workplace.CreateWorkplace(context.Background(), apiReq, nil)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -79,7 +79,7 @@ func DeleteWorkplace() {
 				Build()).
 			Build()).
 		Build()
-	apiResp, err := client.WorkspaceService.V1.Workspace.DeleteWorkplace(context.Background(), apiReq, nil)
+	apiResp, err := client.WorkplaceService.V1.Workplace.DeleteWorkplace(context.Background(), apiReq, nil)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -121,7 +121,7 @@ func UpdateWorkplace() {
 				Build()).
 			Build()).
 		Build()
-	apiResp, err := client.WorkspaceService.V1.Workspace.UpdateWorkplace(context.Background(), apiReq, nil)
+	apiResp, err := client.WorkplaceService.V1.Workplace.UpdateWorkplace(context.Background(), apiReq, nil)
 	if err != nil {
 		log.Fatal(err)
 		return

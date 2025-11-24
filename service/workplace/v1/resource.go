@@ -10,26 +10,26 @@ import (
 )
 
 type V1 struct {
-	Workspace *workspace //
+	Workplace *workplace //
 }
 
 func NewV1(option *core.Option) *V1 {
 	return &V1{
-		Workspace: &workspace{option: option},
+		Workplace: &workplace{option: option},
 	}
 }
 
-type workspace struct {
+type workplace struct {
 	option *core.Option
 }
 
 // CreateWorkplace 地点新增
-func (workspace *workspace) CreateWorkplace(ctx context.Context, req *CreateWorkplaceApiReq, reqOption *core.ReqOption) (*CreateWorkplaceApiResp, error) {
+func (workplace *workplace) CreateWorkplace(ctx context.Context, req *CreateWorkplaceApiReq, reqOption *core.ReqOption) (*CreateWorkplaceApiResp, error) {
 	apiReq := req.apiReq
 	apiReq.HttpMethod = http.MethodPost
 	apiReq.ApiPath = "/open-apis/v1/workplace/create"
 
-	apiResp, err := core.Request(ctx, apiReq, workspace.option, reqOption)
+	apiResp, err := core.Request(ctx, apiReq, workplace.option, reqOption)
 	if err != nil {
 		return nil, err
 	}
@@ -38,11 +38,11 @@ func (workspace *workspace) CreateWorkplace(ctx context.Context, req *CreateWork
 	}
 	createWorkplaceApiReply := CreateWorkplaceApiReply{}
 	if http.StatusOK == apiResp.StatusCode && nil != apiResp.Body {
-		serializer := workspace.option.Serializer
+		serializer := workplace.option.Serializer
 		if nil != reqOption && nil != reqOption.Serializer {
 			serializer = reqOption.Serializer
 		}
-		if workspace.option.EnableEncryption && nil != workspace.option.EncryptionOption {
+		if workplace.option.EnableEncryption && nil != workplace.option.EncryptionOption {
 			var respBodyMap map[string]interface{}
 			if err := json.Unmarshal(apiResp.Body, &respBodyMap); err != nil {
 				return nil, err
@@ -50,7 +50,7 @@ func (workspace *workspace) CreateWorkplace(ctx context.Context, req *CreateWork
 			if value, ok := respBodyMap["encrypt_data"]; ok {
 				if encryptData, ok := value.(string); ok {
 					var decodedCiphertext []byte
-					switch workspace.option.EncryptionOption.Ent {
+					switch workplace.option.EncryptionOption.Ent {
 					case 1:
 						decodedCiphertext128, err := base64.StdEncoding.DecodeString(encryptData)
 						if err != nil {
@@ -64,13 +64,13 @@ func (workspace *workspace) CreateWorkplace(ctx context.Context, req *CreateWork
 						}
 						decodedCiphertext = decodedCiphertext128
 					default:
-						return nil, fmt.Errorf("未支持的Ent：%d", workspace.option.EncryptionOption.Ent)
+						return nil, fmt.Errorf("未支持的Ent：%d", workplace.option.EncryptionOption.Ent)
 					}
-					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(workspace.option.EncryptionOption.Key))
+					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(workplace.option.EncryptionOption.Key))
 					if err != nil {
 						return nil, err
 					}
-					workspace.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
+					workplace.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
 					if err := serializer.Deserialize(decryptECB, &createWorkplaceApiReply); err != nil {
 						return nil, err
 					}
@@ -91,12 +91,12 @@ func (workspace *workspace) CreateWorkplace(ctx context.Context, req *CreateWork
 }
 
 // DeleteWorkplace 地点删除
-func (workspace *workspace) DeleteWorkplace(ctx context.Context, req *DeleteWorkplaceApiReq, reqOption *core.ReqOption) (*DeleteWorkplaceApiResp, error) {
+func (workplace *workplace) DeleteWorkplace(ctx context.Context, req *DeleteWorkplaceApiReq, reqOption *core.ReqOption) (*DeleteWorkplaceApiResp, error) {
 	apiReq := req.apiReq
 	apiReq.HttpMethod = http.MethodPost
 	apiReq.ApiPath = "/open-apis/v1/workplace/del"
 
-	apiResp, err := core.Request(ctx, apiReq, workspace.option, reqOption)
+	apiResp, err := core.Request(ctx, apiReq, workplace.option, reqOption)
 	if err != nil {
 		return nil, err
 	}
@@ -105,11 +105,11 @@ func (workspace *workspace) DeleteWorkplace(ctx context.Context, req *DeleteWork
 	}
 	deleteWorkplaceApiReply := DeleteWorkplaceApiReply{}
 	if http.StatusOK == apiResp.StatusCode && nil != apiResp.Body {
-		serializer := workspace.option.Serializer
+		serializer := workplace.option.Serializer
 		if nil != reqOption && nil != reqOption.Serializer {
 			serializer = reqOption.Serializer
 		}
-		if workspace.option.EnableEncryption && nil != workspace.option.EncryptionOption {
+		if workplace.option.EnableEncryption && nil != workplace.option.EncryptionOption {
 			var respBodyMap map[string]interface{}
 			if err := json.Unmarshal(apiResp.Body, &respBodyMap); err != nil {
 				return nil, err
@@ -117,7 +117,7 @@ func (workspace *workspace) DeleteWorkplace(ctx context.Context, req *DeleteWork
 			if value, ok := respBodyMap["encrypt_data"]; ok {
 				if encryptData, ok := value.(string); ok {
 					var decodedCiphertext []byte
-					switch workspace.option.EncryptionOption.Ent {
+					switch workplace.option.EncryptionOption.Ent {
 					case 1:
 						decodedCiphertext128, err := base64.StdEncoding.DecodeString(encryptData)
 						if err != nil {
@@ -131,13 +131,13 @@ func (workspace *workspace) DeleteWorkplace(ctx context.Context, req *DeleteWork
 						}
 						decodedCiphertext = decodedCiphertext128
 					default:
-						return nil, fmt.Errorf("未支持的Ent：%d", workspace.option.EncryptionOption.Ent)
+						return nil, fmt.Errorf("未支持的Ent：%d", workplace.option.EncryptionOption.Ent)
 					}
-					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(workspace.option.EncryptionOption.Key))
+					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(workplace.option.EncryptionOption.Key))
 					if err != nil {
 						return nil, err
 					}
-					workspace.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
+					workplace.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
 					if err := serializer.Deserialize(decryptECB, &deleteWorkplaceApiReply); err != nil {
 						return nil, err
 					}
@@ -158,12 +158,12 @@ func (workspace *workspace) DeleteWorkplace(ctx context.Context, req *DeleteWork
 }
 
 // UpdateWorkplace 地点修改
-func (workspace *workspace) UpdateWorkplace(ctx context.Context, req *UpdateWorkplaceApiReq, reqOption *core.ReqOption) (*UpdateWorkplaceApiResp, error) {
+func (workplace *workplace) UpdateWorkplace(ctx context.Context, req *UpdateWorkplaceApiReq, reqOption *core.ReqOption) (*UpdateWorkplaceApiResp, error) {
 	apiReq := req.apiReq
 	apiReq.HttpMethod = http.MethodPost
 	apiReq.ApiPath = "/open-apis/v1/workplace/update"
 
-	apiResp, err := core.Request(ctx, apiReq, workspace.option, reqOption)
+	apiResp, err := core.Request(ctx, apiReq, workplace.option, reqOption)
 	if err != nil {
 		return nil, err
 	}
@@ -172,11 +172,11 @@ func (workspace *workspace) UpdateWorkplace(ctx context.Context, req *UpdateWork
 	}
 	updateWorkplaceApiReply := UpdateWorkplaceApiReply{}
 	if http.StatusOK == apiResp.StatusCode && nil != apiResp.Body {
-		serializer := workspace.option.Serializer
+		serializer := workplace.option.Serializer
 		if nil != reqOption && nil != reqOption.Serializer {
 			serializer = reqOption.Serializer
 		}
-		if workspace.option.EnableEncryption && nil != workspace.option.EncryptionOption {
+		if workplace.option.EnableEncryption && nil != workplace.option.EncryptionOption {
 			var respBodyMap map[string]interface{}
 			if err := json.Unmarshal(apiResp.Body, &respBodyMap); err != nil {
 				return nil, err
@@ -184,7 +184,7 @@ func (workspace *workspace) UpdateWorkplace(ctx context.Context, req *UpdateWork
 			if value, ok := respBodyMap["encrypt_data"]; ok {
 				if encryptData, ok := value.(string); ok {
 					var decodedCiphertext []byte
-					switch workspace.option.EncryptionOption.Ent {
+					switch workplace.option.EncryptionOption.Ent {
 					case 1:
 						decodedCiphertext128, err := base64.StdEncoding.DecodeString(encryptData)
 						if err != nil {
@@ -198,13 +198,13 @@ func (workspace *workspace) UpdateWorkplace(ctx context.Context, req *UpdateWork
 						}
 						decodedCiphertext = decodedCiphertext128
 					default:
-						return nil, fmt.Errorf("未支持的Ent：%d", workspace.option.EncryptionOption.Ent)
+						return nil, fmt.Errorf("未支持的Ent：%d", workplace.option.EncryptionOption.Ent)
 					}
-					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(workspace.option.EncryptionOption.Key))
+					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(workplace.option.EncryptionOption.Key))
 					if err != nil {
 						return nil, err
 					}
-					workspace.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
+					workplace.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
 					if err := serializer.Deserialize(decryptECB, &updateWorkplaceApiReply); err != nil {
 						return nil, err
 					}
