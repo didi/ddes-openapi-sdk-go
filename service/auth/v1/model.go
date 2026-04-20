@@ -1,8 +1,9 @@
 package v1
 
 import (
-	"github.com/didi/ddes-openapi-sdk-go/core"
 	"net/url"
+
+	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
 type AuthorizeApiReq struct {

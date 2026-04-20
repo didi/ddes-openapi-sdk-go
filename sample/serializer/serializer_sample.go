@@ -2,10 +2,11 @@ package serializer
 
 import (
 	"context"
-	"github.com/didi/ddes-openapi-sdk-go"
-	"github.com/didi/ddes-openapi-sdk-go/core"
 	"net/http"
 	"os"
+
+	"github.com/didi/ddes-openapi-sdk-go"
+	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
 type MySerializer struct{}

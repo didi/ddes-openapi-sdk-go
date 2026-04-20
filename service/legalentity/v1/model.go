@@ -2,8 +2,9 @@ package v1
 
 import (
 	"fmt"
-	"github.com/didi/ddes-openapi-sdk-go/core"
 	"net/url"
+
+	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
 type CreateLegalEntityApiReq struct {

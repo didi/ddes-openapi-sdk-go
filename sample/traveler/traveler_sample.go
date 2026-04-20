@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/didi/ddes-openapi-sdk-go"
-	"github.com/didi/ddes-openapi-sdk-go/core"
-	v1 "github.com/didi/ddes-openapi-sdk-go/service/traveler/v1"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/didi/ddes-openapi-sdk-go"
+	"github.com/didi/ddes-openapi-sdk-go/core"
+	v1 "github.com/didi/ddes-openapi-sdk-go/service/traveler/v1"
 )
 
 func main() {

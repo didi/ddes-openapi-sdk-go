@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log"
+	"os"
+
 	"github.com/didi/ddes-openapi-sdk-go"
 	"github.com/didi/ddes-openapi-sdk-go/core"
 	v1 "github.com/didi/ddes-openapi-sdk-go/service/auth/v1"
-	"log"
-	"os"
 )
 
 func main() {

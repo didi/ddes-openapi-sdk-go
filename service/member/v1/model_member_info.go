@@ -37,6 +37,9 @@ type MemberInfo struct {
 	Sex                             *int32     `json:"sex,omitempty"`                                // 性别，枚举值数字 0 未知 1 男 2 女
 	BirthDate                       *string    `json:"birth_date,omitempty"`                         // 出生日期，格式2000-01-01，注：1、若采用AES256整体加密，此字段需明文传输，无需单独再加密 2、若不整体加密传输时，此字段只可采用AES128加密传输 3、若采用AES128整体加密，此字段仍需采用AES128单独加密（存在历史客户原因）
 	CardList                        []CardInfo `json:"card_list,omitempty"`                          // 证件信息
+	CertRealname                    *string    `json:"cert_realname,omitempty"`                      // 证件中文姓名，证件上的真实中文姓名，不超过50个字符
+	CertEnglishSurname              *string    `json:"cert_english_surname,omitempty"`               // 证件英文姓，证件上的真实英文姓，不超过50个字符
+	CertEnglishName                 *string    `json:"cert_english_name,omitempty"`                  // 证件英文名，证件上的真实英文名，不超过50个字符
 }
 
 type MemberInfoBuilder struct {
@@ -110,6 +113,12 @@ type MemberInfoBuilder struct {
 	birthDateSet                       bool
 	cardList                           []CardInfo // 证件信息
 	cardListSet                        bool
+	certRealname                       string // 证件中文姓名，证件上的真实中文姓名，不超过50个字符
+	certRealnameSet                    bool
+	certEnglishSurname                 string // 证件英文姓，证件上的真实英文姓，不超过50个字符
+	certEnglishSurnameSet              bool
+	certEnglishName                    string // 证件英文名，证件上的真实英文名，不超过50个字符
+	certEnglishNameSet                 bool
 }
 
 func NewMemberInfoBuilder() *MemberInfoBuilder {
@@ -290,6 +299,21 @@ func (builder *MemberInfoBuilder) CardList(cardList []CardInfo) *MemberInfoBuild
 	builder.cardListSet = true
 	return builder
 }
+func (builder *MemberInfoBuilder) CertRealname(certRealname string) *MemberInfoBuilder {
+	builder.certRealname = certRealname
+	builder.certRealnameSet = true
+	return builder
+}
+func (builder *MemberInfoBuilder) CertEnglishSurname(certEnglishSurname string) *MemberInfoBuilder {
+	builder.certEnglishSurname = certEnglishSurname
+	builder.certEnglishSurnameSet = true
+	return builder
+}
+func (builder *MemberInfoBuilder) CertEnglishName(certEnglishName string) *MemberInfoBuilder {
+	builder.certEnglishName = certEnglishName
+	builder.certEnglishNameSet = true
+	return builder
+}
 
 func (builder *MemberInfoBuilder) Build() *MemberInfo {
 	data := &MemberInfo{}
@@ -397,6 +421,15 @@ func (builder *MemberInfoBuilder) Build() *MemberInfo {
 	}
 	if builder.cardListSet {
 		data.CardList = builder.cardList
+	}
+	if builder.certRealnameSet {
+		data.CertRealname = &builder.certRealname
+	}
+	if builder.certEnglishSurnameSet {
+		data.CertEnglishSurname = &builder.certEnglishSurname
+	}
+	if builder.certEnglishNameSet {
+		data.CertEnglishName = &builder.certEnglishName
 	}
 	return data
 }

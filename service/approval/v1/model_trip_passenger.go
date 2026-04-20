@@ -13,7 +13,10 @@ type TripPassenger struct {
 	// Deprecated
 	PolicyType *int32 `json:"policy_type,omitempty"` // 执行政策指定项类型，1：out_rank_id 外部职级编号 2：employee_number 员工工号 3：employee_phone 员工手机号 4：employee_email 员工邮箱 5：regulation_id 制度I 指定生效policy_type_value内对应的值
 	// Deprecated
-	PolicyTypeValue *string `json:"policy_type_value,omitempty"` // 执行政策指定项
+	PolicyTypeValue         *string `json:"policy_type_value,omitempty"`         // 执行政策指定项
+	PassengerEnglishSurname *string `json:"passenger_english_surname,omitempty"` // 英文姓，同lastname内外部人传了落地后不可修改，新建可以做新增，内部员工主数据对应更新。内部名字需要校验主数据一致性（空除外）
+	PassengerEnglishName    *string `json:"passenger_english_name,omitempty"`    // 英文名，同firstname 有middlename时 english_name=firstname middlename内外部人传了落地后不可修改，新建可以做新增，内部员工主数据对应更新。内部名字需要校验主数据一致性（空除外）
+	OutTravelerId           *string `json:"out_traveler_id,omitempty"`           // 外部出行人外部主键
 }
 
 type TripPassengerBuilder struct {
@@ -37,8 +40,14 @@ type TripPassengerBuilder struct {
 	policyType    int32 // 执行政策指定项类型，1：out_rank_id 外部职级编号 2：employee_number 员工工号 3：employee_phone 员工手机号 4：employee_email 员工邮箱 5：regulation_id 制度I 指定生效policy_type_value内对应的值
 	policyTypeSet bool
 	// Deprecated
-	policyTypeValue    string // 执行政策指定项
-	policyTypeValueSet bool
+	policyTypeValue            string // 执行政策指定项
+	policyTypeValueSet         bool
+	passengerEnglishSurname    string // 英文姓，同lastname内外部人传了落地后不可修改，新建可以做新增，内部员工主数据对应更新。内部名字需要校验主数据一致性（空除外）
+	passengerEnglishSurnameSet bool
+	passengerEnglishName       string // 英文名，同firstname 有middlename时 english_name=firstname middlename内外部人传了落地后不可修改，新建可以做新增，内部员工主数据对应更新。内部名字需要校验主数据一致性（空除外）
+	passengerEnglishNameSet    bool
+	outTravelerId              string // 外部出行人外部主键
+	outTravelerIdSet           bool
 }
 
 func NewTripPassengerBuilder() *TripPassengerBuilder {
@@ -98,6 +107,21 @@ func (builder *TripPassengerBuilder) PolicyTypeValue(policyTypeValue string) *Tr
 	builder.policyTypeValueSet = true
 	return builder
 }
+func (builder *TripPassengerBuilder) PassengerEnglishSurname(passengerEnglishSurname string) *TripPassengerBuilder {
+	builder.passengerEnglishSurname = passengerEnglishSurname
+	builder.passengerEnglishSurnameSet = true
+	return builder
+}
+func (builder *TripPassengerBuilder) PassengerEnglishName(passengerEnglishName string) *TripPassengerBuilder {
+	builder.passengerEnglishName = passengerEnglishName
+	builder.passengerEnglishNameSet = true
+	return builder
+}
+func (builder *TripPassengerBuilder) OutTravelerId(outTravelerId string) *TripPassengerBuilder {
+	builder.outTravelerId = outTravelerId
+	builder.outTravelerIdSet = true
+	return builder
+}
 
 func (builder *TripPassengerBuilder) Build() *TripPassenger {
 	data := &TripPassenger{}
@@ -130,6 +154,15 @@ func (builder *TripPassengerBuilder) Build() *TripPassenger {
 	}
 	if builder.policyTypeValueSet {
 		data.PolicyTypeValue = &builder.policyTypeValue
+	}
+	if builder.passengerEnglishSurnameSet {
+		data.PassengerEnglishSurname = &builder.passengerEnglishSurname
+	}
+	if builder.passengerEnglishNameSet {
+		data.PassengerEnglishName = &builder.passengerEnglishName
+	}
+	if builder.outTravelerIdSet {
+		data.OutTravelerId = &builder.outTravelerId
 	}
 	return data
 }
