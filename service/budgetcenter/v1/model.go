@@ -149,6 +149,18 @@ func (builder *GetBudgetCenterApiReqBuilder) Length(length int32) *GetBudgetCent
 	builder.apiReq.QueryParams.Set("length", fmt.Sprint(length))
 	return builder
 }
+func (builder *GetBudgetCenterApiReqBuilder) IsNeedLimitRule(isNeedLimitRule int32) *GetBudgetCenterApiReqBuilder {
+	builder.apiReq.QueryParams.Set("is_need_limit_rule", fmt.Sprint(isNeedLimitRule))
+	return builder
+}
+func (builder *GetBudgetCenterApiReqBuilder) IsGetPoi(isGetPoi int32) *GetBudgetCenterApiReqBuilder {
+	builder.apiReq.QueryParams.Set("is_get_poi", fmt.Sprint(isGetPoi))
+	return builder
+}
+func (builder *GetBudgetCenterApiReqBuilder) IsGetExtendFields(isGetExtendFields int32) *GetBudgetCenterApiReqBuilder {
+	builder.apiReq.QueryParams.Set("is_get_extend_fields", fmt.Sprint(isGetExtendFields))
+	return builder
+}
 
 type UpdateBudgetCenterApiReq struct {
 	apiReq                    *core.ApiReq
