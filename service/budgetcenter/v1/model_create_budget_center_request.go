@@ -2,72 +2,108 @@ package v1
 
 // CreateBudgetCenterRequest struct for CreateBudgetCenterRequest
 type CreateBudgetCenterRequest struct {
-	ClientId           *string            `json:"client_id,omitempty"`                // 申请应用时分配的AppKey
-	AccessToken        *string            `json:"access_token,omitempty"`             // 授权后的access token
-	CompanyId          *string            `json:"company_id,omitempty"`               // 企业ID
-	Timestamp          *int32             `json:"timestamp,omitempty"`                // 当前时间戳(精确到秒级)
-	Sign               *string            `json:"sign,omitempty"`                     // 签名
-	Type               *int32             `json:"type,omitempty"`                     // 类型，枚举值数字 1 部门 2 项目
-	Name               *string            `json:"name,omitempty"`                     // 部门/项目名称，不大于 200 字符
-	BudgetCycle        *int32             `json:"budget_cycle,omitempty"`             // 预算周期，枚举值数字 0：不限额；1：自然月 2：自然季度 3：自然年（其中23只对部门生效，需要设置白名单，须联系客户经理）
-	TotalQuota         *string            `json:"total_quota,omitempty"`              // 总金额，单位元 0表示不限额度 金额管控只支持正整数
-	OutBudgetId        *string            `json:"out_budget_id,omitempty"`            // 编号，type = 1 时必填；type = 2 非必填； 长度限制：≤ 64 字符
-	LeaderId           *string            `json:"leader_id,omitempty"`                // 主管ID，人员同步时返回的memberid leader_id和leader_employee_id 时，优先处理leader_id，多个用英文逗号分开，第一个是主要主管，后续是其他主管，最多30个
-	LeaderEmployeeId   *string            `json:"leader_employee_id,omitempty"`       // 主管员工编号，主管工号，json字符串，第一个是主要主管，后续是其他主管，最多30个，leader_id存在时不生效，举例：[111,2222,44444]
-	ParentId           *string            `json:"parent_id,omitempty"`                // 上级部门/项目 ID，新建部门时返回的部门ID，type = 1 非必填，传0为顶级部门ID，type=2 默认为，parent_id优先级大于 out_parent_id和 out_parent_name
-	OutParentId        *string            `json:"out_parent_id,omitempty"`            // 上级部门/项目外部CODE，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
-	OutParentName      *string            `json:"out_parent_name,omitempty"`          // 上级部门/项目外部名称，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空 ，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
-	MemberUsed         *int32             `json:"member_used,omitempty"`              // 使用范围，枚举值数字 type=2时生效，0 ：全员可见，1：项目成员内可见，2：公司主体内可见，不传默认为0 (枚举 2需要设置白名单，须联系客户经理。报错误码10001)
-	StartDate          *string            `json:"start_date,omitempty"`               // 项目开始日期，默认为空 格式：yyyy-MM-dd type=2时生效
-	ExpiryDate         *string            `json:"expiry_date,omitempty"`              // 项目结束日期，默认为空 格式：yyyy-MM-dd type=2时生效
-	LegalEntityId      *string            `json:"legal_entity_id,omitempty"`          // 公司主体ID，多个用英文逗号分开，字段不传不生效，如果对应的公司主体id已经停用或者不存在 返回错误码10001 type=2时生效
-	BudgetExtraInfo    *string            `json:"budget_extra_info,omitempty"`        // 项目扩展信息的自定义字段，项目扩展信息的自定义字段；最长不大于 500 字符；(必须为json字符串，json解析后不能为空)；非必填，仅对项目（type=2）生效，部门传了不生效
-	BudgetExtraInfoObj *map[string]string `json:"budget_extra_info__obj__,omitempty"` // 项目拓展字段对象，实际使用的时候会自动转换为json字符串赋值到budget_extra_info
+	ClientId             *string            `json:"client_id,omitempty"`                // 申请应用时分配的AppKey
+	AccessToken          *string            `json:"access_token,omitempty"`             // 授权后的access token
+	CompanyId            *string            `json:"company_id,omitempty"`               // 企业ID
+	Timestamp            *int32             `json:"timestamp,omitempty"`                // 当前时间戳(精确到秒级)
+	Sign                 *string            `json:"sign,omitempty"`                     // 签名
+	Type                 *int32             `json:"type,omitempty"`                     // 类型，枚举值数字 1 部门 2 项目
+	Name                 *string            `json:"name,omitempty"`                     // 部门/项目名称，不大于 200 字符
+	BudgetCycle          *int32             `json:"budget_cycle,omitempty"`             // 预算周期，枚举值数字 0：不限额；1：自然月 2：自然季度 3：自然年（其中23只对部门生效，需要设置白名单，须联系客户经理）
+	TotalQuota           *string            `json:"total_quota,omitempty"`              // 总金额，单位元 0表示不限额度 金额管控只支持正整数
+	OutBudgetId          *string            `json:"out_budget_id,omitempty"`            // 编号，type = 1 时必填；type = 2 非必填； 长度限制：≤ 64 字符
+	LeaderId             *string            `json:"leader_id,omitempty"`                // 主管ID，人员同步时返回的memberid leader_id和leader_employee_id 时，优先处理leader_id，多个用英文逗号分开，第一个是主要主管，后续是其他主管，最多30个
+	LeaderEmployeeId     *string            `json:"leader_employee_id,omitempty"`       // 主管员工编号，主管工号，json字符串，第一个是主要主管，后续是其他主管，最多30个，leader_id存在时不生效，举例：[111,2222,44444]
+	ParentId             *string            `json:"parent_id,omitempty"`                // 上级部门/项目 ID，新建部门时返回的部门ID，type = 1 非必填，传0为顶级部门ID，type=2 默认为，parent_id优先级大于 out_parent_id和 out_parent_name
+	OutParentId          *string            `json:"out_parent_id,omitempty"`            // 上级部门/项目外部CODE，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
+	OutParentName        *string            `json:"out_parent_name,omitempty"`          // 上级部门/项目外部名称，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空 ，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
+	MemberUsed           *int32             `json:"member_used,omitempty"`              // 使用范围，枚举值数字 type=2时生效，0 ：全员可见，1：项目成员内可见，2：公司主体内可见，不传默认为0 (枚举 2需要设置白名单，须联系客户经理。报错误码10001)
+	StartDate            *string            `json:"start_date,omitempty"`               // 项目开始日期，默认为空 格式：yyyy-MM-dd type=2时生效
+	ExpiryDate           *string            `json:"expiry_date,omitempty"`              // 项目结束日期，默认为空 格式：yyyy-MM-dd type=2时生效
+	LegalEntityId        *string            `json:"legal_entity_id,omitempty"`          // 公司主体ID，多个用英文逗号分开，字段不传不生效，如果对应的公司主体id已经停用或者不存在 返回错误码10001 type=2时生效
+	BudgetExtraInfo      *string            `json:"budget_extra_info,omitempty"`        // 项目扩展信息的自定义字段，项目扩展信息的自定义字段；最长不大于 500 字符；(必须为json字符串，json解析后不能为空)；非必填，仅对项目（type=2）生效，部门传了不生效
+	BudgetExtraInfoObj   *map[string]string `json:"budget_extra_info__obj__,omitempty"` // 项目拓展字段对象，实际使用的时候会自动转换为json字符串赋值到budget_extra_info
+	DepartmentId         *string            `json:"department_id,omitempty"`            // 仅member_used=2时生效，项目所属滴滴侧部门ID，多个逗号分隔，最多300个
+	OutDepartmentId      *string            `json:"out_department_id,omitempty"`        // 仅member_used=2时生效，项目所属部门编码，多个逗号分隔，最多300个
+	Scope                *string            `json:"scope,omitempty"`                    // 仅member_used=2时生效，current_only=仅当前部门(默认)，include_sub=含下级部门
+	ExtendField          *string            `json:"extend_field,omitempty"`             // 仅type=2时有效，扩展字段JSON数组字符串，需提前在管理后台配置扩展字段
+	ExtendFieldObj       []ExtendFieldItem  `json:"extend_field__obj__,omitempty"`      // 扩展字段对象，实际使用的时候会自动转换为json字符串赋值到extend_field
+	PoiList              *string            `json:"poi_list,omitempty"`                 // 仅type=2时有效，POI地点JSON数组字符串，最多20个
+	PoiListObj           []PoiItem          `json:"poi_list__obj__,omitempty"`          // POI地点对象，实际使用的时候会自动转换为json字符串赋值到poi_list
+	OutTravelers         *string            `json:"out_travelers,omitempty"`            // 仅type=2时有效，外部出行人JSON数组字符串，最多500个
+	OutTravelersObj      []OutTravelerItem  `json:"out_travelers__obj__,omitempty"`     // 外部出行人对象，实际使用的时候会自动转换为json字符串赋值到out_travelers
+	BelongEnterpriseName *string            `json:"belong_enterprise_name,omitempty"`   // 归属企业名称（集团账户）
+	TaxpayerNo           *string            `json:"taxpayer_no,omitempty"`              // 纳税人识别号（集团账户）
+	OutLegalEntityId     *string            `json:"out_legal_entity_id,omitempty"`      // 公司主体编码（集团账户）
 }
 
 type CreateBudgetCenterRequestBuilder struct {
-	clientId              string // 申请应用时分配的AppKey
-	clientIdSet           bool
-	accessToken           string // 授权后的access token
-	accessTokenSet        bool
-	companyId             string // 企业ID
-	companyIdSet          bool
-	timestamp             int32 // 当前时间戳(精确到秒级)
-	timestampSet          bool
-	sign                  string // 签名
-	signSet               bool
-	type_                 int32 // 类型，枚举值数字 1 部门 2 项目
-	type_Set              bool
-	name                  string // 部门/项目名称，不大于 200 字符
-	nameSet               bool
-	budgetCycle           int32 // 预算周期，枚举值数字 0：不限额；1：自然月 2：自然季度 3：自然年（其中23只对部门生效，需要设置白名单，须联系客户经理）
-	budgetCycleSet        bool
-	totalQuota            string // 总金额，单位元 0表示不限额度 金额管控只支持正整数
-	totalQuotaSet         bool
-	outBudgetId           string // 编号，type = 1 时必填；type = 2 非必填； 长度限制：≤ 64 字符
-	outBudgetIdSet        bool
-	leaderId              string // 主管ID，人员同步时返回的memberid leader_id和leader_employee_id 时，优先处理leader_id，多个用英文逗号分开，第一个是主要主管，后续是其他主管，最多30个
-	leaderIdSet           bool
-	leaderEmployeeId      string // 主管员工编号，主管工号，json字符串，第一个是主要主管，后续是其他主管，最多30个，leader_id存在时不生效，举例：[111,2222,44444]
-	leaderEmployeeIdSet   bool
-	parentId              string // 上级部门/项目 ID，新建部门时返回的部门ID，type = 1 非必填，传0为顶级部门ID，type=2 默认为，parent_id优先级大于 out_parent_id和 out_parent_name
-	parentIdSet           bool
-	outParentId           string // 上级部门/项目外部CODE，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
-	outParentIdSet        bool
-	outParentName         string // 上级部门/项目外部名称，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空 ，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
-	outParentNameSet      bool
-	memberUsed            int32 // 使用范围，枚举值数字 type=2时生效，0 ：全员可见，1：项目成员内可见，2：公司主体内可见，不传默认为0 (枚举 2需要设置白名单，须联系客户经理。报错误码10001)
-	memberUsedSet         bool
-	startDate             string // 项目开始日期，默认为空 格式：yyyy-MM-dd type=2时生效
-	startDateSet          bool
-	expiryDate            string // 项目结束日期，默认为空 格式：yyyy-MM-dd type=2时生效
-	expiryDateSet         bool
-	legalEntityId         string // 公司主体ID，多个用英文逗号分开，字段不传不生效，如果对应的公司主体id已经停用或者不存在 返回错误码10001 type=2时生效
-	legalEntityIdSet      bool
-	budgetExtraInfo       string // 项目扩展信息的自定义字段，项目扩展信息的自定义字段；最长不大于 500 字符；(必须为json字符串，json解析后不能为空)；非必填，仅对项目（type=2）生效，部门传了不生效
-	budgetExtraInfoSet    bool
-	budgetExtraInfoObj    map[string]string // 项目拓展字段对象，实际使用的时候会自动转换为json字符串赋值到budget_extra_info
-	budgetExtraInfoObjSet bool
+	clientId                string // 申请应用时分配的AppKey
+	clientIdSet             bool
+	accessToken             string // 授权后的access token
+	accessTokenSet          bool
+	companyId               string // 企业ID
+	companyIdSet            bool
+	timestamp               int32 // 当前时间戳(精确到秒级)
+	timestampSet            bool
+	sign                    string // 签名
+	signSet                 bool
+	type_                   int32 // 类型，枚举值数字 1 部门 2 项目
+	type_Set                bool
+	name                    string // 部门/项目名称，不大于 200 字符
+	nameSet                 bool
+	budgetCycle             int32 // 预算周期，枚举值数字 0：不限额；1：自然月 2：自然季度 3：自然年（其中23只对部门生效，需要设置白名单，须联系客户经理）
+	budgetCycleSet          bool
+	totalQuota              string // 总金额，单位元 0表示不限额度 金额管控只支持正整数
+	totalQuotaSet           bool
+	outBudgetId             string // 编号，type = 1 时必填；type = 2 非必填； 长度限制：≤ 64 字符
+	outBudgetIdSet          bool
+	leaderId                string // 主管ID，人员同步时返回的memberid leader_id和leader_employee_id 时，优先处理leader_id，多个用英文逗号分开，第一个是主要主管，后续是其他主管，最多30个
+	leaderIdSet             bool
+	leaderEmployeeId        string // 主管员工编号，主管工号，json字符串，第一个是主要主管，后续是其他主管，最多30个，leader_id存在时不生效，举例：[111,2222,44444]
+	leaderEmployeeIdSet     bool
+	parentId                string // 上级部门/项目 ID，新建部门时返回的部门ID，type = 1 非必填，传0为顶级部门ID，type=2 默认为，parent_id优先级大于 out_parent_id和 out_parent_name
+	parentIdSet             bool
+	outParentId             string // 上级部门/项目外部CODE，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
+	outParentIdSet          bool
+	outParentName           string // 上级部门/项目外部名称，type = 1 非必填，不传默认为顶级部门code，type=2 默认为空 ，项目需要out_parent_id和out_parent_name一起传递，作为唯一值校验。
+	outParentNameSet        bool
+	memberUsed              int32 // 使用范围，枚举值数字 type=2时生效，0 ：全员可见，1：项目成员内可见，2：公司主体内可见，不传默认为0 (枚举 2需要设置白名单，须联系客户经理。报错误码10001)
+	memberUsedSet           bool
+	startDate               string // 项目开始日期，默认为空 格式：yyyy-MM-dd type=2时生效
+	startDateSet            bool
+	expiryDate              string // 项目结束日期，默认为空 格式：yyyy-MM-dd type=2时生效
+	expiryDateSet           bool
+	legalEntityId           string // 公司主体ID，多个用英文逗号分开，字段不传不生效，如果对应的公司主体id已经停用或者不存在 返回错误码10001 type=2时生效
+	legalEntityIdSet        bool
+	budgetExtraInfo         string // 项目扩展信息的自定义字段，项目扩展信息的自定义字段；最长不大于 500 字符；(必须为json字符串，json解析后不能为空)；非必填，仅对项目（type=2）生效，部门传了不生效
+	budgetExtraInfoSet      bool
+	budgetExtraInfoObj      map[string]string // 项目拓展字段对象，实际使用的时候会自动转换为json字符串赋值到budget_extra_info
+	budgetExtraInfoObjSet   bool
+	departmentId            string // 仅member_used=2时生效，项目所属滴滴侧部门ID
+	departmentIdSet         bool
+	outDepartmentId         string // 仅member_used=2时生效，项目所属部门编码
+	outDepartmentIdSet      bool
+	scope                   string // 仅member_used=2时生效
+	scopeSet                bool
+	extendField             string // 仅type=2时有效，扩展字段JSON数组字符串
+	extendFieldSet          bool
+	extendFieldObj          []ExtendFieldItem // 扩展字段对象
+	extendFieldObjSet       bool
+	poiList                 string // 仅type=2时有效，POI地点JSON数组字符串
+	poiListSet              bool
+	poiListObj              []PoiItem // POI地点对象
+	poiListObjSet           bool
+	outTravelers            string // 仅type=2时有效，外部出行人JSON数组字符串
+	outTravelersSet         bool
+	outTravelersObj         []OutTravelerItem // 外部出行人对象
+	outTravelersObjSet      bool
+	belongEnterpriseName    string // 归属企业名称（集团账户）
+	belongEnterpriseNameSet bool
+	taxpayerNo              string // 纳税人识别号（集团账户）
+	taxpayerNoSet           bool
+	outLegalEntityId        string // 公司主体编码（集团账户）
+	outLegalEntityIdSet     bool
 }
 
 func NewCreateBudgetCenterRequestBuilder() *CreateBudgetCenterRequestBuilder {
@@ -178,6 +214,66 @@ func (builder *CreateBudgetCenterRequestBuilder) BudgetExtraInfoObj(budgetExtraI
 	builder.budgetExtraInfoObjSet = true
 	return builder
 }
+func (builder *CreateBudgetCenterRequestBuilder) DepartmentId(departmentId string) *CreateBudgetCenterRequestBuilder {
+	builder.departmentId = departmentId
+	builder.departmentIdSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) OutDepartmentId(outDepartmentId string) *CreateBudgetCenterRequestBuilder {
+	builder.outDepartmentId = outDepartmentId
+	builder.outDepartmentIdSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) Scope(scope string) *CreateBudgetCenterRequestBuilder {
+	builder.scope = scope
+	builder.scopeSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) ExtendField(extendField string) *CreateBudgetCenterRequestBuilder {
+	builder.extendField = extendField
+	builder.extendFieldSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) ExtendFieldObj(extendFieldObj []ExtendFieldItem) *CreateBudgetCenterRequestBuilder {
+	builder.extendFieldObj = extendFieldObj
+	builder.extendFieldObjSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) PoiList(poiList string) *CreateBudgetCenterRequestBuilder {
+	builder.poiList = poiList
+	builder.poiListSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) PoiListObj(poiListObj []PoiItem) *CreateBudgetCenterRequestBuilder {
+	builder.poiListObj = poiListObj
+	builder.poiListObjSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) OutTravelers(outTravelers string) *CreateBudgetCenterRequestBuilder {
+	builder.outTravelers = outTravelers
+	builder.outTravelersSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) OutTravelersObj(outTravelersObj []OutTravelerItem) *CreateBudgetCenterRequestBuilder {
+	builder.outTravelersObj = outTravelersObj
+	builder.outTravelersObjSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) BelongEnterpriseName(belongEnterpriseName string) *CreateBudgetCenterRequestBuilder {
+	builder.belongEnterpriseName = belongEnterpriseName
+	builder.belongEnterpriseNameSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) TaxpayerNo(taxpayerNo string) *CreateBudgetCenterRequestBuilder {
+	builder.taxpayerNo = taxpayerNo
+	builder.taxpayerNoSet = true
+	return builder
+}
+func (builder *CreateBudgetCenterRequestBuilder) OutLegalEntityId(outLegalEntityId string) *CreateBudgetCenterRequestBuilder {
+	builder.outLegalEntityId = outLegalEntityId
+	builder.outLegalEntityIdSet = true
+	return builder
+}
 
 func (builder *CreateBudgetCenterRequestBuilder) Build() *CreateBudgetCenterRequest {
 	data := &CreateBudgetCenterRequest{}
@@ -243,6 +339,42 @@ func (builder *CreateBudgetCenterRequestBuilder) Build() *CreateBudgetCenterRequ
 	}
 	if builder.budgetExtraInfoObjSet {
 		data.BudgetExtraInfoObj = &builder.budgetExtraInfoObj
+	}
+	if builder.departmentIdSet {
+		data.DepartmentId = &builder.departmentId
+	}
+	if builder.outDepartmentIdSet {
+		data.OutDepartmentId = &builder.outDepartmentId
+	}
+	if builder.scopeSet {
+		data.Scope = &builder.scope
+	}
+	if builder.extendFieldSet {
+		data.ExtendField = &builder.extendField
+	}
+	if builder.extendFieldObjSet {
+		data.ExtendFieldObj = builder.extendFieldObj
+	}
+	if builder.poiListSet {
+		data.PoiList = &builder.poiList
+	}
+	if builder.poiListObjSet {
+		data.PoiListObj = builder.poiListObj
+	}
+	if builder.outTravelersSet {
+		data.OutTravelers = &builder.outTravelers
+	}
+	if builder.outTravelersObjSet {
+		data.OutTravelersObj = builder.outTravelersObj
+	}
+	if builder.belongEnterpriseNameSet {
+		data.BelongEnterpriseName = &builder.belongEnterpriseName
+	}
+	if builder.taxpayerNoSet {
+		data.TaxpayerNo = &builder.taxpayerNo
+	}
+	if builder.outLegalEntityIdSet {
+		data.OutLegalEntityId = &builder.outLegalEntityId
 	}
 	return data
 }
