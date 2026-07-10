@@ -2,36 +2,45 @@ package v1
 
 // DelBudgetCenterRequest struct for DelBudgetCenterRequest
 type DelBudgetCenterRequest struct {
-	ClientId    *string `json:"client_id,omitempty"`     // 申请应用时分配的AppKey
-	AccessToken *string `json:"access_token,omitempty"`  // 授权后的access token
-	CompanyId   *string `json:"company_id,omitempty"`    // 企业ID
-	Timestamp   *int32  `json:"timestamp,omitempty"`     // 当前时间戳(精确到秒级)
-	Sign        *string `json:"sign,omitempty"`          // 签名
-	Type        *int32  `json:"type,omitempty"`          // 类型，推测为 1 代表部门，2 代表项目，未传时可根据业务规则处理
-	Id          *string `json:"id,omitempty"`            // 需要删除的部门或者项目的id，删除部门时，id和out_budget_id优先处理id；删除项目时，id和out_budget_id与name组合唯一值时，优先处理id
-	Name        *string `json:"name,omitempty"`          // 部门/项目名称，不大于 200 字符，使用out_budget_id删除项目时，项目名称需要一起提供
-	OutBudgetId *string `json:"out_budget_id,omitempty"` // 编号，type = 1 时必填；type = 2 非必填；长度限制：≤ 64 字符
+	ClientId             *string `json:"client_id,omitempty"`              // 申请应用时分配的AppKey
+	AccessToken          *string `json:"access_token,omitempty"`           // 授权后的access token
+	CompanyId            *string `json:"company_id,omitempty"`             // 企业ID
+	Timestamp            *int32  `json:"timestamp,omitempty"`              // 当前时间戳(精确到秒级)
+	Sign                 *string `json:"sign,omitempty"`                   // 签名
+	Type                 *int32  `json:"type,omitempty"`                   // 类型，推测为 1 代表部门，2 代表项目，未传时可根据业务规则处理
+	Id                   *string `json:"id,omitempty"`                     // 需要删除的部门或者项目的id，删除部门时，id和out_budget_id优先处理id；删除项目时，id和out_budget_id与name组合唯一值时，优先处理id
+	Name                 *string `json:"name,omitempty"`                   // 部门/项目名称，不大于 200 字符，使用out_budget_id删除项目时，项目名称需要一起提供
+	OutBudgetId          *string `json:"out_budget_id,omitempty"`          // 编号，type = 1 时必填；type = 2 非必填；长度限制：≤ 64 字符
+	BelongEnterpriseName *string `json:"belong_enterprise_name,omitempty"` // 归属企业名称（集团账户）
+	TaxpayerNo           *string `json:"taxpayer_no,omitempty"`            // 纳税人识别号（集团账户）
+	OutLegalEntityId     *string `json:"out_legal_entity_id,omitempty"`    // 公司主体编码（集团账户）
 }
 
 type DelBudgetCenterRequestBuilder struct {
-	clientId       string // 申请应用时分配的AppKey
-	clientIdSet    bool
-	accessToken    string // 授权后的access token
-	accessTokenSet bool
-	companyId      string // 企业ID
-	companyIdSet   bool
-	timestamp      int32 // 当前时间戳(精确到秒级)
-	timestampSet   bool
-	sign           string // 签名
-	signSet        bool
-	type_          int32 // 类型，推测为 1 代表部门，2 代表项目，未传时可根据业务规则处理
-	type_Set       bool
-	id             string // 需要删除的部门或者项目的id，删除部门时，id和out_budget_id优先处理id；删除项目时，id和out_budget_id与name组合唯一值时，优先处理id
-	idSet          bool
-	name           string // 部门/项目名称，不大于 200 字符，使用out_budget_id删除项目时，项目名称需要一起提供
-	nameSet        bool
-	outBudgetId    string // 编号，type = 1 时必填；type = 2 非必填；长度限制：≤ 64 字符
-	outBudgetIdSet bool
+	clientId                string // 申请应用时分配的AppKey
+	clientIdSet             bool
+	accessToken             string // 授权后的access token
+	accessTokenSet          bool
+	companyId               string // 企业ID
+	companyIdSet            bool
+	timestamp               int32 // 当前时间戳(精确到秒级)
+	timestampSet            bool
+	sign                    string // 签名
+	signSet                 bool
+	type_                   int32 // 类型，推测为 1 代表部门，2 代表项目，未传时可根据业务规则处理
+	type_Set                bool
+	id                      string // 需要删除的部门或者项目的id，删除部门时，id和out_budget_id优先处理id；删除项目时，id和out_budget_id与name组合唯一值时，优先处理id
+	idSet                   bool
+	name                    string // 部门/项目名称，不大于 200 字符，使用out_budget_id删除项目时，项目名称需要一起提供
+	nameSet                 bool
+	outBudgetId             string // 编号，type = 1 时必填；type = 2 非必填；长度限制：≤ 64 字符
+	outBudgetIdSet          bool
+	belongEnterpriseName    string // 归属企业名称（集团账户）
+	belongEnterpriseNameSet bool
+	taxpayerNo              string // 纳税人识别号（集团账户）
+	taxpayerNoSet           bool
+	outLegalEntityId        string // 公司主体编码（集团账户）
+	outLegalEntityIdSet     bool
 }
 
 func NewDelBudgetCenterRequestBuilder() *DelBudgetCenterRequestBuilder {
@@ -82,6 +91,21 @@ func (builder *DelBudgetCenterRequestBuilder) OutBudgetId(outBudgetId string) *D
 	builder.outBudgetIdSet = true
 	return builder
 }
+func (builder *DelBudgetCenterRequestBuilder) BelongEnterpriseName(belongEnterpriseName string) *DelBudgetCenterRequestBuilder {
+	builder.belongEnterpriseName = belongEnterpriseName
+	builder.belongEnterpriseNameSet = true
+	return builder
+}
+func (builder *DelBudgetCenterRequestBuilder) TaxpayerNo(taxpayerNo string) *DelBudgetCenterRequestBuilder {
+	builder.taxpayerNo = taxpayerNo
+	builder.taxpayerNoSet = true
+	return builder
+}
+func (builder *DelBudgetCenterRequestBuilder) OutLegalEntityId(outLegalEntityId string) *DelBudgetCenterRequestBuilder {
+	builder.outLegalEntityId = outLegalEntityId
+	builder.outLegalEntityIdSet = true
+	return builder
+}
 
 func (builder *DelBudgetCenterRequestBuilder) Build() *DelBudgetCenterRequest {
 	data := &DelBudgetCenterRequest{}
@@ -111,6 +135,15 @@ func (builder *DelBudgetCenterRequestBuilder) Build() *DelBudgetCenterRequest {
 	}
 	if builder.outBudgetIdSet {
 		data.OutBudgetId = &builder.outBudgetId
+	}
+	if builder.belongEnterpriseNameSet {
+		data.BelongEnterpriseName = &builder.belongEnterpriseName
+	}
+	if builder.taxpayerNoSet {
+		data.TaxpayerNo = &builder.taxpayerNo
+	}
+	if builder.outLegalEntityIdSet {
+		data.OutLegalEntityId = &builder.outLegalEntityId
 	}
 	return data
 }
