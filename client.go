@@ -17,6 +17,7 @@ import (
 	"github.com/didi/ddes-openapi-sdk-go/service/member"
 	"github.com/didi/ddes-openapi-sdk-go/service/order"
 	"github.com/didi/ddes-openapi-sdk-go/service/outapproval"
+	"github.com/didi/ddes-openapi-sdk-go/service/project"
 	"github.com/didi/ddes-openapi-sdk-go/service/rank"
 	"github.com/didi/ddes-openapi-sdk-go/service/regulation"
 	"github.com/didi/ddes-openapi-sdk-go/service/role"
@@ -46,6 +47,7 @@ type Client struct {
 	RankService          *rank.Service
 	WorkplaceService     *workplace.Service
 	OrderService         *order.Service
+	ProjectService       *project.Service
 }
 
 func NewClient(appId, appSecret, signKey string) (*Client, error) {
@@ -111,6 +113,7 @@ func initService(client *Client, option *core.Option) {
 	client.RankService = rank.NewService(option)
 	client.WorkplaceService = workplace.NewService(option)
 	client.OrderService = order.NewService(option)
+	client.ProjectService = project.NewService(option)
 }
 
 func (client *Client) Post(ctx context.Context, apiPath string, body interface{}, reqOption *core.ReqOption) (*core.ApiResp, error) {
