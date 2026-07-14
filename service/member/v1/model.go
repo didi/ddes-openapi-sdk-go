@@ -275,6 +275,22 @@ func (builder *ListMemberApiReqBuilder) LastId(lastid string) *ListMemberApiReqB
 	builder.apiReq.QueryParams.Set("last_id", lastid)
 	return builder
 }
+func (builder *ListMemberApiReqBuilder) BelongEnterpriseName(belongEnterpriseName string) *ListMemberApiReqBuilder {
+	builder.apiReq.QueryParams.Set("belong_enterprise_name", belongEnterpriseName)
+	return builder
+}
+func (builder *ListMemberApiReqBuilder) TaxpayerNo(taxpayerNo string) *ListMemberApiReqBuilder {
+	builder.apiReq.QueryParams.Set("taxpayer_no", taxpayerNo)
+	return builder
+}
+func (builder *ListMemberApiReqBuilder) QuerySubCompany(querySubCompany string) *ListMemberApiReqBuilder {
+	builder.apiReq.QueryParams.Set("query_sub_company", querySubCompany)
+	return builder
+}
+func (builder *ListMemberApiReqBuilder) NextToken(nextToken string) *ListMemberApiReqBuilder {
+	builder.apiReq.QueryParams.Set("next_token", nextToken)
+	return builder
+}
 
 type UpdateMemberApiReq struct {
 	apiReq              *core.ApiReq

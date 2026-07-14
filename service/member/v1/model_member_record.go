@@ -2,41 +2,51 @@ package v1
 
 // MemberRecord struct for MemberRecord
 type MemberRecord struct {
-	Id                     *string    `json:"id,omitempty"`                       // 员工在滴滴企业平台的ID
-	Phone                  *string    `json:"phone,omitempty"`                    // 员工手机号
-	Realname               *string    `json:"realname,omitempty"`                 // 员工姓名
-	EmployeeNumber         *string    `json:"employee_number,omitempty"`          // 员工工号，员工在公司的员工号
-	Email                  *string    `json:"email,omitempty"`                    // 邮箱
-	SystemRole             *int32     `json:"system_role,omitempty"`              // 系统角色，枚举值数字 0 车辆预定人员，1 普通管理员，2 超级管理员
-	RoleIds                *string    `json:"role_ids,omitempty"`                 // 角色，可以通过角色API获取对应的ID
-	ImmediateSuperiorPhone *string    `json:"immediate_superior_phone,omitempty"` // 员工直属上级的手机号码，直属上级可在审批流中担任审批人
-	ImmediateSuperiorEid   *string    `json:"immediate_superior_eid,omitempty"`   // 员工直属上级的员工编号
-	Residentsname          *string    `json:"residentsname,omitempty"`            // 常驻地中文
-	UseCompanyMoney        *int32     `json:"use_company_money,omitempty"`        // 是否企业支付余额，枚举值数字 0 否，1 是
-	TotalQuota             *string    `json:"total_quota,omitempty"`              // 每月配额，单位元
-	IsRemark               *string    `json:"is_remark,omitempty"`                // 叫车时备注信息是否必填，枚举值数字 0 选填，1 必填，2 按制度填写
-	BudgetCenterId         *string    `json:"budget_center_id,omitempty"`         // 所在部门ID
-	ConDepartmentIds       []string   `json:"con_department_ids,omitempty"`       // 所在兼岗部门ID，员工返回兼岗的部门ID数组
-	ProjectIds             *string    `json:"project_ids,omitempty"`              // 所在项目ID
-	UseCarConfig           []string   `json:"use_car_config,omitempty"`           // 用车规则ID数组
-	AvailableQuota         *string    `json:"available_quota,omitempty"`          // 员工可用限额，单位元 例如\"937.70\"
-	BranchName             *string    `json:"branch_name,omitempty"`              // 所在分公司名称（老），后续此参数会去掉
-	Department             *string    `json:"department,omitempty"`               // 部门名称（老），后续此参数会去掉
-	RegulationId           []string   `json:"regulation_id,omitempty"`            // 用车制度ID数组，跟新增、修改、详情等API统一
-	SetDismissTime         *string    `json:"set_dismiss_time,omitempty"`         // 设置的员工离职日期，为空时表示未设置离职日期，格式为 yyyy-MM-dd
-	DismissTime            *string    `json:"dismiss_time,omitempty"`             // 员工实际离职日期，为空时表示未离职,格式为 格式：yyyy-MM-dd HH:mm:ss
-	InvoiceInfo            *string    `json:"invoice_info,omitempty"`             // 开票主体信息
-	LegalEntityId          *string    `json:"legal_entity_id,omitempty"`          // 所在公司主体id
-	OutLegalEntityId       *string    `json:"out_legal_entity_id,omitempty"`      // 外部公司主体编号
-	RankId                 *string    `json:"rank_id,omitempty"`                  // 职级id
-	OutRankId              *string    `json:"out_rank_id,omitempty"`              // 外部职级 ID
-	EnglishSurname         *string    `json:"english_surname,omitempty"`          // 英文姓
-	EnglishName            *string    `json:"english_name,omitempty"`             // 英文名
-	Nickname               *string    `json:"nickname,omitempty"`                 // 昵称
-	Sex                    *int32     `json:"sex,omitempty"`                      // 性别，枚举值数字 0 未知 1 男 2 女
-	BirthDate              *string    `json:"birth_date,omitempty"`               // 出生日期，格式2000-01-01（已用AES算法加密）
-	CardList               []CardInfo `json:"card_list,omitempty"`                // 证件信息
-	Source                 *string    `json:"source,omitempty"`                   // 员工加入滴滴企业平台的渠道，枚举值数字：0;未知 1;PC逐一添加 2;PC批量导入 3;邮件邀请
+	Id                     *string             `json:"id,omitempty"`                       // 员工在滴滴企业平台的ID
+	Phone                  *string             `json:"phone,omitempty"`                    // 员工手机号
+	Realname               *string             `json:"realname,omitempty"`                 // 员工姓名
+	EmployeeNumber         *string             `json:"employee_number,omitempty"`          // 员工工号，员工在公司的员工号
+	Email                  *string             `json:"email,omitempty"`                    // 邮箱
+	SystemRole             *int32              `json:"system_role,omitempty"`              // 系统角色，枚举值数字 0 车辆预定人员，1 普通管理员，2 超级管理员
+	RoleIds                *string             `json:"role_ids,omitempty"`                 // 角色，可以通过角色API获取对应的ID
+	ImmediateSuperiorPhone *string             `json:"immediate_superior_phone,omitempty"` // 员工直属上级的手机号码，直属上级可在审批流中担任审批人
+	ImmediateSuperiorEid   *string             `json:"immediate_superior_eid,omitempty"`   // 员工直属上级的员工编号
+	Residentsname          *string             `json:"residentsname,omitempty"`            // 常驻地中文
+	UseCompanyMoney        *int32              `json:"use_company_money,omitempty"`        // 是否企业支付余额，枚举值数字 0 否，1 是
+	TotalQuota             *string             `json:"total_quota,omitempty"`              // 每月配额，单位元
+	IsRemark               *string             `json:"is_remark,omitempty"`                // 叫车时备注信息是否必填，枚举值数字 0 选填，1 必填，2 按制度填写
+	BudgetCenterId         *string             `json:"budget_center_id,omitempty"`         // 所在部门ID
+	ConDepartmentIds       []string            `json:"con_department_ids,omitempty"`       // 所在兼岗部门ID，员工返回兼岗的部门ID数组
+	ProjectIds             *string             `json:"project_ids,omitempty"`              // 所在项目ID
+	UseCarConfig           []string            `json:"use_car_config,omitempty"`           // 用车规则ID数组
+	AvailableQuota         *string             `json:"available_quota,omitempty"`          // 员工可用限额，单位元 例如\"937.70\"
+	BranchName             *string             `json:"branch_name,omitempty"`              // 所在分公司名称（老），后续此参数会去掉
+	Department             *string             `json:"department,omitempty"`               // 部门名称（老），后续此参数会去掉
+	RegulationId           []string            `json:"regulation_id,omitempty"`            // 用车制度ID数组，跟新增、修改、详情等API统一
+	SetDismissTime         *string             `json:"set_dismiss_time,omitempty"`         // 设置的员工离职日期，为空时表示未设置离职日期，格式为 yyyy-MM-dd
+	DismissTime            *string             `json:"dismiss_time,omitempty"`             // 员工实际离职日期，为空时表示未离职,格式为 格式：yyyy-MM-dd HH:mm:ss
+	InvoiceInfo            *string             `json:"invoice_info,omitempty"`             // 开票主体信息
+	LegalEntityId          *string             `json:"legal_entity_id,omitempty"`          // 所在公司主体id
+	OutLegalEntityId       *string             `json:"out_legal_entity_id,omitempty"`      // 外部公司主体编号
+	RankId                 *string             `json:"rank_id,omitempty"`                  // 职级id
+	OutRankId              *string             `json:"out_rank_id,omitempty"`              // 外部职级 ID
+	EnglishSurname         *string             `json:"english_surname,omitempty"`          // 英文姓
+	EnglishName            *string             `json:"english_name,omitempty"`             // 英文名
+	Nickname               *string             `json:"nickname,omitempty"`                 // 昵称
+	Sex                    *int32              `json:"sex,omitempty"`                      // 性别，枚举值数字 0 未知 1 男 2 女
+	BirthDate              *string             `json:"birth_date,omitempty"`               // 出生日期，格式2000-01-01（已用AES算法加密）
+	CardList               []CardInfo          `json:"card_list,omitempty"`                // 证件信息
+	Source                 *string             `json:"source,omitempty"`                   // 员工加入滴滴企业平台的渠道，枚举值数字：0;未知 1;PC逐一添加 2;PC批量导入 3;邮件邀请
+	Status                 *int32              `json:"status,omitempty"`                   // 员工状态，枚举值数字：1 正常 4 离职 6 未绑定手机号
+	ResidentsList          []ResidentsListInfo `json:"residents_list,omitempty"`           // 常驻地列表
+	LimitRuleList          []LimitRuleInfo     `json:"limit_rule_list,omitempty"`          // 限额规则列表
+	CertRealname           *string             `json:"cert_realname,omitempty"`            // 证件中文姓名
+	CertEnglishSurname     *string             `json:"cert_english_surname,omitempty"`     // 证件英文姓
+	CertEnglishName        *string             `json:"cert_english_name,omitempty"`        // 证件英文名
+	HomeAddress            []HomeAddressInfo   `json:"home_address,omitempty"`             // 家庭住址
+	ThirdUserId            *string             `json:"third_user_id,omitempty"`            // 第三方用户ID
+	GuestCarRight          *int32              `json:"guest_car_right,omitempty"`          // 客人用车权限，枚举值数字 0
+	MonthQuota             *string             `json:"month_quota,omitempty"`              // 每月配额，同 total_quota
 }
 
 type MemberRecordBuilder struct {
@@ -110,6 +120,26 @@ type MemberRecordBuilder struct {
 	cardListSet               bool
 	source                    string // 员工加入滴滴企业平台的渠道，枚举值数字：0;未知 1;PC逐一添加 2;PC批量导入 3;邮件邀请
 	sourceSet                 bool
+	status                    int32 // 员工状态，枚举值数字：1 正常 4 离职 6 未绑定手机号
+	statusSet                 bool
+	residentsList             []ResidentsListInfo // 常驻地列表
+	residentsListSet          bool
+	limitRuleList             []LimitRuleInfo // 限额规则列表
+	limitRuleListSet          bool
+	certRealname              string // 证件中文姓名
+	certRealnameSet           bool
+	certEnglishSurname        string // 证件英文姓
+	certEnglishSurnameSet     bool
+	certEnglishName           string // 证件英文名
+	certEnglishNameSet        bool
+	homeAddress               []HomeAddressInfo // 家庭住址
+	homeAddressSet            bool
+	thirdUserId               string // 第三方用户ID
+	thirdUserIdSet            bool
+	guestCarRight             int32 // 客人用车权限，枚举值数字 0
+	guestCarRightSet          bool
+	monthQuota                string // 每月配额，同 total_quota
+	monthQuotaSet             bool
 }
 
 func NewMemberRecordBuilder() *MemberRecordBuilder {
@@ -290,6 +320,56 @@ func (builder *MemberRecordBuilder) Source(source string) *MemberRecordBuilder {
 	builder.sourceSet = true
 	return builder
 }
+func (builder *MemberRecordBuilder) Status(status int32) *MemberRecordBuilder {
+	builder.status = status
+	builder.statusSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) ResidentsList(residentsList []ResidentsListInfo) *MemberRecordBuilder {
+	builder.residentsList = residentsList
+	builder.residentsListSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) LimitRuleList(limitRuleList []LimitRuleInfo) *MemberRecordBuilder {
+	builder.limitRuleList = limitRuleList
+	builder.limitRuleListSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) CertRealname(certRealname string) *MemberRecordBuilder {
+	builder.certRealname = certRealname
+	builder.certRealnameSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) CertEnglishSurname(certEnglishSurname string) *MemberRecordBuilder {
+	builder.certEnglishSurname = certEnglishSurname
+	builder.certEnglishSurnameSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) CertEnglishName(certEnglishName string) *MemberRecordBuilder {
+	builder.certEnglishName = certEnglishName
+	builder.certEnglishNameSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) HomeAddress(homeAddress []HomeAddressInfo) *MemberRecordBuilder {
+	builder.homeAddress = homeAddress
+	builder.homeAddressSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) ThirdUserId(thirdUserId string) *MemberRecordBuilder {
+	builder.thirdUserId = thirdUserId
+	builder.thirdUserIdSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) GuestCarRight(guestCarRight int32) *MemberRecordBuilder {
+	builder.guestCarRight = guestCarRight
+	builder.guestCarRightSet = true
+	return builder
+}
+func (builder *MemberRecordBuilder) MonthQuota(monthQuota string) *MemberRecordBuilder {
+	builder.monthQuota = monthQuota
+	builder.monthQuotaSet = true
+	return builder
+}
 
 func (builder *MemberRecordBuilder) Build() *MemberRecord {
 	data := &MemberRecord{}
@@ -397,6 +477,36 @@ func (builder *MemberRecordBuilder) Build() *MemberRecord {
 	}
 	if builder.sourceSet {
 		data.Source = &builder.source
+	}
+	if builder.statusSet {
+		data.Status = &builder.status
+	}
+	if builder.residentsListSet {
+		data.ResidentsList = builder.residentsList
+	}
+	if builder.limitRuleListSet {
+		data.LimitRuleList = builder.limitRuleList
+	}
+	if builder.certRealnameSet {
+		data.CertRealname = &builder.certRealname
+	}
+	if builder.certEnglishSurnameSet {
+		data.CertEnglishSurname = &builder.certEnglishSurname
+	}
+	if builder.certEnglishNameSet {
+		data.CertEnglishName = &builder.certEnglishName
+	}
+	if builder.homeAddressSet {
+		data.HomeAddress = builder.homeAddress
+	}
+	if builder.thirdUserIdSet {
+		data.ThirdUserId = &builder.thirdUserId
+	}
+	if builder.guestCarRightSet {
+		data.GuestCarRight = &builder.guestCarRight
+	}
+	if builder.monthQuotaSet {
+		data.MonthQuota = &builder.monthQuota
 	}
 	return data
 }
