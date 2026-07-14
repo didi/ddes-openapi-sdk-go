@@ -182,3 +182,37 @@ func (builder *UpdateMemberApiReqBuilder) Build() *UpdateMemberApiReq {
 	req.apiReq.Body = builder.updateMemberRequest
 	return req
 }
+
+type DelMemberApiReq struct {
+	apiReq           *core.ApiReq
+	delMemberRequest *DelMemberRequest
+}
+type DelMemberApiResp struct {
+	*core.ApiResp     `json:"-"`
+	DelMemberApiReply *DelMemberApiReply `json:"delMemberApiReply"`
+}
+
+type DelMemberApiReqBuilder struct {
+	apiReq           *core.ApiReq
+	delMemberRequest *DelMemberRequest
+}
+
+func NewDelMemberApiReqBuilder() *DelMemberApiReqBuilder {
+	builder := &DelMemberApiReqBuilder{}
+	builder.apiReq = &core.ApiReq{
+		PathParams:  make(map[string]string),
+		QueryParams: url.Values{},
+	}
+	return builder
+}
+func (builder *DelMemberApiReqBuilder) DelMemberRequest(delMemberRequest *DelMemberRequest) *DelMemberApiReqBuilder {
+	builder.delMemberRequest = delMemberRequest
+	return builder
+}
+
+func (builder *DelMemberApiReqBuilder) Build() *DelMemberApiReq {
+	req := &DelMemberApiReq{}
+	req.apiReq = builder.apiReq
+	req.apiReq.Body = builder.delMemberRequest
+	return req
+}

@@ -1496,3 +1496,681 @@ func TestUpdateMember_WithReqOption(t *testing.T) {
 		t.Fatal("UpdateMemberApiReply is nil")
 	}
 }
+
+// --- DelMember 模型层测试 ---
+
+func TestDelMemberRequestBuilder(t *testing.T) {
+	req := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		ProjectId("1125904357323169").
+		ProjectCode("CODE001").
+		ProjectName("测试项目").
+		Type(2).
+		MemberIds("emp001,emp002").
+		MemberType(1).
+		MemberValues("E001,E002").
+		BelongEnterpriseName("子公司A").
+		TaxpayerNo("91110000xxx").
+		Sign("test_sign").
+		Build()
+
+	if req.ClientId == nil || *req.ClientId != "test_client" {
+		t.Errorf("ClientId = %v, want test_client", req.ClientId)
+	}
+	if req.AccessToken == nil || *req.AccessToken != "test_token" {
+		t.Errorf("AccessToken = %v, want test_token", req.AccessToken)
+	}
+	if req.CompanyId == nil || *req.CompanyId != "test_company" {
+		t.Errorf("CompanyId = %v, want test_company", req.CompanyId)
+	}
+	if req.Timestamp == nil || *req.Timestamp != 1583484681 {
+		t.Errorf("Timestamp = %v, want 1583484681", req.Timestamp)
+	}
+	if req.ProjectId == nil || *req.ProjectId != "1125904357323169" {
+		t.Errorf("ProjectId = %v, want 1125904357323169", req.ProjectId)
+	}
+	if req.ProjectCode == nil || *req.ProjectCode != "CODE001" {
+		t.Errorf("ProjectCode = %v, want CODE001", req.ProjectCode)
+	}
+	if req.ProjectName == nil || *req.ProjectName != "测试项目" {
+		t.Errorf("ProjectName = %v, want 测试项目", req.ProjectName)
+	}
+	if req.Type == nil || *req.Type != 2 {
+		t.Errorf("Type = %v, want 2", req.Type)
+	}
+	if req.MemberIds == nil || *req.MemberIds != "emp001,emp002" {
+		t.Errorf("MemberIds = %v, want emp001,emp002", req.MemberIds)
+	}
+	if req.MemberType == nil || *req.MemberType != 1 {
+		t.Errorf("MemberType = %v, want 1", req.MemberType)
+	}
+	if req.MemberValues == nil || *req.MemberValues != "E001,E002" {
+		t.Errorf("MemberValues = %v, want E001,E002", req.MemberValues)
+	}
+	if req.BelongEnterpriseName == nil || *req.BelongEnterpriseName != "子公司A" {
+		t.Errorf("BelongEnterpriseName = %v, want 子公司A", req.BelongEnterpriseName)
+	}
+	if req.TaxpayerNo == nil || *req.TaxpayerNo != "91110000xxx" {
+		t.Errorf("TaxpayerNo = %v, want 91110000xxx", req.TaxpayerNo)
+	}
+	if req.Sign == nil || *req.Sign != "test_sign" {
+		t.Errorf("Sign = %v, want test_sign", req.Sign)
+	}
+}
+
+func TestDelMemberRequestBuilder_PartialParams(t *testing.T) {
+	req := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Type(1).
+		Build()
+
+	if req.ClientId == nil || *req.ClientId != "test_client" {
+		t.Errorf("ClientId = %v, want test_client", req.ClientId)
+	}
+	if req.ProjectId == nil || *req.ProjectId != "1125904357323169" {
+		t.Errorf("ProjectId = %v, want 1125904357323169", req.ProjectId)
+	}
+	if req.Type == nil || *req.Type != 1 {
+		t.Errorf("Type = %v, want 1", req.Type)
+	}
+	// 未设置字段应为 nil
+	if req.AccessToken != nil {
+		t.Errorf("AccessToken = %v, want nil", req.AccessToken)
+	}
+	if req.MemberIds != nil {
+		t.Errorf("MemberIds = %v, want nil", req.MemberIds)
+	}
+	if req.MemberType != nil {
+		t.Errorf("MemberType = %v, want nil", req.MemberType)
+	}
+	if req.BelongEnterpriseName != nil {
+		t.Errorf("BelongEnterpriseName = %v, want nil", req.BelongEnterpriseName)
+	}
+}
+
+func TestDelMemberApiReqBuilder_FullParams(t *testing.T) {
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		ProjectId("1125904357323169").
+		Type(2).
+		MemberIds("emp001,emp002").
+		Sign("test_sign").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	// 验证 Body 被设置
+	if req.apiReq.Body == nil {
+		t.Fatal("Body should not be nil")
+	}
+	body, ok := req.apiReq.Body.(*DelMemberRequest)
+	if !ok {
+		t.Fatal("Body should be *DelMemberRequest")
+	}
+	if body.ClientId == nil || *body.ClientId != "test_client" {
+		t.Errorf("Body.ClientId = %v, want test_client", body.ClientId)
+	}
+	if body.ProjectId == nil || *body.ProjectId != "1125904357323169" {
+		t.Errorf("Body.ProjectId = %v, want 1125904357323169", body.ProjectId)
+	}
+	if body.Type == nil || *body.Type != 2 {
+		t.Errorf("Body.Type = %v, want 2", body.Type)
+	}
+}
+
+func TestDelMemberApiReqBuilder_PartialParams(t *testing.T) {
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Type(1).
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	body := req.apiReq.Body.(*DelMemberRequest)
+	if body.ClientId == nil || *body.ClientId != "test_client" {
+		t.Errorf("Body.ClientId = %v, want test_client", body.ClientId)
+	}
+	// 未设置的字段应为 nil
+	if body.AccessToken != nil {
+		t.Errorf("Body.AccessToken = %v, want nil", body.AccessToken)
+	}
+	if body.MemberIds != nil {
+		t.Errorf("Body.MemberIds = %v, want nil", body.MemberIds)
+	}
+}
+
+func TestDelMemberApiReqBuilder_OnlyCommonParams(t *testing.T) {
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		Sign("test_sign").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	body := req.apiReq.Body.(*DelMemberRequest)
+	if body.ClientId == nil || *body.ClientId != "test_client" {
+		t.Errorf("Body.ClientId = %v, want test_client", body.ClientId)
+	}
+	// 业务参数不应存在
+	if body.ProjectId != nil {
+		t.Errorf("Body.ProjectId = %v, want nil", body.ProjectId)
+	}
+	if body.Type != nil {
+		t.Errorf("Body.Type = %v, want nil", body.Type)
+	}
+	if body.MemberIds != nil {
+		t.Errorf("Body.MemberIds = %v, want nil", body.MemberIds)
+	}
+	if body.MemberType != nil {
+		t.Errorf("Body.MemberType = %v, want nil", body.MemberType)
+	}
+}
+
+func TestDelMemberApiReply_Deserialization(t *testing.T) {
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": null,
+		"request_id": "test_request_id"
+	}`
+
+	var reply DelMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+
+	if reply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", reply.Errno)
+	}
+	if reply.Errmsg != "SUCCESS" {
+		t.Errorf("Errmsg = %q, want SUCCESS", reply.Errmsg)
+	}
+	if reply.RequestId != "test_request_id" {
+		t.Errorf("RequestId = %q, want test_request_id", reply.RequestId)
+	}
+}
+
+func TestDelMemberApiReply_DeserializationWithData(t *testing.T) {
+	// type=2 + member_values 场景：data 包含 success_data/error_data
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": {
+			"success_data": ["emp001"],
+			"error_data": [
+				{
+					"error_msg": "查询不到员工信息",
+					"error_member_values": ["E003"]
+				}
+			],
+			"success_member_values": ["E001"]
+		},
+		"request_id": "test_request_id"
+	}`
+
+	var reply DelMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+
+	if reply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", reply.Errno)
+	}
+	if len(reply.Data.SuccessData) != 1 || reply.Data.SuccessData[0] != "emp001" {
+		t.Errorf("Data.SuccessData = %v, want [emp001]", reply.Data.SuccessData)
+	}
+	if len(reply.Data.ErrorData) != 1 {
+		t.Fatalf("Data.ErrorData len = %d, want 1", len(reply.Data.ErrorData))
+	}
+	if reply.Data.ErrorData[0].ErrorMsg == nil || *reply.Data.ErrorData[0].ErrorMsg != "查询不到员工信息" {
+		t.Errorf("Data.ErrorData[0].ErrorMsg = %v, want 查询不到员工信息", reply.Data.ErrorData[0].ErrorMsg)
+	}
+	if len(reply.Data.SuccessMemberValues) != 1 || reply.Data.SuccessMemberValues[0] != "E001" {
+		t.Errorf("Data.SuccessMemberValues = %v, want [E001]", reply.Data.SuccessMemberValues)
+	}
+}
+
+func TestDelMemberApiReply_MultipleItems(t *testing.T) {
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": {
+			"success_data": ["emp001", "emp002", "emp003"],
+			"error_data": [
+				{
+					"error_msg": "员工不在该企业中",
+					"error_member_ids": ["emp004"]
+				}
+			]
+		},
+		"request_id": "req_multi"
+	}`
+
+	var reply DelMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(reply.Data.SuccessData) != 3 {
+		t.Errorf("SuccessData len = %d, want 3", len(reply.Data.SuccessData))
+	}
+	if len(reply.Data.ErrorData) != 1 {
+		t.Errorf("ErrorData len = %d, want 1", len(reply.Data.ErrorData))
+	}
+}
+
+func TestDelMemberApiReply_EmptyDataArray(t *testing.T) {
+	jsonData := `{"errno":0,"errmsg":"SUCCESS","data":{"success_data":[],"error_data":[]},"request_id":"req_empty"}`
+
+	var reply DelMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(reply.Data.SuccessData) != 0 {
+		t.Errorf("SuccessData len = %d, want 0", len(reply.Data.SuccessData))
+	}
+	if len(reply.Data.ErrorData) != 0 {
+		t.Errorf("ErrorData len = %d, want 0", len(reply.Data.ErrorData))
+	}
+}
+
+func TestDelMemberErrorInfoBuilder(t *testing.T) {
+	info := NewDelMemberErrorInfoBuilder().
+		ErrorMsg("员工不在该企业中").
+		ErrorMemberIds([]string{"emp001", "emp002"}).
+		ErrorMemberValues([]string{"E001", "E002"}).
+		Build()
+
+	if info.ErrorMsg == nil || *info.ErrorMsg != "员工不在该企业中" {
+		t.Errorf("ErrorMsg = %v, want 员工不在该企业中", info.ErrorMsg)
+	}
+	if len(info.ErrorMemberIds) != 2 || info.ErrorMemberIds[0] != "emp001" {
+		t.Errorf("ErrorMemberIds = %v, want [emp001 emp002]", info.ErrorMemberIds)
+	}
+	if len(info.ErrorMemberValues) != 2 || info.ErrorMemberValues[0] != "E001" {
+		t.Errorf("ErrorMemberValues = %v, want [E001 E002]", info.ErrorMemberValues)
+	}
+
+	// 部分设置
+	info2 := NewDelMemberErrorInfoBuilder().
+		ErrorMsg("查询不到员工信息").
+		Build()
+
+	if info2.ErrorMsg == nil || *info2.ErrorMsg != "查询不到员工信息" {
+		t.Errorf("ErrorMsg = %v, want 查询不到员工信息", info2.ErrorMsg)
+	}
+	if info2.ErrorMemberIds != nil {
+		t.Errorf("ErrorMemberIds = %v, want nil", info2.ErrorMemberIds)
+	}
+	if info2.ErrorMemberValues != nil {
+		t.Errorf("ErrorMemberValues = %v, want nil", info2.ErrorMemberValues)
+	}
+}
+
+func TestDelMemberApiReply_ErrorResponse(t *testing.T) {
+	jsonData := `{
+		"errno": 70001,
+		"errmsg": "project not found",
+		"request_id": "test_request_id"
+	}`
+
+	var reply DelMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Errno != 70001 {
+		t.Errorf("Errno = %d, want 70001", reply.Errno)
+	}
+	if reply.Errmsg != "project not found" {
+		t.Errorf("Errmsg = %q, want project not found", reply.Errmsg)
+	}
+}
+
+func TestDelMemberApiReply_MissingDataField(t *testing.T) {
+	jsonData := `{"errno":70001,"errmsg":"param error","request_id":"req_nodata"}`
+
+	var reply DelMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Errno != 70001 {
+		t.Errorf("Errno = %d, want 70001", reply.Errno)
+	}
+}
+
+// --- DelMember 资源方法测试 ---
+
+func TestDelMember_Success(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/river/Project/delMember" {
+			t.Errorf("expected path /river/Project/delMember, got %s", r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{
+			"errno": 0,
+			"errmsg": "SUCCESS",
+			"data": null,
+			"request_id": "req_001"
+		}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		ProjectId("1125904357323169").
+		Type(2).
+		MemberIds("emp001,emp002").
+		Sign("test_sign").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("StatusCode = %d, want %d", resp.StatusCode, http.StatusOK)
+	}
+	if resp.DelMemberApiReply == nil {
+		t.Fatal("DelMemberApiReply is nil")
+	}
+	if resp.DelMemberApiReply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", resp.DelMemberApiReply.Errno)
+	}
+	if resp.DelMemberApiReply.Errmsg != "SUCCESS" {
+		t.Errorf("Errmsg = %q, want SUCCESS", resp.DelMemberApiReply.Errmsg)
+	}
+}
+
+func TestDelMember_EmptyData(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":null,"request_id":"req_002"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Type(1).
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.DelMemberApiReply == nil {
+		t.Fatal("DelMemberApiReply is nil")
+	}
+	if resp.DelMemberApiReply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", resp.DelMemberApiReply.Errno)
+	}
+}
+
+func TestDelMember_ApiError(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":70001,"errmsg":"project not found","request_id":"req_003"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.DelMemberApiReply == nil {
+		t.Fatal("DelMemberApiReply is nil")
+	}
+	if resp.DelMemberApiReply.Errno != 70001 {
+		t.Errorf("Errno = %d, want 70001", resp.DelMemberApiReply.Errno)
+	}
+}
+
+func TestDelMember_HttpError(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Errorf("StatusCode = %d, want %d", resp.StatusCode, http.StatusInternalServerError)
+	}
+	// 非 200 响应不应设置 ApiReply
+	if resp.DelMemberApiReply != nil {
+		t.Errorf("DelMemberApiReply should be nil for non-200 response")
+	}
+}
+
+func TestDelMember_WithEncryption_AES128(t *testing.T) {
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":null,"request_id":"req_enc"}`
+	key := []byte("16byte-key-12345")
+	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
+	if err != nil {
+		t.Fatalf("AESEncryptECB() error = %v", err)
+	}
+	encryptData := base64.StdEncoding.EncodeToString(encrypted)
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{
+		Ent: 1,
+		Key: string(key),
+	}
+	p := &project{option: option}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Type(2).
+		MemberIds("emp001").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.DelMemberApiReply == nil {
+		t.Fatal("DelMemberApiReply is nil")
+	}
+	if resp.DelMemberApiReply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", resp.DelMemberApiReply.Errno)
+	}
+	if resp.DelMemberApiReply.Errmsg != "SUCCESS" {
+		t.Errorf("Errmsg = %q, want SUCCESS", resp.DelMemberApiReply.Errmsg)
+	}
+}
+
+func TestDelMember_WithEncryption_AES256(t *testing.T) {
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":null,"request_id":"req_enc256"}`
+	key := []byte("32byte-key-1234567890abcdefghijk")
+	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
+	if err != nil {
+		t.Fatalf("AESEncryptECB() error = %v", err)
+	}
+	encryptData := base64.URLEncoding.EncodeToString(encrypted)
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{
+		Ent: 2,
+		Key: string(key),
+	}
+	p := &project{option: option}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Type(1).
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.DelMemberApiReply == nil {
+		t.Fatal("DelMemberApiReply is nil")
+	}
+	if resp.DelMemberApiReply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", resp.DelMemberApiReply.Errno)
+	}
+}
+
+func TestDelMember_EncryptionNoEncryptData(t *testing.T) {
+	// 启用加密但响应无 encrypt_data 字段，应直接反序列化
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":null,"request_id":"req_noenc"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{
+		Ent: 1,
+		Key: "16byte-key-12345",
+	}
+	p := &project{option: option}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.DelMemberApiReply == nil {
+		t.Fatal("DelMemberApiReply is nil")
+	}
+	if resp.DelMemberApiReply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", resp.DelMemberApiReply.Errno)
+	}
+}
+
+func TestDelMember_WithReqOption(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if customHeader := r.Header.Get("X-Custom-Header"); customHeader != "custom-value" {
+			t.Errorf("expected X-Custom-Header custom-value, got %s", customHeader)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":null,"request_id":"req_opt"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	customHeader := http.Header{}
+	customHeader.Set("X-Custom-Header", "custom-value")
+	reqOption := &core.ReqOption{
+		Header: customHeader,
+	}
+
+	requestBody := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewDelMemberApiReqBuilder().
+		DelMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.DelMember(context.Background(), req, reqOption)
+	if err != nil {
+		t.Fatalf("DelMember() error = %v", err)
+	}
+	if resp.DelMemberApiReply == nil {
+		t.Fatal("DelMemberApiReply is nil")
+	}
+}
