@@ -148,3 +148,37 @@ func (builder *OutTravelerListApiReqBuilder) Build() *OutTravelerListApiReq {
 	req.apiReq = builder.apiReq
 	return req
 }
+
+type UpdateMemberApiReq struct {
+	apiReq              *core.ApiReq
+	updateMemberRequest *UpdateMemberRequest
+}
+type UpdateMemberApiResp struct {
+	*core.ApiResp        `json:"-"`
+	UpdateMemberApiReply *UpdateMemberApiReply `json:"updateMemberApiReply"`
+}
+
+type UpdateMemberApiReqBuilder struct {
+	apiReq              *core.ApiReq
+	updateMemberRequest *UpdateMemberRequest
+}
+
+func NewUpdateMemberApiReqBuilder() *UpdateMemberApiReqBuilder {
+	builder := &UpdateMemberApiReqBuilder{}
+	builder.apiReq = &core.ApiReq{
+		PathParams:  make(map[string]string),
+		QueryParams: url.Values{},
+	}
+	return builder
+}
+func (builder *UpdateMemberApiReqBuilder) UpdateMemberRequest(updateMemberRequest *UpdateMemberRequest) *UpdateMemberApiReqBuilder {
+	builder.updateMemberRequest = updateMemberRequest
+	return builder
+}
+
+func (builder *UpdateMemberApiReqBuilder) Build() *UpdateMemberApiReq {
+	req := &UpdateMemberApiReq{}
+	req.apiReq = builder.apiReq
+	req.apiReq.Body = builder.updateMemberRequest
+	return req
+}

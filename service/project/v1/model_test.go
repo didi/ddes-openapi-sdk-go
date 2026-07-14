@@ -829,3 +829,670 @@ func TestGetProjectDetailApiReqBuilder_OnlyCommonParams(t *testing.T) {
 		}
 	}
 }
+
+// --- UpdateMember 模型层测试 ---
+
+func TestUpdateMemberRequestBuilder(t *testing.T) {
+	req := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		ProjectId("1125904357323169").
+		ProjectCode("CODE001").
+		ProjectName("测试项目").
+		MemberIds("emp001,emp002").
+		MemberType(1).
+		MemberValues("E001,E002").
+		BelongEnterpriseName("子公司A").
+		TaxpayerNo("91110000xxx").
+		Sign("test_sign").
+		Build()
+
+	if req.ClientId == nil || *req.ClientId != "test_client" {
+		t.Errorf("ClientId = %v, want test_client", req.ClientId)
+	}
+	if req.AccessToken == nil || *req.AccessToken != "test_token" {
+		t.Errorf("AccessToken = %v, want test_token", req.AccessToken)
+	}
+	if req.CompanyId == nil || *req.CompanyId != "test_company" {
+		t.Errorf("CompanyId = %v, want test_company", req.CompanyId)
+	}
+	if req.Timestamp == nil || *req.Timestamp != 1583484681 {
+		t.Errorf("Timestamp = %v, want 1583484681", req.Timestamp)
+	}
+	if req.ProjectId == nil || *req.ProjectId != "1125904357323169" {
+		t.Errorf("ProjectId = %v, want 1125904357323169", req.ProjectId)
+	}
+	if req.ProjectCode == nil || *req.ProjectCode != "CODE001" {
+		t.Errorf("ProjectCode = %v, want CODE001", req.ProjectCode)
+	}
+	if req.ProjectName == nil || *req.ProjectName != "测试项目" {
+		t.Errorf("ProjectName = %v, want 测试项目", req.ProjectName)
+	}
+	if req.MemberIds == nil || *req.MemberIds != "emp001,emp002" {
+		t.Errorf("MemberIds = %v, want emp001,emp002", req.MemberIds)
+	}
+	if req.MemberType == nil || *req.MemberType != 1 {
+		t.Errorf("MemberType = %v, want 1", req.MemberType)
+	}
+	if req.MemberValues == nil || *req.MemberValues != "E001,E002" {
+		t.Errorf("MemberValues = %v, want E001,E002", req.MemberValues)
+	}
+	if req.BelongEnterpriseName == nil || *req.BelongEnterpriseName != "子公司A" {
+		t.Errorf("BelongEnterpriseName = %v, want 子公司A", req.BelongEnterpriseName)
+	}
+	if req.TaxpayerNo == nil || *req.TaxpayerNo != "91110000xxx" {
+		t.Errorf("TaxpayerNo = %v, want 91110000xxx", req.TaxpayerNo)
+	}
+	if req.Sign == nil || *req.Sign != "test_sign" {
+		t.Errorf("Sign = %v, want test_sign", req.Sign)
+	}
+}
+
+func TestUpdateMemberRequestBuilder_PartialParams(t *testing.T) {
+	req := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		MemberIds("emp001").
+		Build()
+
+	if req.ClientId == nil || *req.ClientId != "test_client" {
+		t.Errorf("ClientId = %v, want test_client", req.ClientId)
+	}
+	if req.ProjectId == nil || *req.ProjectId != "1125904357323169" {
+		t.Errorf("ProjectId = %v, want 1125904357323169", req.ProjectId)
+	}
+	// 未设置字段应为 nil
+	if req.AccessToken != nil {
+		t.Errorf("AccessToken = %v, want nil", req.AccessToken)
+	}
+	if req.MemberType != nil {
+		t.Errorf("MemberType = %v, want nil", req.MemberType)
+	}
+	if req.BelongEnterpriseName != nil {
+		t.Errorf("BelongEnterpriseName = %v, want nil", req.BelongEnterpriseName)
+	}
+}
+
+func TestUpdateMemberErrorInfoBuilder(t *testing.T) {
+	info := NewUpdateMemberErrorInfoBuilder().
+		ErrorMsg("员工不在该企业中").
+		ErrorMemberIds([]string{"emp001", "emp002"}).
+		ErrorMemberValues([]string{"E001", "E002"}).
+		Build()
+
+	if info.ErrorMsg == nil || *info.ErrorMsg != "员工不在该企业中" {
+		t.Errorf("ErrorMsg = %v, want 员工不在该企业中", info.ErrorMsg)
+	}
+	if len(info.ErrorMemberIds) != 2 || info.ErrorMemberIds[0] != "emp001" {
+		t.Errorf("ErrorMemberIds = %v, want [emp001 emp002]", info.ErrorMemberIds)
+	}
+	if len(info.ErrorMemberValues) != 2 || info.ErrorMemberValues[0] != "E001" {
+		t.Errorf("ErrorMemberValues = %v, want [E001 E002]", info.ErrorMemberValues)
+	}
+
+	// 部分设置
+	info2 := NewUpdateMemberErrorInfoBuilder().
+		ErrorMsg("该员工已经在这个项目中").
+		Build()
+
+	if info2.ErrorMsg == nil || *info2.ErrorMsg != "该员工已经在这个项目中" {
+		t.Errorf("ErrorMsg = %v, want 该员工已经在这个项目中", info2.ErrorMsg)
+	}
+	if info2.ErrorMemberIds != nil {
+		t.Errorf("ErrorMemberIds = %v, want nil", info2.ErrorMemberIds)
+	}
+	if info2.ErrorMemberValues != nil {
+		t.Errorf("ErrorMemberValues = %v, want nil", info2.ErrorMemberValues)
+	}
+}
+
+func TestUpdateMemberApiReqBuilder_FullParams(t *testing.T) {
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		ProjectId("1125904357323169").
+		MemberIds("emp001,emp002").
+		Sign("test_sign").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	// 验证 Body 被设置
+	if req.apiReq.Body == nil {
+		t.Fatal("Body should not be nil")
+	}
+	body, ok := req.apiReq.Body.(*UpdateMemberRequest)
+	if !ok {
+		t.Fatal("Body should be *UpdateMemberRequest")
+	}
+	if body.ClientId == nil || *body.ClientId != "test_client" {
+		t.Errorf("Body.ClientId = %v, want test_client", body.ClientId)
+	}
+	if body.ProjectId == nil || *body.ProjectId != "1125904357323169" {
+		t.Errorf("Body.ProjectId = %v, want 1125904357323169", body.ProjectId)
+	}
+}
+
+func TestUpdateMemberApiReqBuilder_PartialParams(t *testing.T) {
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	body := req.apiReq.Body.(*UpdateMemberRequest)
+	if body.ClientId == nil || *body.ClientId != "test_client" {
+		t.Errorf("Body.ClientId = %v, want test_client", body.ClientId)
+	}
+	// 未设置的字段应为 nil
+	if body.AccessToken != nil {
+		t.Errorf("Body.AccessToken = %v, want nil", body.AccessToken)
+	}
+}
+
+func TestUpdateMemberApiReqBuilder_OnlyCommonParams(t *testing.T) {
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		Sign("test_sign").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	body := req.apiReq.Body.(*UpdateMemberRequest)
+	if body.ClientId == nil || *body.ClientId != "test_client" {
+		t.Errorf("Body.ClientId = %v, want test_client", body.ClientId)
+	}
+	// 业务参数不应存在
+	if body.ProjectId != nil {
+		t.Errorf("Body.ProjectId = %v, want nil", body.ProjectId)
+	}
+	if body.MemberIds != nil {
+		t.Errorf("Body.MemberIds = %v, want nil", body.MemberIds)
+	}
+	if body.MemberType != nil {
+		t.Errorf("Body.MemberType = %v, want nil", body.MemberType)
+	}
+}
+
+func TestUpdateMemberApiReply_Deserialization(t *testing.T) {
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": {
+			"success_data": ["emp001", "emp002"],
+			"error_data": [
+				{
+					"error_msg": "员工不在该企业中",
+					"error_member_ids": ["emp003"],
+					"error_member_values": ["E003"]
+				}
+			],
+			"success_member_values": ["E001", "E002"]
+		},
+		"request_id": "test_request_id"
+	}`
+
+	var reply UpdateMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+
+	if reply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", reply.Errno)
+	}
+	if reply.Errmsg != "SUCCESS" {
+		t.Errorf("Errmsg = %q, want SUCCESS", reply.Errmsg)
+	}
+	if reply.RequestId != "test_request_id" {
+		t.Errorf("RequestId = %q, want test_request_id", reply.RequestId)
+	}
+	if len(reply.Data.SuccessData) != 2 {
+		t.Fatalf("SuccessData len = %d, want 2", len(reply.Data.SuccessData))
+	}
+	if reply.Data.SuccessData[0] != "emp001" {
+		t.Errorf("SuccessData[0] = %q, want emp001", reply.Data.SuccessData[0])
+	}
+	if len(reply.Data.ErrorData) != 1 {
+		t.Fatalf("ErrorData len = %d, want 1", len(reply.Data.ErrorData))
+	}
+	if reply.Data.ErrorData[0].ErrorMsg == nil || *reply.Data.ErrorData[0].ErrorMsg != "员工不在该企业中" {
+		t.Errorf("ErrorData[0].ErrorMsg = %v, want 员工不在该企业中", reply.Data.ErrorData[0].ErrorMsg)
+	}
+	if len(reply.Data.ErrorData[0].ErrorMemberIds) != 1 || reply.Data.ErrorData[0].ErrorMemberIds[0] != "emp003" {
+		t.Errorf("ErrorData[0].ErrorMemberIds = %v, want [emp003]", reply.Data.ErrorData[0].ErrorMemberIds)
+	}
+	if len(reply.Data.SuccessMemberValues) != 2 {
+		t.Errorf("SuccessMemberValues len = %d, want 2", len(reply.Data.SuccessMemberValues))
+	}
+}
+
+func TestUpdateMemberApiReply_ErrorResponse(t *testing.T) {
+	jsonData := `{
+		"errno": 70000,
+		"errmsg": "project 非项目 id",
+		"request_id": "test_request_id"
+	}`
+
+	var reply UpdateMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Errno != 70000 {
+		t.Errorf("Errno = %d, want 70000", reply.Errno)
+	}
+	if reply.Errmsg != "project 非项目 id" {
+		t.Errorf("Errmsg = %q, want project 非项目 id", reply.Errmsg)
+	}
+}
+
+func TestUpdateMemberApiReply_MultipleItems(t *testing.T) {
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": {
+			"success_data": ["emp001", "emp002", "emp003"],
+			"error_data": [
+				{
+					"error_msg": "员工不在该企业中",
+					"error_member_ids": ["emp004", "emp005"]
+				},
+				{
+					"error_msg": "该员工已经在这个项目中",
+					"error_member_ids": ["emp006"]
+				}
+			]
+		},
+		"request_id": "req_multi"
+	}`
+
+	var reply UpdateMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(reply.Data.SuccessData) != 3 {
+		t.Errorf("SuccessData len = %d, want 3", len(reply.Data.SuccessData))
+	}
+	if len(reply.Data.ErrorData) != 2 {
+		t.Fatalf("ErrorData len = %d, want 2", len(reply.Data.ErrorData))
+	}
+	if reply.Data.ErrorData[1].ErrorMsg == nil || *reply.Data.ErrorData[1].ErrorMsg != "该员工已经在这个项目中" {
+		t.Errorf("ErrorData[1].ErrorMsg = %v, want 该员工已经在这个项目中", reply.Data.ErrorData[1].ErrorMsg)
+	}
+}
+
+func TestUpdateMemberApiReply_EmptyDataArray(t *testing.T) {
+	jsonData := `{"errno":0,"errmsg":"SUCCESS","data":{"success_data":[],"error_data":[]},"request_id":"req_empty"}`
+
+	var reply UpdateMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(reply.Data.SuccessData) != 0 {
+		t.Errorf("SuccessData len = %d, want 0", len(reply.Data.SuccessData))
+	}
+	if len(reply.Data.ErrorData) != 0 {
+		t.Errorf("ErrorData len = %d, want 0", len(reply.Data.ErrorData))
+	}
+}
+
+func TestUpdateMemberApiReply_MissingDataField(t *testing.T) {
+	jsonData := `{"errno":70000,"errmsg":"project 非项目 id","request_id":"req_nodata"}`
+
+	var reply UpdateMemberApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Errno != 70000 {
+		t.Errorf("Errno = %d, want 70000", reply.Errno)
+	}
+}
+
+// --- UpdateMember 资源方法测试 ---
+
+func TestUpdateMember_Success(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/river/Project/updateMember" {
+			t.Errorf("expected path /river/Project/updateMember, got %s", r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{
+			"errno": 0,
+			"errmsg": "SUCCESS",
+			"data": {
+				"success_data": ["emp001", "emp002"],
+				"error_data": [
+					{
+						"error_msg": "员工不在该企业中",
+						"error_member_ids": ["emp003"]
+					}
+				]
+			},
+			"request_id": "req_001"
+		}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		ProjectId("1125904357323169").
+		MemberIds("emp001,emp002,emp003").
+		Sign("test_sign").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("StatusCode = %d, want %d", resp.StatusCode, http.StatusOK)
+	}
+	if resp.UpdateMemberApiReply == nil {
+		t.Fatal("UpdateMemberApiReply is nil")
+	}
+	if resp.UpdateMemberApiReply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", resp.UpdateMemberApiReply.Errno)
+	}
+	if len(resp.UpdateMemberApiReply.Data.SuccessData) != 2 {
+		t.Fatalf("SuccessData len = %d, want 2", len(resp.UpdateMemberApiReply.Data.SuccessData))
+	}
+	if resp.UpdateMemberApiReply.Data.SuccessData[0] != "emp001" {
+		t.Errorf("SuccessData[0] = %q, want emp001", resp.UpdateMemberApiReply.Data.SuccessData[0])
+	}
+	if len(resp.UpdateMemberApiReply.Data.ErrorData) != 1 {
+		t.Fatalf("ErrorData len = %d, want 1", len(resp.UpdateMemberApiReply.Data.ErrorData))
+	}
+	if resp.UpdateMemberApiReply.Data.ErrorData[0].ErrorMsg == nil || *resp.UpdateMemberApiReply.Data.ErrorData[0].ErrorMsg != "员工不在该企业中" {
+		t.Errorf("ErrorData[0].ErrorMsg = %v, want 员工不在该企业中", resp.UpdateMemberApiReply.Data.ErrorData[0].ErrorMsg)
+	}
+}
+
+func TestUpdateMember_EmptyData(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"success_data":[],"error_data":[]},"request_id":"req_002"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.UpdateMemberApiReply == nil {
+		t.Fatal("UpdateMemberApiReply is nil")
+	}
+	if len(resp.UpdateMemberApiReply.Data.SuccessData) != 0 {
+		t.Errorf("SuccessData len = %d, want 0", len(resp.UpdateMemberApiReply.Data.SuccessData))
+	}
+}
+
+func TestUpdateMember_ApiError(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":70000,"errmsg":"project 非项目 id","request_id":"req_003"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.UpdateMemberApiReply == nil {
+		t.Fatal("UpdateMemberApiReply is nil")
+	}
+	if resp.UpdateMemberApiReply.Errno != 70000 {
+		t.Errorf("Errno = %d, want 70000", resp.UpdateMemberApiReply.Errno)
+	}
+}
+
+func TestUpdateMember_HttpError(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Errorf("StatusCode = %d, want %d", resp.StatusCode, http.StatusInternalServerError)
+	}
+	// 非 200 响应不应设置 ApiReply
+	if resp.UpdateMemberApiReply != nil {
+		t.Errorf("UpdateMemberApiReply should be nil for non-200 response")
+	}
+}
+
+func TestUpdateMember_WithEncryption_AES128(t *testing.T) {
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"success_data":["emp001"],"error_data":[]},"request_id":"req_enc"}`
+	key := []byte("16byte-key-12345")
+	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
+	if err != nil {
+		t.Fatalf("AESEncryptECB() error = %v", err)
+	}
+	encryptData := base64.StdEncoding.EncodeToString(encrypted)
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{
+		Ent: 1,
+		Key: string(key),
+	}
+	p := &project{option: option}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.UpdateMemberApiReply == nil {
+		t.Fatal("UpdateMemberApiReply is nil")
+	}
+	if resp.UpdateMemberApiReply.Errno != 0 {
+		t.Errorf("Errno = %d, want 0", resp.UpdateMemberApiReply.Errno)
+	}
+	if len(resp.UpdateMemberApiReply.Data.SuccessData) != 1 {
+		t.Fatalf("SuccessData len = %d, want 1", len(resp.UpdateMemberApiReply.Data.SuccessData))
+	}
+	if resp.UpdateMemberApiReply.Data.SuccessData[0] != "emp001" {
+		t.Errorf("SuccessData[0] = %q, want emp001", resp.UpdateMemberApiReply.Data.SuccessData[0])
+	}
+}
+
+func TestUpdateMember_WithEncryption_AES256(t *testing.T) {
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"success_data":["emp001"],"error_data":[]},"request_id":"req_enc256"}`
+	key := []byte("32byte-key-1234567890abcdefghijk")
+	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
+	if err != nil {
+		t.Fatalf("AESEncryptECB() error = %v", err)
+	}
+	encryptData := base64.URLEncoding.EncodeToString(encrypted)
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{
+		Ent: 2,
+		Key: string(key),
+	}
+	p := &project{option: option}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		ProjectId("1125904357323169").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.UpdateMemberApiReply == nil {
+		t.Fatal("UpdateMemberApiReply is nil")
+	}
+	if len(resp.UpdateMemberApiReply.Data.SuccessData) != 1 {
+		t.Fatalf("SuccessData len = %d, want 1", len(resp.UpdateMemberApiReply.Data.SuccessData))
+	}
+}
+
+func TestUpdateMember_EncryptionNoEncryptData(t *testing.T) {
+	// 启用加密但响应无 encrypt_data 字段，应直接反序列化
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"success_data":["emp001"],"error_data":[]},"request_id":"req_noenc"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{
+		Ent: 1,
+		Key: "16byte-key-12345",
+	}
+	p := &project{option: option}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.UpdateMemberApiReply == nil {
+		t.Fatal("UpdateMemberApiReply is nil")
+	}
+	if len(resp.UpdateMemberApiReply.Data.SuccessData) != 1 {
+		t.Fatalf("SuccessData len = %d, want 1", len(resp.UpdateMemberApiReply.Data.SuccessData))
+	}
+}
+
+func TestUpdateMember_WithReqOption(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if customHeader := r.Header.Get("X-Custom-Header"); customHeader != "custom-value" {
+			t.Errorf("expected X-Custom-Header custom-value, got %s", customHeader)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"success_data":[],"error_data":[]},"request_id":"req_opt"}`))
+	}))
+	defer testServer.Close()
+
+	option := newTestOption(testServer.URL)
+	p := &project{option: option}
+
+	customHeader := http.Header{}
+	customHeader.Set("X-Custom-Header", "custom-value")
+	reqOption := &core.ReqOption{
+		Header: customHeader,
+	}
+
+	requestBody := NewUpdateMemberRequestBuilder().
+		ClientId("test_client").
+		Build()
+
+	req := NewUpdateMemberApiReqBuilder().
+		UpdateMemberRequest(requestBody).
+		Build()
+
+	resp, err := p.UpdateMember(context.Background(), req, reqOption)
+	if err != nil {
+		t.Fatalf("UpdateMember() error = %v", err)
+	}
+	if resp.UpdateMemberApiReply == nil {
+		t.Fatal("UpdateMemberApiReply is nil")
+	}
+}
