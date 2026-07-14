@@ -24,6 +24,73 @@ type project struct {
 	option *core.Option
 }
 
+// GetProjectDetail 查询项目下的人员关联信息
+func (p *project) GetProjectDetail(ctx context.Context, req *GetProjectDetailApiReq, reqOption *core.ReqOption) (*GetProjectDetailApiResp, error) {
+	apiReq := req.apiReq
+	apiReq.HttpMethod = http.MethodGet
+	apiReq.ApiPath = "/river/Project/detail"
+
+	apiResp, err := core.Request(ctx, apiReq, p.option, reqOption)
+	if err != nil {
+		return nil, err
+	}
+	getProjectDetailApiResp := GetProjectDetailApiResp{
+		ApiResp: apiResp,
+	}
+	getProjectDetailApiReply := GetProjectDetailApiReply{}
+	if http.StatusOK == apiResp.StatusCode && nil != apiResp.Body {
+		serializer := p.option.Serializer
+		if nil != reqOption && nil != reqOption.Serializer {
+			serializer = reqOption.Serializer
+		}
+		if p.option.EnableEncryption && nil != p.option.EncryptionOption {
+			var respBodyMap map[string]interface{}
+			if err := json.Unmarshal(apiResp.Body, &respBodyMap); err != nil {
+				return nil, err
+			}
+			if value, ok := respBodyMap["encrypt_data"]; ok {
+				if encryptData, ok := value.(string); ok {
+					var decodedCiphertext []byte
+					switch p.option.EncryptionOption.Ent {
+					case 1:
+						decodedCiphertext128, err := base64.StdEncoding.DecodeString(encryptData)
+						if err != nil {
+							return nil, err
+						}
+						decodedCiphertext = decodedCiphertext128
+					case 2:
+						decodedCiphertext128, err := base64.URLEncoding.DecodeString(encryptData)
+						if err != nil {
+							return nil, err
+						}
+						decodedCiphertext = decodedCiphertext128
+					default:
+						return nil, fmt.Errorf("未支持的Ent：%d", p.option.EncryptionOption.Ent)
+					}
+					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(p.option.EncryptionOption.Key))
+					if err != nil {
+						return nil, err
+					}
+					p.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
+					if err := serializer.Deserialize(decryptECB, &getProjectDetailApiReply); err != nil {
+						return nil, err
+					}
+				}
+			} else {
+				if err := serializer.Deserialize(apiResp.Body, &getProjectDetailApiReply); err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			if err := serializer.Deserialize(apiResp.Body, &getProjectDetailApiReply); err != nil {
+				return nil, err
+			}
+		}
+		getProjectDetailApiResp.GetProjectDetailApiReply = &getProjectDetailApiReply
+	}
+	return &getProjectDetailApiResp, nil
+}
+
 // OutTravelerList 查询项目外部出行人列表
 func (p *project) OutTravelerList(ctx context.Context, req *OutTravelerListApiReq, reqOption *core.ReqOption) (*OutTravelerListApiResp, error) {
 	apiReq := req.apiReq

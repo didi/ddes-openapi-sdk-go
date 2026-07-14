@@ -7,6 +7,84 @@ import (
 	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
+type GetProjectDetailApiReq struct {
+	apiReq *core.ApiReq
+}
+type GetProjectDetailApiResp struct {
+	*core.ApiResp            `json:"-"`
+	GetProjectDetailApiReply *GetProjectDetailApiReply `json:"getProjectDetailApiReply"`
+}
+
+type GetProjectDetailApiReqBuilder struct {
+	apiReq *core.ApiReq
+}
+
+func NewGetProjectDetailApiReqBuilder() *GetProjectDetailApiReqBuilder {
+	builder := &GetProjectDetailApiReqBuilder{}
+	builder.apiReq = &core.ApiReq{
+		PathParams:  make(map[string]string),
+		QueryParams: url.Values{},
+	}
+	return builder
+}
+
+func (builder *GetProjectDetailApiReqBuilder) ClientId(clientid string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("client_id", clientid)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) AccessToken(accesstoken string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("access_token", accesstoken)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) CompanyId(companyid string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("company_id", companyid)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) Timestamp(timestamp string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("timestamp", timestamp)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) Sign(sign string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("sign", sign)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) ProjectId(projectid string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("project_id", projectid)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) ProjectName(projectname string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("project_name", projectname)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) ProjectCode(projectcode string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("project_code", projectcode)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) Offset(offset int32) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("offset", fmt.Sprint(offset))
+	return builder
+}
+
+// Lenth 每页大小，最大为100，默认为20。参数名与文档保持一致
+func (builder *GetProjectDetailApiReqBuilder) Lenth(lenth int32) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("lenth", fmt.Sprint(lenth))
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) BelongEnterpriseName(belongenterprisename string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("belong_enterprise_name", belongenterprisename)
+	return builder
+}
+func (builder *GetProjectDetailApiReqBuilder) TaxpayerNo(taxpayerno string) *GetProjectDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("taxpayer_no", taxpayerno)
+	return builder
+}
+
+func (builder *GetProjectDetailApiReqBuilder) Build() *GetProjectDetailApiReq {
+	req := &GetProjectDetailApiReq{}
+	req.apiReq = builder.apiReq
+	return req
+}
+
 type OutTravelerListApiReq struct {
 	apiReq *core.ApiReq
 }
