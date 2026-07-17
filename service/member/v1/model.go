@@ -133,6 +133,14 @@ func (builder *GetMemberDetailApiReqBuilder) Phone(phone string) *GetMemberDetai
 	builder.apiReq.QueryParams.Set("phone", phone)
 	return builder
 }
+func (builder *GetMemberDetailApiReqBuilder) BelongEnterpriseName(belongEnterpriseName string) *GetMemberDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("belong_enterprise_name", belongEnterpriseName)
+	return builder
+}
+func (builder *GetMemberDetailApiReqBuilder) TaxpayerNo(taxpayerNo string) *GetMemberDetailApiReqBuilder {
+	builder.apiReq.QueryParams.Set("taxpayer_no", taxpayerNo)
+	return builder
+}
 
 type GetMemberQuotaApiReq struct {
 	apiReq *core.ApiReq
