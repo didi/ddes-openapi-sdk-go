@@ -16,7 +16,7 @@ func TestBudgetCenterRecord_NewFields_JSONUnmarshal(t *testing.T) {
 		"department_id": "D001,D002",
 		"out_department_id": "OD001",
 		"scope": "include_sub",
-		"limit_rule_list": [{"rule_name":"月限额","budget_cycle":1,"is_accumulative":0,"total_quota":"10000.00","limit_management_scope":0,"available_quota":"5000.00","freeze_quota":"200.00"}],
+		"limit_rule_list": [{"rule_name":"月限额","budget_cycle":1,"is_accumulative":0,"total_quota":10000.00,"limit_management_scope":0,"available_quota":"5000.00","freeze_quota":"200.00"}],
 		"extend_field": [{"id":1,"code":"custom","value":"test"}],
 		"poi_list": [{"city":"北京","city_id":1,"city_adcode":"110000","flat":39.9,"flng":116.4,"poi_range":500,"label":"国贸"}]
 	}`

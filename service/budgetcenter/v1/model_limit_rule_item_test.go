@@ -11,21 +11,21 @@ func TestLimitRuleItem_JSONUnmarshal(t *testing.T) {
 		jsonStr   string
 		wantRule  string
 		wantCycle int32
-		wantQuota string
+		wantQuota float64
 	}{
 		{
 			name:      "full fields",
-			jsonStr:   `{"rule_name":"月限额","budget_cycle":1,"is_accumulative":0,"total_quota":"10000.00","limit_management_scope":0,"available_quota":"5000.00","freeze_quota":"200.00"}`,
+			jsonStr:   `{"rule_name":"月限额","budget_cycle":1,"is_accumulative":0,"total_quota":10000.00,"limit_management_scope":0,"available_quota":"5000.00","freeze_quota":"200.00"}`,
 			wantRule:  "月限额",
 			wantCycle: 1,
-			wantQuota: "10000.00",
+			wantQuota: 10000.00,
 		},
 		{
 			name:      "empty object",
 			jsonStr:   `{}`,
 			wantRule:  "",
 			wantCycle: 0,
-			wantQuota: "",
+			wantQuota: 0,
 		},
 	}
 
@@ -49,7 +49,7 @@ func TestLimitRuleItem_JSONUnmarshal(t *testing.T) {
 					t.Errorf("BudgetCycle = %v, want %v", item.BudgetCycle, tt.wantCycle)
 				}
 			}
-			if tt.wantQuota != "" {
+			if tt.wantQuota != 0 {
 				if item.TotalQuota == nil || *item.TotalQuota != tt.wantQuota {
 					t.Errorf("TotalQuota = %v, want %v", item.TotalQuota, tt.wantQuota)
 				}
@@ -63,7 +63,7 @@ func TestLimitRuleItemBuilder(t *testing.T) {
 		RuleName("月限额").
 		BudgetCycle(1).
 		IsAccumulative(0).
-		TotalQuota("10000.00").
+		TotalQuota(10000.00).
 		LimitManagementScope(0).
 		AvailableQuota("5000.00").
 		FreezeQuota("200.00").
@@ -75,7 +75,7 @@ func TestLimitRuleItemBuilder(t *testing.T) {
 	if item.BudgetCycle == nil || *item.BudgetCycle != 1 {
 		t.Errorf("BudgetCycle = %v, want 1", item.BudgetCycle)
 	}
-	if item.TotalQuota == nil || *item.TotalQuota != "10000.00" {
+	if item.TotalQuota == nil || *item.TotalQuota != 10000.00 {
 		t.Errorf("TotalQuota = %v, want 10000.00", item.TotalQuota)
 	}
 	if item.IsAccumulative == nil || *item.IsAccumulative != 0 {

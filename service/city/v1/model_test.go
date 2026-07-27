@@ -302,7 +302,7 @@ func TestListCityParamObjBuilder(t *testing.T) {
 
 func TestHotelCityInfoBuilder(t *testing.T) {
 	info := NewHotelCityInfoBuilder().
-		CityId("1001").
+		CityId(1001).
 		DescriptionCn("北京城市描述").
 		DescriptionEn("Beijing city description").
 		CityNameCn("北京").
@@ -317,7 +317,7 @@ func TestHotelCityInfoBuilder(t *testing.T) {
 		CountryNameEn("China").
 		Build()
 
-	if info.CityId == nil || *info.CityId != "1001" {
+	if info.CityId == nil || *info.CityId != 1001 {
 		t.Errorf("CityId = %v, want 1001", info.CityId)
 	}
 	if info.DescriptionCn == nil || *info.DescriptionCn != "北京城市描述" {
@@ -359,10 +359,10 @@ func TestHotelCityInfoBuilder(t *testing.T) {
 
 	// 部分设置
 	info2 := NewHotelCityInfoBuilder().
-		CityId("1002").
+		CityId(1002).
 		CityNameCn("上海").
 		Build()
-	if info2.CityId == nil || *info2.CityId != "1002" {
+	if info2.CityId == nil || *info2.CityId != 1002 {
 		t.Errorf("CityId = %v, want 1002", info2.CityId)
 	}
 	if info2.CityNameCn == nil || *info2.CityNameCn != "上海" {
@@ -377,7 +377,7 @@ func TestHotelCityInfoBuilder(t *testing.T) {
 
 func TestTrainCityInfoBuilder(t *testing.T) {
 	info := NewTrainCityInfoBuilder().
-		CityId("2001").
+		CityId(2001).
 		CityNameCn("北京").
 		CityNameEn("Beijing").
 		ProvinceId("1").
@@ -392,7 +392,7 @@ func TestTrainCityInfoBuilder(t *testing.T) {
 		}).
 		Build()
 
-	if info.CityId == nil || *info.CityId != "2001" {
+	if info.CityId == nil || *info.CityId != 2001 {
 		t.Errorf("CityId = %v, want 2001", info.CityId)
 	}
 	if info.CityNameCn == nil || *info.CityNameCn != "北京" {
@@ -428,9 +428,9 @@ func TestTrainCityInfoBuilder(t *testing.T) {
 
 	// 部分设置
 	info2 := NewTrainCityInfoBuilder().
-		CityId("2002").
+		CityId(2002).
 		Build()
-	if info2.CityId == nil || *info2.CityId != "2002" {
+	if info2.CityId == nil || *info2.CityId != 2002 {
 		t.Errorf("CityId = %v, want 2002", info2.CityId)
 	}
 	if info2.TrainStation != nil {
@@ -565,13 +565,13 @@ func TestListAirportCityApiReply_Deserialization(t *testing.T) {
 		"errmsg": "SUCCESS",
 		"data": [
 			{
-				"city_id": 1,
+				"city_id": "1",
 				"city_name_cn": "北京",
 				"city_name_en": "Beijing",
 				"province_id": 1,
 				"province_name_cn": "北京市",
 				"province_name_en": "Beijing",
-				"country_id": 1,
+				"country_id": "1",
 				"canonical_country_code": "CN",
 				"country_code": "CHN",
 				"country_name_cn": "中国",
@@ -599,7 +599,7 @@ func TestListAirportCityApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CityId == nil || *record.CityId != 1 {
+	if record.CityId == nil || *record.CityId != "1" {
 		t.Errorf("CityId = %v, want 1", record.CityId)
 	}
 	if record.CityNameCn == nil || *record.CityNameCn != "北京" {
@@ -608,7 +608,7 @@ func TestListAirportCityApiReply_Deserialization(t *testing.T) {
 	if record.ProvinceId == nil || *record.ProvinceId != 1 {
 		t.Errorf("ProvinceId = %v, want 1", record.ProvinceId)
 	}
-	if record.CountryId == nil || *record.CountryId != 1 {
+	if record.CountryId == nil || *record.CountryId != "1" {
 		t.Errorf("CountryId = %v, want 1", record.CountryId)
 	}
 	if record.CanonicalCountryCode == nil || *record.CanonicalCountryCode != "CN" {
@@ -639,8 +639,8 @@ func TestListAirportCityApiReply_MultipleItems(t *testing.T) {
 		"errno": 0,
 		"errmsg": "SUCCESS",
 		"data": [
-			{"city_id": 1, "city_name_cn": "北京"},
-			{"city_id": 2, "city_name_cn": "上海"}
+			{"city_id": "1", "city_name_cn": "北京"},
+			{"city_id": "2", "city_name_cn": "上海"}
 		],
 		"request_id": "req_multi"
 	}`
@@ -704,10 +704,10 @@ func TestListAirportCity_Success(t *testing.T) {
 			"errmsg": "SUCCESS",
 			"data": [
 				{
-					"city_id": 1,
+					"city_id": "1",
 					"city_name_cn": "北京",
 					"province_id": 1,
-					"country_id": 1,
+					"country_id": "1",
 					"flight_station": [{"airport_name_cn": "首都国际机场", "airport_code": "PEK"}]
 				}
 			],
@@ -742,7 +742,7 @@ func TestListAirportCity_Success(t *testing.T) {
 	if len(resp.ListAirportCityApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListAirportCityApiReply.Data))
 	}
-	if resp.ListAirportCityApiReply.Data[0].CityId == nil || *resp.ListAirportCityApiReply.Data[0].CityId != 1 {
+	if resp.ListAirportCityApiReply.Data[0].CityId == nil || *resp.ListAirportCityApiReply.Data[0].CityId != "1" {
 		t.Errorf("Data[0].CityId = %v, want 1", resp.ListAirportCityApiReply.Data[0].CityId)
 	}
 }
@@ -827,7 +827,7 @@ func TestListAirportCity_HttpError(t *testing.T) {
 }
 
 func TestListAirportCity_WithEncryption_AES128(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":1,"city_name_cn":"北京"}],"request_id":"req_enc"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"1","city_name_cn":"北京"}],"request_id":"req_enc"}`
 	key := []byte("16byte-key-12345")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -867,7 +867,7 @@ func TestListAirportCity_WithEncryption_AES128(t *testing.T) {
 }
 
 func TestListAirportCity_WithEncryption_AES256(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":1,"city_name_cn":"北京"}],"request_id":"req_enc256"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"1","city_name_cn":"北京"}],"request_id":"req_enc256"}`
 	key := []byte("32byte-key-1234567890abcdefghijk")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -907,7 +907,7 @@ func TestListAirportCity_EncryptionNoEncryptData(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":1}],"request_id":"req_noenc"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"1"}],"request_id":"req_noenc"}`))
 	}))
 	defer testServer.Close()
 
@@ -1986,7 +1986,7 @@ func TestListCountryApiReply_Deserialization(t *testing.T) {
 		"errmsg": "SUCCESS",
 		"data": [
 			{
-				"country_id": 1,
+				"country_id": "1",
 				"canonical_country_code": "CN",
 				"country_code": "CHN",
 				"country_name_cn": "中国",
@@ -2014,7 +2014,7 @@ func TestListCountryApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CountryId == nil || *record.CountryId != 1 {
+	if record.CountryId == nil || *record.CountryId != "1" {
 		t.Errorf("CountryId = %v, want 1", record.CountryId)
 	}
 	if record.CanonicalCountryCode == nil || *record.CanonicalCountryCode != "CN" {
@@ -2051,8 +2051,8 @@ func TestListCountryApiReply_MultipleItems(t *testing.T) {
 		"errno": 0,
 		"errmsg": "SUCCESS",
 		"data": [
-			{"country_id": 1, "country_name_cn": "中国"},
-			{"country_id": 2, "country_name_cn": "美国"}
+			{"country_id": "1", "country_name_cn": "中国"},
+			{"country_id": "2", "country_name_cn": "美国"}
 		],
 		"request_id": "req_multi"
 	}`
@@ -2115,7 +2115,7 @@ func TestListCountry_Success(t *testing.T) {
 			"errno": 0,
 			"errmsg": "SUCCESS",
 			"data": [
-				{"country_id": 1, "country_name_cn": "中国", "country_code": "CHN"}
+				{"country_id": "1", "country_name_cn": "中国", "country_code": "CHN"}
 			],
 			"request_id": "req_001"
 		}`))
@@ -2145,7 +2145,7 @@ func TestListCountry_Success(t *testing.T) {
 	if len(resp.ListCountryApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListCountryApiReply.Data))
 	}
-	if resp.ListCountryApiReply.Data[0].CountryId == nil || *resp.ListCountryApiReply.Data[0].CountryId != 1 {
+	if resp.ListCountryApiReply.Data[0].CountryId == nil || *resp.ListCountryApiReply.Data[0].CountryId != "1" {
 		t.Errorf("Data[0].CountryId = %v, want 1", resp.ListCountryApiReply.Data[0].CountryId)
 	}
 }
@@ -2230,7 +2230,7 @@ func TestListCountry_HttpError(t *testing.T) {
 }
 
 func TestListCountry_WithEncryption_AES128(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"country_id":1,"country_name_cn":"中国"}],"request_id":"req_enc"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"country_id":"1","country_name_cn":"中国"}],"request_id":"req_enc"}`
 	key := []byte("16byte-key-12345")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -2270,7 +2270,7 @@ func TestListCountry_WithEncryption_AES128(t *testing.T) {
 }
 
 func TestListCountry_WithEncryption_AES256(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"country_id":1,"country_name_cn":"中国"}],"request_id":"req_enc256"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"country_id":"1","country_name_cn":"中国"}],"request_id":"req_enc256"}`
 	key := []byte("32byte-key-1234567890abcdefghijk")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -2310,7 +2310,7 @@ func TestListCountry_EncryptionNoEncryptData(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"country_id":1}],"request_id":"req_noenc"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"country_id":"1"}],"request_id":"req_noenc"}`))
 	}))
 	defer testServer.Close()
 
@@ -2458,7 +2458,7 @@ func TestListHotelCityApiReply_Deserialization(t *testing.T) {
 		"errmsg": "SUCCESS",
 		"data": [
 			{
-				"city_id": "1001",
+				"city_id": 1001,
 				"description_cn": "北京城市描述",
 				"description_en": "Beijing city description",
 				"city_name_cn": "北京",
@@ -2491,7 +2491,7 @@ func TestListHotelCityApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CityId == nil || *record.CityId != "1001" {
+	if record.CityId == nil || *record.CityId != 1001 {
 		t.Errorf("CityId = %v, want 1001", record.CityId)
 	}
 	if record.DescriptionCn == nil || *record.DescriptionCn != "北京城市描述" {
@@ -2528,8 +2528,8 @@ func TestListHotelCityApiReply_MultipleItems(t *testing.T) {
 		"errno": 0,
 		"errmsg": "SUCCESS",
 		"data": [
-			{"city_id": "1001", "city_name_cn": "北京"},
-			{"city_id": "1002", "city_name_cn": "上海"}
+			{"city_id": 1001, "city_name_cn": "北京"},
+			{"city_id": 1002, "city_name_cn": "上海"}
 		],
 		"request_id": "req_multi"
 	}`
@@ -2592,7 +2592,7 @@ func TestListHotelCity_Success(t *testing.T) {
 			"errno": 0,
 			"errmsg": "SUCCESS",
 			"data": [
-				{"city_id": "1001", "city_name_cn": "北京", "country_id": "1"}
+				{"city_id": 1001, "city_name_cn": "北京", "country_id": "1"}
 			],
 			"request_id": "req_001"
 		}`))
@@ -2625,7 +2625,7 @@ func TestListHotelCity_Success(t *testing.T) {
 	if len(resp.ListHotelCityApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListHotelCityApiReply.Data))
 	}
-	if resp.ListHotelCityApiReply.Data[0].CityId == nil || *resp.ListHotelCityApiReply.Data[0].CityId != "1001" {
+	if resp.ListHotelCityApiReply.Data[0].CityId == nil || *resp.ListHotelCityApiReply.Data[0].CityId != 1001 {
 		t.Errorf("Data[0].CityId = %v, want 1001", resp.ListHotelCityApiReply.Data[0].CityId)
 	}
 }
@@ -2710,7 +2710,7 @@ func TestListHotelCity_HttpError(t *testing.T) {
 }
 
 func TestListHotelCity_WithEncryption_AES128(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"1001","city_name_cn":"北京"}],"request_id":"req_enc"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":1001,"city_name_cn":"北京"}],"request_id":"req_enc"}`
 	key := []byte("16byte-key-12345")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -2750,7 +2750,7 @@ func TestListHotelCity_WithEncryption_AES128(t *testing.T) {
 }
 
 func TestListHotelCity_WithEncryption_AES256(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"1001","city_name_cn":"北京"}],"request_id":"req_enc256"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":1001,"city_name_cn":"北京"}],"request_id":"req_enc256"}`
 	key := []byte("32byte-key-1234567890abcdefghijk")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -2790,7 +2790,7 @@ func TestListHotelCity_EncryptionNoEncryptData(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"1001"}],"request_id":"req_noenc"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":1001}],"request_id":"req_noenc"}`))
 	}))
 	defer testServer.Close()
 
@@ -2924,7 +2924,7 @@ func TestListTrainCityApiReply_Deserialization(t *testing.T) {
 		"errmsg": "SUCCESS",
 		"data": [
 			{
-				"city_id": "2001",
+				"city_id": 2001,
 				"city_name_cn": "北京",
 				"city_name_en": "Beijing",
 				"province_id": "1",
@@ -2957,7 +2957,7 @@ func TestListTrainCityApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CityId == nil || *record.CityId != "2001" {
+	if record.CityId == nil || *record.CityId != 2001 {
 		t.Errorf("CityId = %v, want 2001", record.CityId)
 	}
 	if record.CityNameCn == nil || *record.CityNameCn != "北京" {
@@ -3000,8 +3000,8 @@ func TestListTrainCityApiReply_MultipleItems(t *testing.T) {
 		"errno": 0,
 		"errmsg": "SUCCESS",
 		"data": [
-			{"city_id": "2001", "city_name_cn": "北京"},
-			{"city_id": "2002", "city_name_cn": "上海"}
+			{"city_id": 2001, "city_name_cn": "北京"},
+			{"city_id": 2002, "city_name_cn": "上海"}
 		],
 		"request_id": "req_multi"
 	}`
@@ -3064,7 +3064,7 @@ func TestListTrainCity_Success(t *testing.T) {
 			"errno": 0,
 			"errmsg": "SUCCESS",
 			"data": [
-				{"city_id": "2001", "city_name_cn": "北京", "train_station": [{"station_id": 2001, "station_name_cn": "北京南站"}]}
+				{"city_id": 2001, "city_name_cn": "北京", "train_station": [{"station_id": 2001, "station_name_cn": "北京南站"}]}
 			],
 			"request_id": "req_001"
 		}`))
@@ -3094,7 +3094,7 @@ func TestListTrainCity_Success(t *testing.T) {
 	if len(resp.ListTrainCityApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListTrainCityApiReply.Data))
 	}
-	if resp.ListTrainCityApiReply.Data[0].CityId == nil || *resp.ListTrainCityApiReply.Data[0].CityId != "2001" {
+	if resp.ListTrainCityApiReply.Data[0].CityId == nil || *resp.ListTrainCityApiReply.Data[0].CityId != 2001 {
 		t.Errorf("Data[0].CityId = %v, want 2001", resp.ListTrainCityApiReply.Data[0].CityId)
 	}
 }
@@ -3179,7 +3179,7 @@ func TestListTrainCity_HttpError(t *testing.T) {
 }
 
 func TestListTrainCity_WithEncryption_AES128(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"2001","city_name_cn":"北京"}],"request_id":"req_enc"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":2001,"city_name_cn":"北京"}],"request_id":"req_enc"}`
 	key := []byte("16byte-key-12345")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -3219,7 +3219,7 @@ func TestListTrainCity_WithEncryption_AES128(t *testing.T) {
 }
 
 func TestListTrainCity_WithEncryption_AES256(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"2001","city_name_cn":"北京"}],"request_id":"req_enc256"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":2001,"city_name_cn":"北京"}],"request_id":"req_enc256"}`
 	key := []byte("32byte-key-1234567890abcdefghijk")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -3259,7 +3259,7 @@ func TestListTrainCity_EncryptionNoEncryptData(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":"2001"}],"request_id":"req_noenc"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":[{"city_id":2001}],"request_id":"req_noenc"}`))
 	}))
 	defer testServer.Close()
 

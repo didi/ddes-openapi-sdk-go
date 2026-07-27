@@ -7,7 +7,7 @@ type BudgetCenterRecord struct {
 	Type             *string           `json:"type,omitempty"`                // 类型，枚举值 1 部门 2 项目
 	BudgetCycle      *int32            `json:"budget_cycle,omitempty"`        // 预算周期，枚举值数字 0 不限期 1 自然月 2 自然季度 3 自然年
 	OutBudgetId      *string           `json:"out_budget_id,omitempty"`       // 外部成本中心id
-	TotalQuota       *string           `json:"total_quota,omitempty"`         // 总金额，单位元 0 表示不限额度 精确到两位小数
+	TotalQuota       *string           `json:"total_quota,omitempty"`         // 总金额，单位元 0 表示不限额度 精确到两位小数（真打确认服务端返回 string，保持 *string）
 	IsLimitQuota     *int32            `json:"is_limit_quota,omitempty"`      // 是否限额，枚举值数字 0 不限制 1 限制
 	MemberNum        *int32            `json:"member_num,omitempty"`          // 在使用人数
 	AvailableQuota   *string           `json:"available_quota,omitempty"`     // 可用金额，单位元 精确到两位小数

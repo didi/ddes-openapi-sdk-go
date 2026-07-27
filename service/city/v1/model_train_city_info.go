@@ -2,7 +2,7 @@ package v1
 
 // TrainCityInfo struct for TrainCityInfo
 type TrainCityInfo struct {
-	CityId               *string        `json:"city_id,omitempty"`                // 滴滴城市ID
+	CityId               *int64         `json:"city_id,omitempty"`                // 滴滴城市ID
 	CityNameCn           *string        `json:"city_name_cn,omitempty"`           // 城市中文名
 	CityNameEn           *string        `json:"city_name_en,omitempty"`           // 城市英文名
 	ProvinceId           *string        `json:"province_id,omitempty"`            // 省ID
@@ -16,7 +16,7 @@ type TrainCityInfo struct {
 }
 
 type TrainCityInfoBuilder struct {
-	cityId                  string // 滴滴城市ID
+	cityId                  int64 // 滴滴城市ID
 	cityIdSet               bool
 	cityNameCn              string // 城市中文名
 	cityNameCnSet           bool
@@ -43,7 +43,7 @@ type TrainCityInfoBuilder struct {
 func NewTrainCityInfoBuilder() *TrainCityInfoBuilder {
 	return &TrainCityInfoBuilder{}
 }
-func (builder *TrainCityInfoBuilder) CityId(cityId string) *TrainCityInfoBuilder {
+func (builder *TrainCityInfoBuilder) CityId(cityId int64) *TrainCityInfoBuilder {
 	builder.cityId = cityId
 	builder.cityIdSet = true
 	return builder

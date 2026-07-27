@@ -744,7 +744,7 @@ func TestGetBudgetCenterApiReply_Deserialization(t *testing.T) {
 					"parent_id": "1125904357323160",
 					"member_used": 0,
 					"status": "1",
-					"limit_rule_list": [{"rule_name":"月限额","budget_cycle":1,"total_quota":"10000.00","available_quota":"5000.00","freeze_quota":"200.00"}],
+					"limit_rule_list": [{"rule_name":"月限额","budget_cycle":1,"total_quota":10000.00,"available_quota":"5000.00","freeze_quota":"200.00"}],
 					"extend_field": [{"id":1,"code":"custom","value":"test"}],
 					"poi_list": [{"city":"北京","city_id":1,"city_adcode":"110100","flat":39.9,"flng":116.4,"poi_range":500,"label":"国贸"}],
 					"leader_item_list": [{"leader_id":"1125922289295589","leader_name":"张三","leader_type":"major"}]
@@ -1781,7 +1781,7 @@ func TestGetBudgetCenter_Success(t *testing.T) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":"1","records":[{"id":"1125904357323169","name":"技术部","type":"1","status":"1","limit_rule_list":[{"rule_name":"月限额","budget_cycle":1,"total_quota":"10000.00","available_quota":"5000.00","freeze_quota":"200.00"}]}]},"request_id":"req_001"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":"1","records":[{"id":"1125904357323169","name":"技术部","type":"1","status":"1","limit_rule_list":[{"rule_name":"月限额","budget_cycle":1,"total_quota":10000.00,"available_quota":"5000.00","freeze_quota":"200.00"}]}]},"request_id":"req_001"}`))
 	}))
 	defer testServer.Close()
 

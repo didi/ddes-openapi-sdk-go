@@ -2,13 +2,13 @@ package v1
 
 // LimitRuleItem struct for LimitRuleItem
 type LimitRuleItem struct {
-	RuleName             *string `json:"rule_name,omitempty"`              // 限额规则名称(员工侧展示名称)
-	BudgetCycle          *int32  `json:"budget_cycle,omitempty"`           // 预算周期：0=不限额，1=自然月，2=自然季度，3=自然年，4=一次性，5=自然日，6=自定义，7=使用原部门周期
-	IsAccumulative       *int32  `json:"is_accumulative,omitempty"`        // 是否累计：0=不可累计，1=可累计
-	TotalQuota           *string `json:"total_quota,omitempty"`            // 限额(元)，0表示不限额度，精确到两位小数
-	LimitManagementScope *int32  `json:"limit_management_scope,omitempty"` // 限额管理范围：0=对当前部门/项目生效，1=对当前和下级生效
-	AvailableQuota       *string `json:"available_quota,omitempty"`        // 剩余额度(元)，精确到两位小数
-	FreezeQuota          *string `json:"freeze_quota,omitempty"`           // 冻结金额(元)，精确到两位小数
+	RuleName             *string  `json:"rule_name,omitempty"`              // 限额规则名称(员工侧展示名称)
+	BudgetCycle          *int32   `json:"budget_cycle,omitempty"`           // 预算周期：0=不限额，1=自然月，2=自然季度，3=自然年，4=一次性，5=自然日，6=自定义，7=使用原部门周期
+	IsAccumulative       *int32   `json:"is_accumulative,omitempty"`        // 是否累计：0=不可累计，1=可累计
+	TotalQuota           *float64 `json:"total_quota,omitempty"`            // 限额(元)，0表示不限额度，精确到两位小数（服务端返回 number，对齐 member 域 LimitRuleInfo.TotalQuota）
+	LimitManagementScope *int32   `json:"limit_management_scope,omitempty"` // 限额管理范围：0=对当前部门/项目生效，1=对当前和下级生效
+	AvailableQuota       *string  `json:"available_quota,omitempty"`        // 剩余额度(元)，精确到两位小数
+	FreezeQuota          *string  `json:"freeze_quota,omitempty"`           // 冻结金额(元)，精确到两位小数
 }
 
 type LimitRuleItemBuilder struct {
@@ -18,7 +18,7 @@ type LimitRuleItemBuilder struct {
 	budgetCycleSet          bool
 	isAccumulative          int32 // 是否累计：0=不可累计，1=可累计
 	isAccumulativeSet       bool
-	totalQuota              string // 限额(元)，0表示不限额度，精确到两位小数
+	totalQuota              float64 // 限额(元)，0表示不限额度，精确到两位小数
 	totalQuotaSet           bool
 	limitManagementScope    int32 // 限额管理范围：0=对当前部门/项目生效，1=对当前和下级生效
 	limitManagementScopeSet bool
@@ -46,7 +46,7 @@ func (builder *LimitRuleItemBuilder) IsAccumulative(isAccumulative int32) *Limit
 	builder.isAccumulativeSet = true
 	return builder
 }
-func (builder *LimitRuleItemBuilder) TotalQuota(totalQuota string) *LimitRuleItemBuilder {
+func (builder *LimitRuleItemBuilder) TotalQuota(totalQuota float64) *LimitRuleItemBuilder {
 	builder.totalQuota = totalQuota
 	builder.totalQuotaSet = true
 	return builder

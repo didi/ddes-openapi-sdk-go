@@ -16,12 +16,12 @@ import (
 
 func TestResidentsListInfoBuilder(t *testing.T) {
 	info := NewResidentsListInfoBuilder().
-		Id(4).
+		Id("4").
 		Name("青岛").
 		Adcode("370200").
 		Build()
 
-	if info.Id == nil || *info.Id != 4 {
+	if info.Id == nil || *info.Id != "4" {
 		t.Errorf("Id = %v, want 4", info.Id)
 	}
 	if info.Name == nil || *info.Name != "青岛" {
@@ -33,10 +33,10 @@ func TestResidentsListInfoBuilder(t *testing.T) {
 
 	// 部分设置
 	info2 := NewResidentsListInfoBuilder().
-		Id(5).
+		Id("5").
 		Build()
 
-	if info2.Id == nil || *info2.Id != 5 {
+	if info2.Id == nil || *info2.Id != "5" {
 		t.Errorf("Id = %v, want 5", info2.Id)
 	}
 	if info2.Name != nil {
@@ -304,7 +304,7 @@ func TestListMemberApiReply_Deserialization(t *testing.T) {
 					"realname": "ZHOUZH",
 					"regulation_id": ["1125920826148759", "1125920865383421"],
 					"residents_list": [
-						{"id": 13, "name": "青岛", "adcode": "370200"}
+						{"id": "13", "name": "青岛", "adcode": "370200"}
 					],
 					"role_ids": "1125915646090887_1125915646107623",
 					"set_dismiss_time": "",
@@ -369,7 +369,7 @@ func TestListMemberApiReply_Deserialization(t *testing.T) {
 	if len(record.ResidentsList) != 1 {
 		t.Fatalf("ResidentsList len = %d, want 1", len(record.ResidentsList))
 	}
-	if record.ResidentsList[0].Id == nil || *record.ResidentsList[0].Id != 13 {
+	if record.ResidentsList[0].Id == nil || *record.ResidentsList[0].Id != "13" {
 		t.Errorf("ResidentsList[0].Id = %v, want 13", record.ResidentsList[0].Id)
 	}
 	if record.ResidentsList[0].Name == nil || *record.ResidentsList[0].Name != "青岛" {
@@ -435,7 +435,7 @@ func TestListMemberApiReply_MultipleItems(t *testing.T) {
 		"errmsg": "SUCCESS",
 		"data": {
 			"records": [
-				{"id": "1001", "phone": "13800000001", "status": 1, "residents_list": [{"id": 13, "name": "青岛", "adcode": "370200"}]},
+				{"id": "1001", "phone": "13800000001", "status": 1, "residents_list": [{"id": "13", "name": "青岛", "adcode": "370200"}]},
 				{"id": "1002", "phone": "13800000002", "status": 4},
 				{"id": "1003", "phone": "13800000003"}
 			],
@@ -503,7 +503,7 @@ func TestMemberRecordBuilder_NewFields(t *testing.T) {
 		CertEnglishSurname("Zhang").
 		CertEnglishName("San").
 		ResidentsList([]ResidentsListInfo{
-			*NewResidentsListInfoBuilder().Id(4).Name("青岛").Adcode("370200").Build(),
+			*NewResidentsListInfoBuilder().Id("4").Name("青岛").Adcode("370200").Build(),
 		}).
 		LimitRuleList([]LimitRuleInfo{
 			*NewLimitRuleInfoBuilder().RuleName("默认").BudgetCycle(1).Build(),
@@ -593,7 +593,7 @@ func TestListMember_Success(t *testing.T) {
 						"phone": "13800000001",
 						"realname": "张三",
 						"status": 1,
-						"residents_list": [{"id": 4, "name": "青岛", "adcode": "370200"}],
+						"residents_list": [{"id": "4", "name": "青岛", "adcode": "370200"}],
 						"limit_rule_list": [{"rule_name": "默认", "budget_cycle": 1, "total_quota": 50000, "available_quota": 50000, "freeze_quota": 0}],
 						"cert_realname": "张三",
 						"cert_english_surname": "Zhang",
@@ -1043,7 +1043,7 @@ func TestGetMemberDetailApiReply_Deserialization(t *testing.T) {
 			"source": "4",
 			"status": 1,
 			"residents_list": [
-				{"id": 34, "name": "福州", "adcode": "350100"}
+				{"id": "34", "name": "福州", "adcode": "350100"}
 			],
 			"cert_realname": "翁舒嵘",
 			"cert_english_surname": "",
@@ -1095,7 +1095,7 @@ func TestGetMemberDetailApiReply_Deserialization(t *testing.T) {
 	if len(data.ResidentsList) != 1 {
 		t.Fatalf("ResidentsList len = %d, want 1", len(data.ResidentsList))
 	}
-	if data.ResidentsList[0].Id == nil || *data.ResidentsList[0].Id != 34 {
+	if data.ResidentsList[0].Id == nil || *data.ResidentsList[0].Id != "34" {
 		t.Errorf("ResidentsList[0].Id = %v, want 34", data.ResidentsList[0].Id)
 	}
 	if data.ResidentsList[0].Name == nil || *data.ResidentsList[0].Name != "福州" {
@@ -1161,7 +1161,7 @@ func TestGetMemberDetailApiReply_MultipleItems(t *testing.T) {
 			"member_id": "1125916593600206",
 			"phone": "13500007300",
 			"status": 1,
-			"residents_list": [{"id": 34, "name": "福州"}]
+			"residents_list": [{"id": "34", "name": "福州"}]
 		},
 		"request_id": "req_partial"
 	}`
@@ -1269,7 +1269,7 @@ func TestGetMemberDetail_Success(t *testing.T) {
 				"realname": "翁舒嵘",
 				"status": 1,
 				"source": "4",
-				"residents_list": [{"id": 34, "name": "福州", "adcode": "350100"}],
+				"residents_list": [{"id": "34", "name": "福州", "adcode": "350100"}],
 				"limit_rule_list": [{"rule_name": "默认", "budget_cycle": 1, "total_quota": 50000, "available_quota": 50000, "freeze_quota": 0}],
 				"cert_realname": "翁舒嵘",
 				"cert_english_surname": "",
@@ -1405,7 +1405,7 @@ func TestGetMemberDetail_HttpError(t *testing.T) {
 }
 
 func TestGetMemberDetail_WithEncryption_AES128(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"member_id":"1125916593600206","status":1,"residents_list":[{"id":34,"name":"福州","adcode":"350100"}]},"request_id":"req_enc"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"member_id":"1125916593600206","status":1,"residents_list":[{"id":"34","name":"福州","adcode":"350100"}]},"request_id":"req_enc"}`
 	key := []byte("16byte-key-12345")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -1452,7 +1452,7 @@ func TestGetMemberDetail_WithEncryption_AES128(t *testing.T) {
 	if len(resp.GetMemberDetailApiReply.Data.ResidentsList) != 1 {
 		t.Fatalf("ResidentsList len = %d, want 1", len(resp.GetMemberDetailApiReply.Data.ResidentsList))
 	}
-	if resp.GetMemberDetailApiReply.Data.ResidentsList[0].Id == nil || *resp.GetMemberDetailApiReply.Data.ResidentsList[0].Id != 34 {
+	if resp.GetMemberDetailApiReply.Data.ResidentsList[0].Id == nil || *resp.GetMemberDetailApiReply.Data.ResidentsList[0].Id != "34" {
 		t.Errorf("ResidentsList[0].Id = %v, want 34", resp.GetMemberDetailApiReply.Data.ResidentsList[0].Id)
 	}
 }

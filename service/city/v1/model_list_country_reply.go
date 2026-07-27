@@ -2,7 +2,7 @@ package v1
 
 // ListCountryReply struct for ListCountryReply
 type ListCountryReply struct {
-	CountryId            *int32  `json:"country_id,omitempty"`             // 国家id
+	CountryId            *string `json:"country_id,omitempty"`             // 国家id（大ID，服务端返回值超 int32，用 *string）
 	CanonicalCountryCode *string `json:"canonical_country_code,omitempty"` // 国家二次码
 	CountryCode          *string `json:"country_code,omitempty"`           // 国家三字码
 	CountryNameCn        *string `json:"country_name_cn,omitempty"`        // 国家中文名

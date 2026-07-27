@@ -2,13 +2,13 @@ package v1
 
 // ResidentsListInfo 常驻地信息
 type ResidentsListInfo struct {
-	Id     *int64  `json:"id,omitempty"`     // 常驻地ID
+	Id     *string `json:"id,omitempty"`     // 常驻地ID
 	Name   *string `json:"name,omitempty"`   // 常驻地名称
 	Adcode *string `json:"adcode,omitempty"` // 常驻地行政区划代码
 }
 
 type ResidentsListInfoBuilder struct {
-	id        int64 // 常驻地ID
+	id        string // 常驻地ID
 	idSet     bool
 	name      string // 常驻地名称
 	nameSet   bool
@@ -19,7 +19,7 @@ type ResidentsListInfoBuilder struct {
 func NewResidentsListInfoBuilder() *ResidentsListInfoBuilder {
 	return &ResidentsListInfoBuilder{}
 }
-func (builder *ResidentsListInfoBuilder) Id(id int64) *ResidentsListInfoBuilder {
+func (builder *ResidentsListInfoBuilder) Id(id string) *ResidentsListInfoBuilder {
 	builder.id = id
 	builder.idSet = true
 	return builder
