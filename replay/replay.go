@@ -1,3 +1,6 @@
+//go:build replay
+// +build replay
+
 package replay
 
 import (
