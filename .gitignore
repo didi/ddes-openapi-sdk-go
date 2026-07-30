@@ -165,3 +165,8 @@ log/
 .keys_secrets/
 unittest/
 pom.xml.versionsBackup
+
+# 回放测试 fixtures（含真实流量 PII，本地生成不入库）
+replay/testdata/replay/
+# replaygen 构建产物
+tools/replaygen/replaygen

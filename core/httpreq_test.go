@@ -327,7 +327,7 @@ func TestRequestNetworkError(t *testing.T) {
 		clientId:       "test_client_id",
 		clientSecret:   "test_client_secret",
 		signKey:        "test_sign_key",
-		BaseUrl:        "http://localhost:9999", // 假设没有服务监听此端口
+		BaseUrl:        "http://localhost:9", // port 9 (discard) 几乎无服务监听，用于触发网络错误
 		RequestTimeOut: 1 * time.Second,
 		SignMethod:     1,
 		Logger:         NewLoggerImpl(LogLevelInfo, NewDefaultLogger(LogLevelInfo)),

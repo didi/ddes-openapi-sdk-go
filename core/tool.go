@@ -42,6 +42,24 @@ func (d *SmartDecoder) Decode(data []byte, v interface{}) error {
 	// 将中间映射转换到目标结构体
 	return d.mapToStruct(intermediate, reflect.ValueOf(v).Elem())
 }
+
+// SmartDecode 直接以容错方式解析 JSON 到结构体，不经 json.Unmarshal 到目标（避免触发
+// 目标自身的 UnmarshalJSON 递归）。供 struct 的自定义 UnmarshalJSON 内部调用：
+// 真实流量中同一字段可能 number/string/空串混存，SmartDecode 经中间 map 统一转换
+// （number↔string 等容错），适合字段多、类型混杂的 reply struct（如账单明细）。
+//
+// v 必须是结构体指针。
+func SmartDecode(data []byte, v interface{}) error {
+	var intermediate map[string]interface{}
+	if err := json.Unmarshal(data, &intermediate); err != nil {
+		return err
+	}
+	return defaultSmartDecoder.mapToStruct(intermediate, reflect.ValueOf(v).Elem())
+}
+
+// defaultSmartDecoder 复用单例，避免每次 SmartDecode 新建。
+var defaultSmartDecoder = &SmartDecoder{}
+
 func LowercaseFirst(s string) string {
 	if s == "" {
 		return ""

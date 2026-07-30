@@ -1,5 +1,7 @@
 package v1
 
+import "github.com/didi/ddes-openapi-sdk-go/core"
+
 // LimitRuleItem struct for LimitRuleItem
 type LimitRuleItem struct {
 	RuleName             *string  `json:"rule_name,omitempty"`              // 限额规则名称(员工侧展示名称)
@@ -91,4 +93,10 @@ func (builder *LimitRuleItemBuilder) Build() *LimitRuleItem {
 		data.FreezeQuota = &builder.freezeQuota
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：AvailableQuota 等字段真实流量 number/string 混存，
+// *string 收 number 会失败。用 core.SmartDecode 经中间 map 转换，避免递归。
+func (l *LimitRuleItem) UnmarshalJSON(data []byte) error {
+	return core.SmartDecode(data, l)
 }

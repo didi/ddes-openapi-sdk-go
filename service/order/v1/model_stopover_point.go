@@ -1,5 +1,11 @@
 package v1
 
+import (
+	"encoding/json"
+
+	"github.com/didi/ddes-openapi-sdk-go/core"
+)
+
 // StopoverPoint 途经点信息
 type StopoverPoint struct {
 	Cityid  *string `json:"cityid,omitempty"`  // 途经点城市id
@@ -102,4 +108,30 @@ func (builder *StopoverPointBuilder) Build() *StopoverPoint {
 		data.Status = &builder.status
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：Lat/Lng 真实流量 number/空串混存，
+// 标准反序列化对 *string 收 number 会失败。用 alias 避免递归，Lat/Lng 单独转 string。
+func (s *StopoverPoint) UnmarshalJSON(data []byte) error {
+	type alias StopoverPoint
+	aux := struct {
+		alias
+		Lat json.RawMessage `json:"lat"`
+		Lng json.RawMessage `json:"lng"`
+	}{}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	*s = StopoverPoint(aux.alias)
+	if len(aux.Lat) > 0 && string(aux.Lat) != "null" {
+		if v, err := core.RawMessageToString(aux.Lat); err == nil {
+			s.Lat = &v
+		}
+	}
+	if len(aux.Lng) > 0 && string(aux.Lng) != "null" {
+		if v, err := core.RawMessageToString(aux.Lng); err == nil {
+			s.Lng = &v
+		}
+	}
+	return nil
 }

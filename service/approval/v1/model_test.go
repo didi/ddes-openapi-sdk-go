@@ -241,7 +241,7 @@ func TestTripBuilder(t *testing.T) {
 		DepartureProvinceId(11).DepartureProvinceName("北京市").
 		DestinationAddressDimension(0).DestinationCountryId(1).DestinationCountryName("中国").
 		DestinationProvinceId(31).DestinationProvinceName("上海市").
-		ToCitys([]TravelCity{*NewTravelCityBuilder().Id(1).Name("北京").Build()}).
+		ToCitys([]TravelCity{*NewTravelCityBuilder().Id("1").Name("北京").Build()}).
 		Build()
 	if info.DepartureCity == nil || *info.DepartureCity != "北京" {
 		t.Errorf("DepartureCity = %v, want 北京", info.DepartureCity)
@@ -361,7 +361,7 @@ func TestCarRuleBuilder(t *testing.T) {
 func TestHotelRuleBuilder(t *testing.T) {
 	info := NewHotelRuleBuilder().
 		RuleId("H001").RuleName("酒店规则").RuleStatus("1").
-		CityList([]TravelCity{*NewTravelCityBuilder().Id(1).Name("北京").Build()}).
+		CityList([]TravelCity{*NewTravelCityBuilder().Id("1").Name("北京").Build()}).
 		TotalCount(3).AvailableCount(2).
 		StartTime("2026-01-01").EndTime("2026-01-03").Build()
 	if info.RuleId == nil || *info.RuleId != "H001" {
@@ -427,10 +427,10 @@ func TestBusinessCityBuilder(t *testing.T) {
 
 func TestTravelCityBuilder(t *testing.T) {
 	info := NewTravelCityBuilder().
-		Id(1).Name("北京").AddressDimension(0).
+		Id("1").Name("北京").AddressDimension(0).
 		CountryId(1).CountryName("中国").
 		ProvinceId(11).ProvinceName("北京市").Build()
-	if info.Id == nil || *info.Id != 1 {
+	if info.Id == nil || *info.Id != "1" {
 		t.Errorf("Id = %v, want 1", info.Id)
 	}
 	if info.Name == nil || *info.Name != "北京" {
@@ -439,7 +439,7 @@ func TestTravelCityBuilder(t *testing.T) {
 	if info.AddressDimension == nil || *info.AddressDimension != 0 {
 		t.Errorf("AddressDimension = %v, want 0", info.AddressDimension)
 	}
-	info2 := NewTravelCityBuilder().Id(2).Build()
+	info2 := NewTravelCityBuilder().Id("2").Build()
 	if info2.Name != nil {
 		t.Errorf("Name = %v, want nil", info2.Name)
 	}
@@ -500,12 +500,12 @@ func TestApprovalOrderRecordBuilder(t *testing.T) {
 		RuleId("R001").RegulationId("RG001").SceneType("2").
 		OrderCreateTime("1675602713").BeginChargeTime("1675582413").
 		FinishTime("1675583857").DepartureTime("1675582103").
-		UseCarType(2).CarLevel(100).CityName("北京").
+		UseCarType(2).CarLevel("100").CityName("北京").
 		StartName("望京SOHO").EndName("陆家嘴").
 		ActualStartName("望京SOHO实际").ActualEndName("陆家嘴实际").
 		ActualFlat("39.99").ActualFlng("116.48").
 		ActualTlat("31.24").ActualTlng("121.50").
-		PayTime("1675600000").OrderStatus(2).PayType(0).IsInvoice(0).
+		PayTime("1675600000").OrderStatus("2").PayType("0").IsInvoice("0").
 		CallPhone("13800000001").PassengerPhone("13800000002").
 		TotalPrice("100.50").ActualPrice(80.00).RefundPrice("0").
 		CompanyPay("80.00").PersonalPay("20.50").
@@ -1098,7 +1098,7 @@ func TestGetApprovalDetailApiReply_Deserialization(t *testing.T) {
 
 func TestListApprovalOrderApiReply_Deserialization(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		jsonData := `{"errno":0,"errmsg":"SUCCESS","data":{"records":[{"order_id":"1125922289295589","approval_id":"AP001","use_car_type":2,"car_level":100,"order_status":2,"actual_price":80.00,"total_price":"100.50","city_name":"北京","start_name":"望京SOHO","end_name":"陆家嘴","budget_center_list":[{"sequence":1}]}]},"request_id":"req_001"}`
+		jsonData := `{"errno":0,"errmsg":"SUCCESS","data":{"records":[{"order_id":"1125922289295589","approval_id":"AP001","use_car_type":2,"car_level":"100","order_status":2,"actual_price":80.00,"total_price":"100.50","city_name":"北京","start_name":"望京SOHO","end_name":"陆家嘴","budget_center_list":[{"sequence":1}]}]},"request_id":"req_001"}`
 		var reply ListApprovalOrderApiReply
 		if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
 			t.Fatalf("Unmarshal failed: %v", err)
@@ -1135,7 +1135,7 @@ func TestListApprovalOrderApiReply_Deserialization(t *testing.T) {
 		if len(reply.Data.Records) != 2 {
 			t.Fatalf("Records len = %d, want 2", len(reply.Data.Records))
 		}
-		if reply.Data.Records[0].OrderStatus == nil || *reply.Data.Records[0].OrderStatus != 2 {
+		if reply.Data.Records[0].OrderStatus == nil || *reply.Data.Records[0].OrderStatus != "2" {
 			t.Errorf("Records[0].OrderStatus = %v, want 2", reply.Data.Records[0].OrderStatus)
 		}
 		if reply.Data.Records[1].OrderStatus != nil {

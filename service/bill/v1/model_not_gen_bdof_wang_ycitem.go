@@ -1,167 +1,173 @@
 package v1
 
+import (
+	"encoding/json"
+
+	"github.com/didi/ddes-openapi-sdk-go/core"
+)
+
 // NotGenBDOfWangYCItem 未出账单 - 网约车,参考内部文档进行定义；
 type NotGenBDOfWangYCItem struct {
-	IsCurrentTerm            *string  `json:"is_current_term,omitempty"`             // 账期 枚举【本期、往期】
-	OrderId                  *int64   `json:"order_id,omitempty"`                    // 订单id -企业级内部
-	OutOrderId               *int64   `json:"out_order_id,omitempty"`                // 订单id -网约车
-	OrderSource              *string  `json:"order_source,omitempty"`                // 订单来源 枚举【企业app、H5等】
-	Status                   *string  `json:"status,omitempty"`                      // 订单状态 枚举【全部支付、部分支付、超时取消扣费、全部退款、部分退款】
-	Rule                     *string  `json:"rule,omitempty"`                        // 用车类型 枚举【出租车、专车、快车、代驾、豪华车、私车公用、同时呼叫】
-	RequireLevel             *string  `json:"require_level,omitempty"`               // 车型等级 枚举【专车-舒适型、专车-豪华型、快车-普通型、豪华车-奔驰S级 等】
-	MemberName               *string  `json:"member_name,omitempty"`                 // 预定人姓名
-	EmployeeNumber           *string  `json:"employee_number,omitempty"`             // 预定人工号
-	MemberMail               *string  `json:"member_mail,omitempty"`                 // 预定人邮箱
-	CallPhone                *string  `json:"call_phone,omitempty"`                  // 预定人手机号
-	DepartmentName           *string  `json:"department_name,omitempty"`             // 预定人部门路径 如：\"jrm测试公司2023>同一级\"
-	OutBudgetId              *string  `json:"out_budget_id,omitempty"`               // 预定人部门code
-	Department               *string  `json:"department,omitempty"`                  // 预定人员工部门 取member department 字段（旧）
-	PassengerName            *string  `json:"passenger_name,omitempty"`              // 乘车人姓名
-	PassengerPhone           *string  `json:"passenger_phone,omitempty"`             // 乘车人电话
-	PayType                  *string  `json:"pay_type,omitempty"`                    // 支付方式 枚举【\"企业支付\"、\"个人支付\"、\"混合支付\"、\"企业钱包支付\"】 当前订单支付金额的方式，如：企业支付、混合支付（指企业支付和个人支付两种支付方式同时支付一笔订单）
-	TotalPrice               *float64 `json:"total_price,omitempty"`                 // 订单总金额
-	CompanyRealPay           *float64 `json:"company_real_pay,omitempty"`            // 企业实付金额
-	PersonalRealPay          *float64 `json:"personal_real_pay,omitempty"`           // 个人实付金额
-	RealVoucherPay           *float64 `json:"real_voucher_pay,omitempty"`            // 代金券(实际使用金额)
-	Cost                     *float64 `json:"cost,omitempty"`                        // 专车订单金额
-	DiscountAfterPrice       *float64 `json:"discount_after_price,omitempty"`        // 服务费金额
-	CompanyRealRefund        *float64 `json:"company_real_refund,omitempty"`         // 企业实退金额
-	Type                     *string  `json:"type,omitempty"`                        // 发单类型 枚举【实时、预约】
-	CreateTime               *string  `json:"create_time,omitempty"`                 // 订单创建时间
-	DepartureDime            *string  `json:"departure_dime,omitempty"`              // 出发时间
-	MeetTime                 *string  `json:"meetTime,omitempty"`                    // 接驾时间
-	BeginChargeTime          *string  `json:"begin_charge_time,omitempty"`           // 开始计费时间
-	FinishTime               *string  `json:"finish_time,omitempty"`                 // 完单时间
-	PayTime                  *string  `json:"pay_time,omitempty"`                    // 支付时间
-	RefundTime               *string  `json:"refund_time,omitempty"`                 // 退款时间
-	City                     *string  `json:"city,omitempty"`                        // 城市
-	DestinationCity          *string  `json:"destination_city,omitempty"`            // 订单到达城市
-	NormalDistance           *float64 `json:"normal_distance,omitempty"`             // 实际用车里程
-	StartAddress             *string  `json:"start_address,omitempty"`               // 出发地地址
-	EndAddress               *string  `json:"end_address,omitempty"`                 // 目的地地址
-	StartName                *string  `json:"start_name,omitempty"`                  // 出发地名称
-	EndName                  *string  `json:"end_name,omitempty"`                    // 目的地名称
-	ActualStartName          *string  `json:"actual_start_name,omitempty"`           // 实际出发地名称
-	ActualEndName            *string  `json:"actual_end_name,omitempty"`             // 实际目的地名称
-	RuleName                 *string  `json:"rule_name,omitempty"`                   // 用车规则
-	UseCarSrv                *string  `json:"use_car_srv,omitempty"`                 // 用车类型 枚举【快车用车、专车用车、专车包车、豪华车送机 等】
-	BudgetCenterName         *string  `json:"budget_center_name,omitempty"`          // 成本中心名称 管理员在ES后台差旅管控模块维护的成本中心（部门或项目）名称，同时可以设置员工下单时是否必填此字段
-	BudgetId                 *string  `json:"budget_id,omitempty"`                   // 成本中心ID 管理员在ES后台差旅管控模块维护的成本中心（部门或项目）ID，同时可以设置员工下单时是否必填此字段
-	Remark                   *string  `json:"remark,omitempty"`                      // 备注
-	OrderAdditionalRemark    *string  `json:"order_additional_remark,omitempty"`     // 补充说明
-	ApprovalReason           *string  `json:"approval_reason,omitempty"`             // 审批备注
-	ApprovalCreateTime       *string  `json:"approval_create_time,omitempty"`        // 申请提交时间
-	ApprovalLogs             *string  `json:"approval_logs,omitempty"`               // 审批历史-审批时间
-	OutApprovalId            *string  `json:"out_approval_id,omitempty"`             // 外部申请单id
-	UpgradeType              *string  `json:"upgrade_type,omitempty"`                // 升舱类型 枚举【非升舱单、升舱、专车拼车、降舱】
-	IsFixedPrice             *string  `json:"is_fixed_price,omitempty"`              // 是否一口价 枚举【是、否】
-	IsSelfDrive              *string  `json:"is_self_drive,omitempty"`               // 是否是私车同行 枚举【是、否】
-	IsDiscountOrder          *string  `json:"is_discount_order,omitempty"`           // 是否有折扣 枚举【是、否】
-	IsCarpool                *string  `json:"is_carpool,omitempty"`                  // 是否拼车 枚举【是、否】
-	IsReassignment           *string  `json:"is_reassignment,omitempty"`             // 是否改派 枚举【是、否】
-	CallbackInfo             *string  `json:"callback_info,omitempty"`               // 用户自定义字段
-	ApprovalExtraInfo        *string  `json:"approval_extra_info,omitempty"`         // 审批单自定义
-	AfterApprovalResult      *string  `json:"after_approval_result,omitempty"`       // 行后审批结果
-	AfterApprovalContent     *string  `json:"after_approval_content,omitempty"`      // 审批历史
-	CompanyId                *int64   `json:"company_id,omitempty"`                  // 公司id
-	CompanyName              *string  `json:"company_name,omitempty"`                // 公司名称
-	LegalEntityId            *int64   `json:"legal_entity_id,omitempty"`             // 预定人开票子公司id
-	LegalEntityName          *string  `json:"legal_entity_name,omitempty"`           // 预定人开票子公司名称
-	CompanyCardRealPay       *float64 `json:"company_card_real_pay,omitempty"`       // 企业钱包实付金额
-	UseCarTypeV2             *string  `json:"use_car_type_v2,omitempty"`             // 用车场景 枚举【加班、日常出勤、接送机 等】
-	BudgetItemName           *string  `json:"budget_item_name,omitempty"`            // 科目费用
-	UseType                  *string  `json:"use_type,omitempty"`                    // 是否代叫车 枚举【代客户叫车、员工自己用车】
-	StartPrice               *float64 `json:"start_price,omitempty"`                 // 起步价
-	NormalFee                *float64 `json:"normal_fee,omitempty"`                  // 里程费
-	LowSpeedFee              *float64 `json:"low_speed_fee,omitempty"`               // 低速费
-	EmptyFee                 *float64 `json:"empty_fee,omitempty"`                   // 远途费
-	NightFee                 *float64 `json:"night_fee,omitempty"`                   // 夜间费
-	ResponsibleCancelFee     *float64 `json:"responsible_cancel_fee,omitempty"`      // 有责取消费
-	LimitFee                 *float64 `json:"limit_fee,omitempty"`                   // 基础费
-	LimitPay                 *float64 `json:"limit_pay,omitempty"`                   // 基础费补足金额
-	NormalTimeFee            *float64 `json:"normal_time_fee,omitempty"`             // 时长费
-	DynamicPrice             *float64 `json:"dynamic_price,omitempty"`               // 动态调价
-	TipFee                   *float64 `json:"tip_fee,omitempty"`                     // 小费
-	BridgeFee                *float64 `json:"bridge_fee,omitempty"`                  // 路桥费
-	HighwayFee               *float64 `json:"highway_fee,omitempty"`                 // 高速费
-	ParkFee                  *float64 `json:"park_fee,omitempty"`                    // 停车费
-	WaitFee                  *float64 `json:"wait_fee,omitempty"`                    // 等待费
-	IncentiveFee             *float64 `json:"incentive_fee,omitempty"`               // 调度费
-	RedPacket                *float64 `json:"red_packet,omitempty"`                  // 春节加价费
-	OtherFee                 *float64 `json:"other_fee,omitempty"`                   // 其他费用
-	MemberId                 *float64 `json:"member_id,omitempty"`                   // 预定人id
-	RefundPrice              *float64 `json:"refund_price,omitempty"`                // 退款金额
-	GroupName                *string  `json:"group_name,omitempty"`                  // 预定人部门名称（新）
-	GroupId                  *string  `json:"group_id,omitempty"`                    // 预定人部门id
-	CompanyRealPreTaxPay     *float64 `json:"company_real_pre_tax_pay,omitempty"`    // 不含税实付金额 =企业实付金额*（1-税率）
-	CompanyRealTaxPay        *float64 `json:"company_real_tax_pay,omitempty"`        // 税额 =企业实付金额*税率
-	UserPayTime              *string  `json:"user_pay_time,omitempty"`               // 用户首次确认支付时间
-	UserPayType              *string  `json:"user_pay_type,omitempty"`               // 用户支付类型 枚举【用户主动支付、系统自动支付、系统自动支付后用户主动支付】
-	SettleType               *string  `json:"settle_type,omitempty"`                 // 业务线名称 网约车
-	SubAccountName           *string  `json:"sub_account_name,omitempty"`            // 所属子账户
-	BelongBudgetCenterName   *string  `json:"belong_budget_center_name,omitempty"`   // 恒为空 可忽略
-	BelongOutBudgetId        *string  `json:"belong_out_budget_id,omitempty"`        // 恒为空 可忽略
-	IsCarpoolSuccess         *int32   `json:"is_carpool_success,omitempty"`          // 是否拼成 1:是 0:否
-	CompanyPayAble           *float64 `json:"company_pay_able,omitempty"`            // 企业应付金额
-	ServiceType              *string  `json:"service_type,omitempty"`                // 包车套餐
-	BeforeApprovalResult     *string  `json:"before_approval_result,omitempty"`      // 行前审批
-	TimeSlotDiscount         *float64 `json:"time_slot_discount,omitempty"`          // 时段单单惠
-	ExtendInfo               *string  `json:"extend_info,omitempty"`                 // 附加信息（开票主体信息） 对应用户invoice_info信息
-	Period                   *string  `json:"period,omitempty"`                      // 支付账期
-	ExcludingTaxPayPrice     *float64 `json:"excluding_tax_pay_price,omitempty"`     // 不含税实付金额 =企业实付金额*（1-税率） 同company_real_pre_tax_pay 冗余字段
-	TaxPayPrice              *float64 `json:"tax_pay_price,omitempty"`               // 实付税额 =企业实付金额*税率 同company_real_tax_pay 冗余字段
-	ExcludingTaxRefundPrice  *float64 `json:"excluding_tax_refund_price,omitempty"`  // 不含税实退金额 =企业实退金额*（1-税率）
-	TaxRefundPrice           *float64 `json:"tax_refund_price,omitempty"`            // 实退税额 =企业实退金额*税率
-	IsSensitive              *int32   `json:"is_sensitive,omitempty"`                // 是否敏感订单 1:是 0:否
-	SensitiveReason          *string  `json:"sensitive_reason,omitempty"`            // 敏感订单原因
-	CompanyCardRealRefund    *float64 `json:"company_card_real_refund,omitempty"`    // 企业出行卡实退金额
-	CancelTime               *string  `json:"cancel_time,omitempty"`                 // 取消时间
-	CrossCityFee             *float64 `json:"cross_city_fee,omitempty"`              // 跨城费
-	RemoteAreaFee            *float64 `json:"remote_area_fee,omitempty"`             // 偏远地区接驾费
-	UseCarTypeName           *string  `json:"use_car_type_name,omitempty"`           // 用车场景细分 枚举【日常用车、加班用车、办公地通勤 等】
-	SubUseCarSrv             *string  `json:"sub_use_car_srv,omitempty"`             // 使用场景 枚举【市内用车、接送机、接送火车站、接送汽车站、接送渡口】
-	EnergyConsumeFee         *float64 `json:"energy_consume_fee,omitempty"`          // 综合能耗费
-	IsUnusual                *string  `json:"is_unusual,omitempty"`                  // 是否异常 枚举【是、否】
-	UnusualType              *string  `json:"unusual_type,omitempty"`                // 异常类型
-	UnusualContent           *string  `json:"unusual_content,omitempty"`             // 异常说明
-	PositionName             *string  `json:"position_name,omitempty"`               // 职级
-	InstitutionName          *string  `json:"institution_name,omitempty"`            // 用车制度
-	UseCarService            *string  `json:"use_car_service,omitempty"`             // 用车服务 枚举【接送服务、出差市内用车】
-	ExInfo01                 *string  `json:"ex_info_01,omitempty"`                  // 自定义拓展字段1
-	ExInfo02                 *string  `json:"ex_info_02,omitempty"`                  // 自定义拓展字段2
-	ExInfo03                 *string  `json:"ex_info_03,omitempty"`                  // 自定义拓展字段3
-	ExInfo04                 *string  `json:"ex_info_04,omitempty"`                  // 用户自定义拓展字段 4
-	ExInfo05                 *string  `json:"ex_info_05,omitempty"`                  // 用户自定义拓展字段 5
-	ExInfo06                 *string  `json:"ex_info_06,omitempty"`                  // 用户自定义拓展字段 6
-	ExInfo07                 *string  `json:"ex_info_07,omitempty"`                  // 用户自定义拓展字段 7
-	ExInfo08                 *string  `json:"ex_info_08,omitempty"`                  // 用户自定义拓展字段 8
-	ResidentCityNames        *string  `json:"resident_city_names,omitempty"`         // 常驻城市
-	OriginalPrice            *float64 `json:"original_price,omitempty"`              // 原价
-	OneTimeOfferSubsidy      *float64 `json:"one_time_offer_subsidy,omitempty"`      // 尊享折扣
-	SubsidyAmount            *float64 `json:"subsidy_amount,omitempty"`              // 补贴金额
-	VoucherDeductionTypeName *string  `json:"voucher_deduction_type_name,omitempty"` // 券抵扣类型
-	PassengerMemberNumber    *string  `json:"passenger_member_number,omitempty"`     // 乘车人员工编号
-	PassengerMemberId        *int64   `json:"passenger_member_id,omitempty"`         // 乘车人员工 id
-	ProjectExtInfo           *string  `json:"project_ext_info,omitempty"`            // 项目自定义
-	OutLegalEntityId         *string  `json:"out_legal_entity_id,omitempty"`         // 外部公司主体编号
-	CarTravelInfo            *string  `json:"car_travel_Info,omitempty"`             // 途经点地址 如：丰台区 - 大红门街道 1 号；多个途经点用｜连接，丰台区 - 大红门街道 1 号｜朝阳区 - 国贸 5 号楼
-	SupplierType             *string  `json:"supplier_type,omitempty"`               // 运力来源 枚举值：滴滴自营、滴滴旗下品牌、第三方服务
-	SupplierName             *string  `json:"supplier_name,omitempty"`               // 三方名称
-	SupplierCarName          *string  `json:"supplier_car_name,omitempty"`           // 三方车型
-	InstitutionId            *int64   `json:"institution_id,omitempty"`              // 制度 ID
-	ExcludingServiceFee      *float64 `json:"excluding_service_fee,omitempty"`       // 企业实付（不包含平台使用费）
-	EstimatePrice            *float64 `json:"estimate_price,omitempty"`              // 预估金额
-	SubAccountCompanyName    *string  `json:"sub_account_company_name,omitempty"`    // 子账户公司名称
-	ExInfo01Code             *string  `json:"ex_info_01_code,omitempty"`             // 用户自定义拓展字段 1 编码
-	ExInfo02Code             *string  `json:"ex_info_02_code,omitempty"`             // 用户自定义拓展字段 2 编码
-	ExInfo03Code             *string  `json:"ex_info_03_code,omitempty"`             // 用户自定义拓展字段 3 编码
-	ExInfo04Code             *string  `json:"ex_info_04_code,omitempty"`             // 用户自定义拓展字段 4 编码
-	ExInfo05Code             *string  `json:"ex_info_05_code,omitempty"`             // 用户自定义拓展字段 5 编码
-	ExInfo06Code             *string  `json:"ex_info_06_code,omitempty"`             // 用户自定义拓展字段 6 编码
-	ExInfo07Code             *string  `json:"ex_info_07_code,omitempty"`             // 用户自定义拓展字段 7 编码
-	ExInfo08Code             *string  `json:"ex_info_08_code,omitempty"`             // 用户自定义拓展字段 8 编码
-	ParentInstitutionId      *int64   `json:"parent_institution_id,omitempty"`       // 父制度 ID
-	BranchName               *string  `json:"branch_name,omitempty"`                 // 预定人所在分公司名称
+	IsCurrentTerm            *string      `json:"is_current_term,omitempty"`             // 账期 枚举【本期、往期】
+	OrderId                  *int64       `json:"order_id,omitempty"`                    // 订单id -企业级内部
+	OutOrderId               *int64       `json:"out_order_id,omitempty"`                // 订单id -网约车
+	OrderSource              *string      `json:"order_source,omitempty"`                // 订单来源 枚举【企业app、H5等】
+	Status                   *string      `json:"status,omitempty"`                      // 订单状态 枚举【全部支付、部分支付、超时取消扣费、全部退款、部分退款】
+	Rule                     *string      `json:"rule,omitempty"`                        // 用车类型 枚举【出租车、专车、快车、代驾、豪华车、私车公用、同时呼叫】
+	RequireLevel             *string      `json:"require_level,omitempty"`               // 车型等级 枚举【专车-舒适型、专车-豪华型、快车-普通型、豪华车-奔驰S级 等】
+	MemberName               *string      `json:"member_name,omitempty"`                 // 预定人姓名
+	EmployeeNumber           *string      `json:"employee_number,omitempty"`             // 预定人工号
+	MemberMail               *string      `json:"member_mail,omitempty"`                 // 预定人邮箱
+	CallPhone                *string      `json:"call_phone,omitempty"`                  // 预定人手机号
+	DepartmentName           *string      `json:"department_name,omitempty"`             // 预定人部门路径 如：\"jrm测试公司2023>同一级\"
+	OutBudgetId              *string      `json:"out_budget_id,omitempty"`               // 预定人部门code
+	Department               *string      `json:"department,omitempty"`                  // 预定人员工部门 取member department 字段（旧）
+	PassengerName            *string      `json:"passenger_name,omitempty"`              // 乘车人姓名
+	PassengerPhone           *string      `json:"passenger_phone,omitempty"`             // 乘车人电话
+	PayType                  *string      `json:"pay_type,omitempty"`                    // 支付方式 枚举【\"企业支付\"、\"个人支付\"、\"混合支付\"、\"企业钱包支付\"】 当前订单支付金额的方式，如：企业支付、混合支付（指企业支付和个人支付两种支付方式同时支付一笔订单）
+	TotalPrice               *float64     `json:"total_price,omitempty"`                 // 订单总金额
+	CompanyRealPay           *json.Number `json:"company_real_pay,omitempty"`            // 企业实付金额
+	PersonalRealPay          *float64     `json:"personal_real_pay,omitempty"`           // 个人实付金额
+	RealVoucherPay           *float64     `json:"real_voucher_pay,omitempty"`            // 代金券(实际使用金额)
+	Cost                     *float64     `json:"cost,omitempty"`                        // 专车订单金额
+	DiscountAfterPrice       *float64     `json:"discount_after_price,omitempty"`        // 服务费金额
+	CompanyRealRefund        *float64     `json:"company_real_refund,omitempty"`         // 企业实退金额
+	Type                     *string      `json:"type,omitempty"`                        // 发单类型 枚举【实时、预约】
+	CreateTime               *string      `json:"create_time,omitempty"`                 // 订单创建时间
+	DepartureDime            *string      `json:"departure_dime,omitempty"`              // 出发时间
+	MeetTime                 *string      `json:"meetTime,omitempty"`                    // 接驾时间
+	BeginChargeTime          *string      `json:"begin_charge_time,omitempty"`           // 开始计费时间
+	FinishTime               *string      `json:"finish_time,omitempty"`                 // 完单时间
+	PayTime                  *string      `json:"pay_time,omitempty"`                    // 支付时间
+	RefundTime               *string      `json:"refund_time,omitempty"`                 // 退款时间
+	City                     *string      `json:"city,omitempty"`                        // 城市
+	DestinationCity          *string      `json:"destination_city,omitempty"`            // 订单到达城市
+	NormalDistance           *float64     `json:"normal_distance,omitempty"`             // 实际用车里程
+	StartAddress             *string      `json:"start_address,omitempty"`               // 出发地地址
+	EndAddress               *string      `json:"end_address,omitempty"`                 // 目的地地址
+	StartName                *string      `json:"start_name,omitempty"`                  // 出发地名称
+	EndName                  *string      `json:"end_name,omitempty"`                    // 目的地名称
+	ActualStartName          *string      `json:"actual_start_name,omitempty"`           // 实际出发地名称
+	ActualEndName            *string      `json:"actual_end_name,omitempty"`             // 实际目的地名称
+	RuleName                 *string      `json:"rule_name,omitempty"`                   // 用车规则
+	UseCarSrv                *string      `json:"use_car_srv,omitempty"`                 // 用车类型 枚举【快车用车、专车用车、专车包车、豪华车送机 等】
+	BudgetCenterName         *string      `json:"budget_center_name,omitempty"`          // 成本中心名称 管理员在ES后台差旅管控模块维护的成本中心（部门或项目）名称，同时可以设置员工下单时是否必填此字段
+	BudgetId                 *string      `json:"budget_id,omitempty"`                   // 成本中心ID 管理员在ES后台差旅管控模块维护的成本中心（部门或项目）ID，同时可以设置员工下单时是否必填此字段
+	Remark                   *string      `json:"remark,omitempty"`                      // 备注
+	OrderAdditionalRemark    *string      `json:"order_additional_remark,omitempty"`     // 补充说明
+	ApprovalReason           *string      `json:"approval_reason,omitempty"`             // 审批备注
+	ApprovalCreateTime       *string      `json:"approval_create_time,omitempty"`        // 申请提交时间
+	ApprovalLogs             *string      `json:"approval_logs,omitempty"`               // 审批历史-审批时间
+	OutApprovalId            *string      `json:"out_approval_id,omitempty"`             // 外部申请单id
+	UpgradeType              *string      `json:"upgrade_type,omitempty"`                // 升舱类型 枚举【非升舱单、升舱、专车拼车、降舱】
+	IsFixedPrice             *string      `json:"is_fixed_price,omitempty"`              // 是否一口价 枚举【是、否】
+	IsSelfDrive              *string      `json:"is_self_drive,omitempty"`               // 是否是私车同行 枚举【是、否】
+	IsDiscountOrder          *string      `json:"is_discount_order,omitempty"`           // 是否有折扣 枚举【是、否】
+	IsCarpool                *string      `json:"is_carpool,omitempty"`                  // 是否拼车 枚举【是、否】
+	IsReassignment           *string      `json:"is_reassignment,omitempty"`             // 是否改派 枚举【是、否】
+	CallbackInfo             *string      `json:"callback_info,omitempty"`               // 用户自定义字段
+	ApprovalExtraInfo        *string      `json:"approval_extra_info,omitempty"`         // 审批单自定义
+	AfterApprovalResult      *string      `json:"after_approval_result,omitempty"`       // 行后审批结果
+	AfterApprovalContent     *string      `json:"after_approval_content,omitempty"`      // 审批历史
+	CompanyId                *int64       `json:"company_id,omitempty"`                  // 公司id
+	CompanyName              *string      `json:"company_name,omitempty"`                // 公司名称
+	LegalEntityId            *int64       `json:"legal_entity_id,omitempty"`             // 预定人开票子公司id
+	LegalEntityName          *string      `json:"legal_entity_name,omitempty"`           // 预定人开票子公司名称
+	CompanyCardRealPay       *float64     `json:"company_card_real_pay,omitempty"`       // 企业钱包实付金额
+	UseCarTypeV2             *string      `json:"use_car_type_v2,omitempty"`             // 用车场景 枚举【加班、日常出勤、接送机 等】
+	BudgetItemName           *string      `json:"budget_item_name,omitempty"`            // 科目费用
+	UseType                  *string      `json:"use_type,omitempty"`                    // 是否代叫车 枚举【代客户叫车、员工自己用车】
+	StartPrice               *float64     `json:"start_price,omitempty"`                 // 起步价
+	NormalFee                *float64     `json:"normal_fee,omitempty"`                  // 里程费
+	LowSpeedFee              *float64     `json:"low_speed_fee,omitempty"`               // 低速费
+	EmptyFee                 *float64     `json:"empty_fee,omitempty"`                   // 远途费
+	NightFee                 *float64     `json:"night_fee,omitempty"`                   // 夜间费
+	ResponsibleCancelFee     *float64     `json:"responsible_cancel_fee,omitempty"`      // 有责取消费
+	LimitFee                 *float64     `json:"limit_fee,omitempty"`                   // 基础费
+	LimitPay                 *float64     `json:"limit_pay,omitempty"`                   // 基础费补足金额
+	NormalTimeFee            *float64     `json:"normal_time_fee,omitempty"`             // 时长费
+	DynamicPrice             *float64     `json:"dynamic_price,omitempty"`               // 动态调价
+	TipFee                   *float64     `json:"tip_fee,omitempty"`                     // 小费
+	BridgeFee                *float64     `json:"bridge_fee,omitempty"`                  // 路桥费
+	HighwayFee               *float64     `json:"highway_fee,omitempty"`                 // 高速费
+	ParkFee                  *float64     `json:"park_fee,omitempty"`                    // 停车费
+	WaitFee                  *float64     `json:"wait_fee,omitempty"`                    // 等待费
+	IncentiveFee             *float64     `json:"incentive_fee,omitempty"`               // 调度费
+	RedPacket                *float64     `json:"red_packet,omitempty"`                  // 春节加价费
+	OtherFee                 *float64     `json:"other_fee,omitempty"`                   // 其他费用
+	MemberId                 *float64     `json:"member_id,omitempty"`                   // 预定人id
+	RefundPrice              *float64     `json:"refund_price,omitempty"`                // 退款金额
+	GroupName                *string      `json:"group_name,omitempty"`                  // 预定人部门名称（新）
+	GroupId                  *string      `json:"group_id,omitempty"`                    // 预定人部门id
+	CompanyRealPreTaxPay     *float64     `json:"company_real_pre_tax_pay,omitempty"`    // 不含税实付金额 =企业实付金额*（1-税率）
+	CompanyRealTaxPay        *float64     `json:"company_real_tax_pay,omitempty"`        // 税额 =企业实付金额*税率
+	UserPayTime              *string      `json:"user_pay_time,omitempty"`               // 用户首次确认支付时间
+	UserPayType              *string      `json:"user_pay_type,omitempty"`               // 用户支付类型 枚举【用户主动支付、系统自动支付、系统自动支付后用户主动支付】
+	SettleType               *string      `json:"settle_type,omitempty"`                 // 业务线名称 网约车
+	SubAccountName           *string      `json:"sub_account_name,omitempty"`            // 所属子账户
+	BelongBudgetCenterName   *string      `json:"belong_budget_center_name,omitempty"`   // 恒为空 可忽略
+	BelongOutBudgetId        *string      `json:"belong_out_budget_id,omitempty"`        // 恒为空 可忽略
+	IsCarpoolSuccess         *int32       `json:"is_carpool_success,omitempty"`          // 是否拼成 1:是 0:否
+	CompanyPayAble           *float64     `json:"company_pay_able,omitempty"`            // 企业应付金额
+	ServiceType              *string      `json:"service_type,omitempty"`                // 包车套餐
+	BeforeApprovalResult     *string      `json:"before_approval_result,omitempty"`      // 行前审批
+	TimeSlotDiscount         *float64     `json:"time_slot_discount,omitempty"`          // 时段单单惠
+	ExtendInfo               *string      `json:"extend_info,omitempty"`                 // 附加信息（开票主体信息） 对应用户invoice_info信息
+	Period                   *string      `json:"period,omitempty"`                      // 支付账期
+	ExcludingTaxPayPrice     *float64     `json:"excluding_tax_pay_price,omitempty"`     // 不含税实付金额 =企业实付金额*（1-税率） 同company_real_pre_tax_pay 冗余字段
+	TaxPayPrice              *float64     `json:"tax_pay_price,omitempty"`               // 实付税额 =企业实付金额*税率 同company_real_tax_pay 冗余字段
+	ExcludingTaxRefundPrice  *float64     `json:"excluding_tax_refund_price,omitempty"`  // 不含税实退金额 =企业实退金额*（1-税率）
+	TaxRefundPrice           *float64     `json:"tax_refund_price,omitempty"`            // 实退税额 =企业实退金额*税率
+	IsSensitive              *string      `json:"is_sensitive,omitempty"`                // 是否敏感订单 1:是 0:否
+	SensitiveReason          *string      `json:"sensitive_reason,omitempty"`            // 敏感订单原因
+	CompanyCardRealRefund    *float64     `json:"company_card_real_refund,omitempty"`    // 企业出行卡实退金额
+	CancelTime               *string      `json:"cancel_time,omitempty"`                 // 取消时间
+	CrossCityFee             *float64     `json:"cross_city_fee,omitempty"`              // 跨城费
+	RemoteAreaFee            *float64     `json:"remote_area_fee,omitempty"`             // 偏远地区接驾费
+	UseCarTypeName           *string      `json:"use_car_type_name,omitempty"`           // 用车场景细分 枚举【日常用车、加班用车、办公地通勤 等】
+	SubUseCarSrv             *string      `json:"sub_use_car_srv,omitempty"`             // 使用场景 枚举【市内用车、接送机、接送火车站、接送汽车站、接送渡口】
+	EnergyConsumeFee         *float64     `json:"energy_consume_fee,omitempty"`          // 综合能耗费
+	IsUnusual                *string      `json:"is_unusual,omitempty"`                  // 是否异常 枚举【是、否】
+	UnusualType              *string      `json:"unusual_type,omitempty"`                // 异常类型
+	UnusualContent           *string      `json:"unusual_content,omitempty"`             // 异常说明
+	PositionName             *string      `json:"position_name,omitempty"`               // 职级
+	InstitutionName          *string      `json:"institution_name,omitempty"`            // 用车制度
+	UseCarService            *string      `json:"use_car_service,omitempty"`             // 用车服务 枚举【接送服务、出差市内用车】
+	ExInfo01                 *string      `json:"ex_info_01,omitempty"`                  // 自定义拓展字段1
+	ExInfo02                 *string      `json:"ex_info_02,omitempty"`                  // 自定义拓展字段2
+	ExInfo03                 *string      `json:"ex_info_03,omitempty"`                  // 自定义拓展字段3
+	ExInfo04                 *string      `json:"ex_info_04,omitempty"`                  // 用户自定义拓展字段 4
+	ExInfo05                 *string      `json:"ex_info_05,omitempty"`                  // 用户自定义拓展字段 5
+	ExInfo06                 *string      `json:"ex_info_06,omitempty"`                  // 用户自定义拓展字段 6
+	ExInfo07                 *string      `json:"ex_info_07,omitempty"`                  // 用户自定义拓展字段 7
+	ExInfo08                 *string      `json:"ex_info_08,omitempty"`                  // 用户自定义拓展字段 8
+	ResidentCityNames        *string      `json:"resident_city_names,omitempty"`         // 常驻城市
+	OriginalPrice            *float64     `json:"original_price,omitempty"`              // 原价
+	OneTimeOfferSubsidy      *float64     `json:"one_time_offer_subsidy,omitempty"`      // 尊享折扣
+	SubsidyAmount            *float64     `json:"subsidy_amount,omitempty"`              // 补贴金额
+	VoucherDeductionTypeName *string      `json:"voucher_deduction_type_name,omitempty"` // 券抵扣类型
+	PassengerMemberNumber    *string      `json:"passenger_member_number,omitempty"`     // 乘车人员工编号
+	PassengerMemberId        *int64       `json:"passenger_member_id,omitempty"`         // 乘车人员工 id
+	ProjectExtInfo           *string      `json:"project_ext_info,omitempty"`            // 项目自定义
+	OutLegalEntityId         *string      `json:"out_legal_entity_id,omitempty"`         // 外部公司主体编号
+	CarTravelInfo            *string      `json:"car_travel_Info,omitempty"`             // 途经点地址 如：丰台区 - 大红门街道 1 号；多个途经点用｜连接，丰台区 - 大红门街道 1 号｜朝阳区 - 国贸 5 号楼
+	SupplierType             *string      `json:"supplier_type,omitempty"`               // 运力来源 枚举值：滴滴自营、滴滴旗下品牌、第三方服务
+	SupplierName             *string      `json:"supplier_name,omitempty"`               // 三方名称
+	SupplierCarName          *string      `json:"supplier_car_name,omitempty"`           // 三方车型
+	InstitutionId            *int64       `json:"institution_id,omitempty"`              // 制度 ID
+	ExcludingServiceFee      *float64     `json:"excluding_service_fee,omitempty"`       // 企业实付（不包含平台使用费）
+	EstimatePrice            *float64     `json:"estimate_price,omitempty"`              // 预估金额
+	SubAccountCompanyName    *string      `json:"sub_account_company_name,omitempty"`    // 子账户公司名称
+	ExInfo01Code             *string      `json:"ex_info_01_code,omitempty"`             // 用户自定义拓展字段 1 编码
+	ExInfo02Code             *string      `json:"ex_info_02_code,omitempty"`             // 用户自定义拓展字段 2 编码
+	ExInfo03Code             *string      `json:"ex_info_03_code,omitempty"`             // 用户自定义拓展字段 3 编码
+	ExInfo04Code             *string      `json:"ex_info_04_code,omitempty"`             // 用户自定义拓展字段 4 编码
+	ExInfo05Code             *string      `json:"ex_info_05_code,omitempty"`             // 用户自定义拓展字段 5 编码
+	ExInfo06Code             *string      `json:"ex_info_06_code,omitempty"`             // 用户自定义拓展字段 6 编码
+	ExInfo07Code             *string      `json:"ex_info_07_code,omitempty"`             // 用户自定义拓展字段 7 编码
+	ExInfo08Code             *string      `json:"ex_info_08_code,omitempty"`             // 用户自定义拓展字段 8 编码
+	ParentInstitutionId      *int64       `json:"parent_institution_id,omitempty"`       // 父制度 ID
+	BranchName               *string      `json:"branch_name,omitempty"`                 // 预定人所在分公司名称
 }
 
 type NotGenBDOfWangYCItemBuilder struct {
@@ -201,7 +207,7 @@ type NotGenBDOfWangYCItemBuilder struct {
 	payTypeSet                  bool
 	totalPrice                  float64 // 订单总金额
 	totalPriceSet               bool
-	companyRealPay              float64 // 企业实付金额
+	companyRealPay              json.Number // 企业实付金额
 	companyRealPaySet           bool
 	personalRealPay             float64 // 个人实付金额
 	personalRealPaySet          bool
@@ -385,7 +391,7 @@ type NotGenBDOfWangYCItemBuilder struct {
 	excludingTaxRefundPriceSet  bool
 	taxRefundPrice              float64 // 实退税额 =企业实退金额*税率
 	taxRefundPriceSet           bool
-	isSensitive                 int32 // 是否敏感订单 1:是 0:否
+	isSensitive                 string // 是否敏感订单 1:是 0:否
 	isSensitiveSet              bool
 	sensitiveReason             string // 敏感订单原因
 	sensitiveReasonSet          bool
@@ -580,7 +586,7 @@ func (builder *NotGenBDOfWangYCItemBuilder) TotalPrice(totalPrice float64) *NotG
 	builder.totalPriceSet = true
 	return builder
 }
-func (builder *NotGenBDOfWangYCItemBuilder) CompanyRealPay(companyRealPay float64) *NotGenBDOfWangYCItemBuilder {
+func (builder *NotGenBDOfWangYCItemBuilder) CompanyRealPay(companyRealPay json.Number) *NotGenBDOfWangYCItemBuilder {
 	builder.companyRealPay = companyRealPay
 	builder.companyRealPaySet = true
 	return builder
@@ -1040,7 +1046,7 @@ func (builder *NotGenBDOfWangYCItemBuilder) TaxRefundPrice(taxRefundPrice float6
 	builder.taxRefundPriceSet = true
 	return builder
 }
-func (builder *NotGenBDOfWangYCItemBuilder) IsSensitive(isSensitive int32) *NotGenBDOfWangYCItemBuilder {
+func (builder *NotGenBDOfWangYCItemBuilder) IsSensitive(isSensitive string) *NotGenBDOfWangYCItemBuilder {
 	builder.isSensitive = isSensitive
 	builder.isSensitiveSet = true
 	return builder
@@ -1774,4 +1780,12 @@ func (builder *NotGenBDOfWangYCItemBuilder) Build() *NotGenBDOfWangYCItem {
 		data.BranchName = &builder.branchName
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：未出账单明细字段众多，真实流量中 int64/float64/string
+// 等字段类型不稳定（number/string 混存），标准反序列化会失败。用 core.SmartDecode
+// 经中间 map 转换（number↔string 容错），不经 json.Unmarshal 到自身以避免递归。
+// IsSensitive 已改为 *string，SmartDecode 的 setString 同样能容错 number→string。
+func (n *NotGenBDOfWangYCItem) UnmarshalJSON(data []byte) error {
+	return core.SmartDecode(data, n)
 }

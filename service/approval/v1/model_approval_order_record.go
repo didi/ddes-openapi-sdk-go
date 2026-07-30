@@ -1,5 +1,7 @@
 package v1
 
+import "github.com/didi/ddes-openapi-sdk-go/core"
+
 // ApprovalOrderRecord 定义订单记录消息
 type ApprovalOrderRecord struct {
 	OrderId          *string                `json:"order_id,omitempty"`           // 订单ID
@@ -13,7 +15,7 @@ type ApprovalOrderRecord struct {
 	FinishTime       *string                `json:"finish_time,omitempty"`        // 订单结束计费时间，如：1675583857
 	DepartureTime    *string                `json:"departure_time,omitempty"`     // 预约上车时间，如：1675582103
 	UseCarType       *int32                 `json:"use_car_type,omitempty"`       // 用车方式（2:专车，3:快车）
-	CarLevel         *int32                 `json:"car_level,omitempty"`          // 车型，如（100舒适型，400六座商务, 200行政级,600普通快车,900优享快车,1000豪华车,1100企业出租车,2000优选出租车）
+	CarLevel         *string                `json:"car_level,omitempty"`          // 车型，如（100舒适型，400六座商务, 200行政级,600普通快车,900优享快车,1000豪华车,1100企业出租车,2000优选出租车）
 	CityName         *string                `json:"city_name,omitempty"`          // 出发城市名称
 	StartName        *string                `json:"start_name,omitempty"`         // 出发地名称
 	EndName          *string                `json:"end_name,omitempty"`           // 目的地名称
@@ -24,9 +26,9 @@ type ApprovalOrderRecord struct {
 	ActualTlat       *string                `json:"actual_tlat,omitempty"`        // 实际目的地纬度（司机点击结束的位置）
 	ActualTlng       *string                `json:"actual_tlng,omitempty"`        // 实际目的地经度（司机点击结束的位置）
 	PayTime          *string                `json:"pay_time,omitempty"`           // 支付时间
-	OrderStatus      *int32                 `json:"order_status,omitempty"`       // 订单状态（1-发单失败、2-已支付、3-已退款、4-已取消、5-待支付、6-部分支付、7-部分退款）
-	PayType          *int32                 `json:"pay_type,omitempty"`           // 支付方式（0-企业支付、1-个人支付需报销、2-混合支付（企业和个人各支付部分））
-	IsInvoice        *int32                 `json:"is_invoice,omitempty"`         // 开票状态（0-未开、1-开过 ）
+	OrderStatus      *string                `json:"order_status,omitempty"`       // 订单状态（1-发单失败、2-已支付、3-已退款、4-已取消、5-待支付、6-部分支付、7-部分退款）
+	PayType          *string                `json:"pay_type,omitempty"`           // 支付方式（0-企业支付、1-个人支付需报销、2-混合支付（企业和个人各支付部分））
+	IsInvoice        *string                `json:"is_invoice,omitempty"`         // 开票状态（0-未开、1-开过 ）
 	CallPhone        *string                `json:"call_phone,omitempty"`         // 叫车人手机号
 	PassengerPhone   *string                `json:"passenger_phone,omitempty"`    // 乘车人手机号
 	TotalPrice       *string                `json:"total_price,omitempty"`        // 订单总金额
@@ -70,7 +72,7 @@ type ApprovalOrderRecordBuilder struct {
 	departureTimeSet    bool
 	useCarType          int32 // 用车方式（2:专车，3:快车）
 	useCarTypeSet       bool
-	carLevel            int32 // 车型，如（100舒适型，400六座商务, 200行政级,600普通快车,900优享快车,1000豪华车,1100企业出租车,2000优选出租车）
+	carLevel            string // 车型，如（100舒适型，400六座商务, 200行政级,600普通快车,900优享快车,1000豪华车,1100企业出租车,2000优选出租车）
 	carLevelSet         bool
 	cityName            string // 出发城市名称
 	cityNameSet         bool
@@ -92,11 +94,11 @@ type ApprovalOrderRecordBuilder struct {
 	actualTlngSet       bool
 	payTime             string // 支付时间
 	payTimeSet          bool
-	orderStatus         int32 // 订单状态（1-发单失败、2-已支付、3-已退款、4-已取消、5-待支付、6-部分支付、7-部分退款）
+	orderStatus         string // 订单状态（1-发单失败、2-已支付、3-已退款、4-已取消、5-待支付、6-部分支付、7-部分退款）
 	orderStatusSet      bool
-	payType             int32 // 支付方式（0-企业支付、1-个人支付需报销、2-混合支付（企业和个人各支付部分））
+	payType             string // 支付方式（0-企业支付、1-个人支付需报销、2-混合支付（企业和个人各支付部分））
 	payTypeSet          bool
-	isInvoice           int32 // 开票状态（0-未开、1-开过 ）
+	isInvoice           string // 开票状态（0-未开、1-开过 ）
 	isInvoiceSet        bool
 	callPhone           string // 叫车人手机号
 	callPhoneSet        bool
@@ -194,7 +196,7 @@ func (builder *ApprovalOrderRecordBuilder) UseCarType(useCarType int32) *Approva
 	builder.useCarTypeSet = true
 	return builder
 }
-func (builder *ApprovalOrderRecordBuilder) CarLevel(carLevel int32) *ApprovalOrderRecordBuilder {
+func (builder *ApprovalOrderRecordBuilder) CarLevel(carLevel string) *ApprovalOrderRecordBuilder {
 	builder.carLevel = carLevel
 	builder.carLevelSet = true
 	return builder
@@ -249,17 +251,17 @@ func (builder *ApprovalOrderRecordBuilder) PayTime(payTime string) *ApprovalOrde
 	builder.payTimeSet = true
 	return builder
 }
-func (builder *ApprovalOrderRecordBuilder) OrderStatus(orderStatus int32) *ApprovalOrderRecordBuilder {
+func (builder *ApprovalOrderRecordBuilder) OrderStatus(orderStatus string) *ApprovalOrderRecordBuilder {
 	builder.orderStatus = orderStatus
 	builder.orderStatusSet = true
 	return builder
 }
-func (builder *ApprovalOrderRecordBuilder) PayType(payType int32) *ApprovalOrderRecordBuilder {
+func (builder *ApprovalOrderRecordBuilder) PayType(payType string) *ApprovalOrderRecordBuilder {
 	builder.payType = payType
 	builder.payTypeSet = true
 	return builder
 }
-func (builder *ApprovalOrderRecordBuilder) IsInvoice(isInvoice int32) *ApprovalOrderRecordBuilder {
+func (builder *ApprovalOrderRecordBuilder) IsInvoice(isInvoice string) *ApprovalOrderRecordBuilder {
 	builder.isInvoice = isInvoice
 	builder.isInvoiceSet = true
 	return builder
@@ -487,4 +489,11 @@ func (builder *ApprovalOrderRecordBuilder) Build() *ApprovalOrderRecord {
 		data.BudgetCenterList = builder.budgetCenterList
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：CarLevel/OrderStatus/PayType/IsInvoice 等字段真实流量
+// number/string 混存，*string 收 number 会失败。用 core.SmartDecode 经中间 map 转换
+// （number→string 容错），不经 json.Unmarshal 到自身以避免递归。
+func (a *ApprovalOrderRecord) UnmarshalJSON(data []byte) error {
+	return core.SmartDecode(data, a)
 }

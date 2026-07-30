@@ -1,5 +1,7 @@
 package v1
 
+import "github.com/didi/ddes-openapi-sdk-go/core"
+
 // GetPersonalReceiptOrderRecord struct for GetPersonalReceiptOrderRecord
 type GetPersonalReceiptOrderRecord struct {
 	OrderId    *string `json:"order_id,omitempty"`    // 订单号
@@ -36,4 +38,10 @@ func (builder *GetPersonalReceiptOrderRecordBuilder) Build() *GetPersonalReceipt
 		data.ApprovalId = &builder.approvalId
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：OrderId 等字段真实流量 number/string 混存，
+// *string 收 number 会失败。用 core.SmartDecode 经中间 map 转换，避免递归。
+func (g *GetPersonalReceiptOrderRecord) UnmarshalJSON(data []byte) error {
+	return core.SmartDecode(data, g)
 }

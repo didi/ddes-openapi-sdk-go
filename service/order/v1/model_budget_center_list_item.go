@@ -1,5 +1,11 @@
 package v1
 
+import (
+	"encoding/json"
+
+	"github.com/didi/ddes-openapi-sdk-go/core"
+)
+
 // BudgetCenterListItem 多成本中心(flight、hotel订单共用)
 type BudgetCenterListItem struct {
 	AppName  *string `json:"app_name,omitempty"` // 字段员工侧展示名称
@@ -69,4 +75,27 @@ func (builder *BudgetCenterListItemBuilder) Build() *BudgetCenterListItem {
 		data.Code = &builder.code
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：Id 字段真实流量 int/str/空串混合，
+// 标准反序列化对 *string 收 number 会失败。这里用 alias 避免递归，
+// Id 单独以 RawMessage 接收后统一转 string。
+func (b *BudgetCenterListItem) UnmarshalJSON(data []byte) error {
+	type alias BudgetCenterListItem
+	aux := struct {
+		alias
+		Id json.RawMessage `json:"id"`
+	}{}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	*b = BudgetCenterListItem(aux.alias)
+	if len(aux.Id) > 0 && string(aux.Id) != "null" {
+		s, err := core.RawMessageToString(aux.Id)
+		if err != nil {
+			return err
+		}
+		b.Id = &s
+	}
+	return nil
 }

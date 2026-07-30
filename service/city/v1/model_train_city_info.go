@@ -1,5 +1,7 @@
 package v1
 
+import "github.com/didi/ddes-openapi-sdk-go/core"
+
 // TrainCityInfo struct for TrainCityInfo
 type TrainCityInfo struct {
 	CityId               *int64         `json:"city_id,omitempty"`                // 滴滴城市ID
@@ -135,4 +137,10 @@ func (builder *TrainCityInfoBuilder) Build() *TrainCityInfo {
 		data.TrainStation = builder.trainStation
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：CountryId 真实流量返回 number，*string 收 number 会失败。
+// 用 core.SmartDecode 经中间 map 转换，不经 json.Unmarshal 到自身以避免递归。
+func (t *TrainCityInfo) UnmarshalJSON(data []byte) error {
+	return core.SmartDecode(data, t)
 }

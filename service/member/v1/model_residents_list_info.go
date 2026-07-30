@@ -1,5 +1,7 @@
 package v1
 
+import "github.com/didi/ddes-openapi-sdk-go/core"
+
 // ResidentsListInfo 常驻地信息
 type ResidentsListInfo struct {
 	Id     *string `json:"id,omitempty"`     // 常驻地ID
@@ -47,4 +49,11 @@ func (builder *ResidentsListInfoBuilder) Build() *ResidentsListInfo {
 		data.Adcode = &builder.adcode
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：Id 真实流量返回 number，*string 收 number 会失败。
+// 用 core.SmartDecode 经中间 map 转换（number→string 容错），不经 json.Unmarshal
+// 到自身以避免递归。
+func (r *ResidentsListInfo) UnmarshalJSON(data []byte) error {
+	return core.SmartDecode(data, r)
 }

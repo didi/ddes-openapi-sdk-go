@@ -1,5 +1,11 @@
 package v1
 
+import (
+	"encoding/json"
+
+	"github.com/didi/ddes-openapi-sdk-go/core"
+)
+
 // CarRule 用车规则信息
 type CarRule struct {
 	RuleId         *string  `json:"rule_id,omitempty"`
@@ -157,4 +163,26 @@ func (builder *CarRuleBuilder) Build() *CarRule {
 		data.EndTime = &builder.endTime
 	}
 	return data
+}
+
+// UnmarshalJSON 容错反序列化：CityId 真实流量 int/str/null/非数字（城市名、逗号列表）混存，
+// 标准反序列化对 *string 收 number 会失败。用 alias 避免递归，CityId 单独转 string。
+func (c *CarRule) UnmarshalJSON(data []byte) error {
+	type alias CarRule
+	aux := struct {
+		alias
+		CityId json.RawMessage `json:"city_id"`
+	}{}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	*c = CarRule(aux.alias)
+	if len(aux.CityId) > 0 && string(aux.CityId) != "null" {
+		s, err := core.RawMessageToString(aux.CityId)
+		if err != nil {
+			return err
+		}
+		c.CityId = &s
+	}
+	return nil
 }
