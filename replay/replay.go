@@ -4,6 +4,7 @@
 package replay
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -37,6 +38,31 @@ type replayEntry struct {
 	build  func(in map[string]interface{}) (apiReq interface{}, err error)
 	call   func(client *didi.Client, apiReq interface{}) (resp interface{}, err error)
 	reply  func(resp interface{}) (errno int32, data interface{})
+}
+
+// newRawReplayEntry 为尚未接入 SDK 强类型模型的接口提供全量回放能力。
+// 请求仍经过 SDK 的 HTTP、签名和响应读取链路，响应以原始 JSON 保存。
+func newRawReplayEntry(uri string) replayEntry {
+	return replayEntry{
+		family: "raw",
+		build: func(in map[string]interface{}) (interface{}, error) {
+			return &core.ApiReq{HttpMethod: http.MethodPost, ApiPath: uri, Body: in}, nil
+		},
+		call: func(client *didi.Client, apiReq interface{}) (interface{}, error) {
+			return client.Do(context.Background(), apiReq.(*core.ApiReq), nil)
+		},
+		reply: func(resp interface{}) (int32, interface{}) {
+			apiResp := resp.(*core.ApiResp)
+			var body struct {
+				Errno int32                  `json:"errno"`
+				Data  map[string]interface{} `json:"data"`
+			}
+			if err := json.Unmarshal(apiResp.Body, &body); err != nil {
+				return -1, nil
+			}
+			return body.Errno, body.Data
+		},
+	}
 }
 
 // loadReplayFixtures 从 dir 加载全部 fixture 文件，返回 uri -> []fixture。

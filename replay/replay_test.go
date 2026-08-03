@@ -35,21 +35,23 @@ func TestReplay(t *testing.T) {
 	// 按 uri 排序保证输出稳定
 	uris := make([]string, 0, len(fixtures))
 	for u := range fixtures {
-		if _, ok := replayMap[u]; ok {
-			uris = append(uris, u)
-		}
+		uris = append(uris, u)
 	}
 	sort.Strings(uris)
 
 	var totalReplayed, totalMissing int
 	for _, uri := range uris {
 		uri := uri
-		entry := replayMap[uri]
+		entry, ok := replayMap[uri]
+		if !ok {
+			entry = newRawReplayEntry(uri)
+		}
+		rawEntry := newRawReplayEntry(uri)
 		t.Run(uri, func(t *testing.T) {
 			fs := fixtures[uri]
 			// 每 uri 回放的缺失字段并集（去重），最终汇总
 			missingSet := map[string]struct{}{}
-			var buildFail, callFail, deserialFail int
+			var buildFail, callFail, deserialFail, fallbackCount int
 			n := 0
 			for i := range fs {
 				if limitPerURI > 0 && n >= limitPerURI {
@@ -59,24 +61,48 @@ func TestReplay(t *testing.T) {
 				// 切换 mock 响应为当前这条 fixture 的 out
 				server.setOut(uri, f.Out)
 
-				apiReq, err := entry.build(f.In)
+				activeEntry := entry
+				usedRaw := entry.family == "raw"
+				apiReq, err := activeEntry.build(f.In)
 				if err != nil {
 					buildFail++
-					continue
+					activeEntry = rawEntry
+					usedRaw = true
+					apiReq, err = activeEntry.build(f.In)
+					if err != nil {
+						continue
+					}
+					fallbackCount++
 				}
-				resp, err := entry.call(client, apiReq)
+				resp, err := activeEntry.call(client, apiReq)
 				if err != nil {
 					// 反序列化错误是重要发现（类型不匹配），记录但不阻断
 					callFail++
 					if isDeserialErr(err) {
 						deserialFail++
+						apiReq, rawErr := rawEntry.build(f.In)
+						if rawErr == nil {
+							var rawResp interface{}
+							rawResp, rawErr = rawEntry.call(client, apiReq)
+							if rawErr == nil {
+								resp = rawResp
+								activeEntry = rawEntry
+								usedRaw = true
+								fallbackCount++
+							}
+						}
 					}
+					if !usedRaw {
+						continue
+					}
+				}
+				if resp == nil {
 					continue
 				}
-				_, replyData := entry.reply(resp)
+				_, replyData := activeEntry.reply(resp)
 
 				// 字段覆盖差异（成功响应才对比）
-				if f.Category == "success" {
+				if f.Category == "success" && entry.family != "raw" {
 					for _, m := range fieldCoverage(f.Out["data"], replyData) {
 						missingSet[m] = struct{}{}
 					}
@@ -87,8 +113,8 @@ func TestReplay(t *testing.T) {
 
 			missing := sortedKeys(missingSet)
 			totalMissing += len(missing)
-			t.Logf("[%s] %s: 回放 %d 条（共 %d）build失败=%d call失败=%d(其中反序列化=%d) 缺失字段 %d 个",
-				entry.family, uri, n, len(fs), buildFail, callFail, deserialFail, len(missing))
+			t.Logf("[%s] %s: 回放 %d 条（共 %d）build失败=%d call失败=%d(其中反序列化=%d) 原始降级=%d 缺失字段 %d 个",
+				entry.family, uri, n, len(fs), buildFail, callFail, deserialFail, fallbackCount, len(missing))
 			if len(missing) > 0 {
 				t.Logf("  缺失: %s", strings.Join(missing, ", "))
 				if strict {
