@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -35,8 +36,8 @@ func (d *SmartDecoder) Decode(data []byte, v interface{}) error {
 		return nil
 	}
 	// 如果标准解析失败，使用中间映射进行转换
-	var intermediate map[string]interface{}
-	if err := json.Unmarshal(data, &intermediate); err != nil {
+	intermediate, err := decodeIntermediate(data)
+	if err != nil {
 		return err
 	}
 	// 将中间映射转换到目标结构体
@@ -50,11 +51,21 @@ func (d *SmartDecoder) Decode(data []byte, v interface{}) error {
 //
 // v 必须是结构体指针。
 func SmartDecode(data []byte, v interface{}) error {
-	var intermediate map[string]interface{}
-	if err := json.Unmarshal(data, &intermediate); err != nil {
+	intermediate, err := decodeIntermediate(data)
+	if err != nil {
 		return err
 	}
 	return defaultSmartDecoder.mapToStruct(intermediate, reflect.ValueOf(v).Elem())
+}
+
+func decodeIntermediate(data []byte) (map[string]interface{}, error) {
+	var intermediate map[string]interface{}
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.UseNumber()
+	if err := decoder.Decode(&intermediate); err != nil {
+		return nil, err
+	}
+	return intermediate, nil
 }
 
 // defaultSmartDecoder 复用单例，避免每次 SmartDecode 新建。
@@ -201,6 +212,8 @@ func (d *SmartDecoder) setInt(field reflect.Value, value interface{}) error {
 	switch v := value.(type) {
 	case float64: // json的number类型转int(后面判断是否溢出)
 		intValue = int64(v)
+	case json.Number:
+		intValue, err = strconv.ParseInt(v.String(), 10, 64)
 	case string: // 能转则转，不能转直接报错
 		intValue, err = strconv.ParseInt(v, 10, 64)
 		if err != nil {
@@ -208,6 +221,9 @@ func (d *SmartDecoder) setInt(field reflect.Value, value interface{}) error {
 		}
 	default:
 		return fmt.Errorf("%w: cannot convert %T to %s", ErrInvalidValue, value, field.Type().Name())
+	}
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidValue, err)
 	}
 	// 检查是否超出范围
 	if !isIntInRange(intValue, field.Kind()) {
@@ -228,6 +244,8 @@ func (d *SmartDecoder) setUint(field reflect.Value, value interface{}) error {
 			return fmt.Errorf("%w: negative value %f cannot be converted to uint", ErrInvalidValue, v)
 		}
 		uintValue = uint64(v)
+	case json.Number:
+		uintValue, err = strconv.ParseUint(v.String(), 10, 64)
 	case string:
 		uintValue, err = strconv.ParseUint(v, 10, 64)
 		if err != nil {
@@ -235,6 +253,9 @@ func (d *SmartDecoder) setUint(field reflect.Value, value interface{}) error {
 		}
 	default:
 		return fmt.Errorf("%w: cannot convert %T to uint", ErrInvalidValue, value)
+	}
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidValue, err)
 	}
 
 	if !isUintInRange(uintValue, field.Kind()) {
@@ -252,6 +273,8 @@ func (d *SmartDecoder) setFloat(field reflect.Value, value interface{}) error {
 	switch v := value.(type) {
 	case float64:
 		floatValue = v
+	case json.Number:
+		floatValue, err = strconv.ParseFloat(v.String(), 64)
 	case string:
 		floatValue, err = strconv.ParseFloat(v, 64)
 		if err != nil {
@@ -259,6 +282,9 @@ func (d *SmartDecoder) setFloat(field reflect.Value, value interface{}) error {
 		}
 	default:
 		return fmt.Errorf("%w: cannot convert %T to float", ErrInvalidValue, value)
+	}
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidValue, err)
 	}
 
 	field.SetFloat(floatValue)
@@ -295,6 +321,8 @@ func (d *SmartDecoder) setString(field reflect.Value, value interface{}) error {
 		stringValue = ""
 	case string:
 		stringValue = v
+	case json.Number:
+		stringValue = v.String()
 	case float64:
 		stringValue = strconv.FormatFloat(v, 'f', -1, 64) // 不添加多余的零
 	case bool:
