@@ -500,12 +500,12 @@ func TestApprovalOrderRecordBuilder(t *testing.T) {
 		RuleId("R001").RegulationId("RG001").SceneType("2").
 		OrderCreateTime("1675602713").BeginChargeTime("1675582413").
 		FinishTime("1675583857").DepartureTime("1675582103").
-		UseCarType(2).CarLevel("100").CityName("北京").
+		UseCarType(2).CarLevel(100).CityName("北京").
 		StartName("望京SOHO").EndName("陆家嘴").
 		ActualStartName("望京SOHO实际").ActualEndName("陆家嘴实际").
 		ActualFlat("39.99").ActualFlng("116.48").
 		ActualTlat("31.24").ActualTlng("121.50").
-		PayTime("1675600000").OrderStatus("2").PayType("0").IsInvoice("0").
+		PayTime("1675600000").OrderStatus(2).PayType(0).IsInvoice(0).
 		CallPhone("13800000001").PassengerPhone("13800000002").
 		TotalPrice("100.50").ActualPrice(80.00).RefundPrice("0").
 		CompanyPay("80.00").PersonalPay("20.50").
@@ -1135,7 +1135,7 @@ func TestListApprovalOrderApiReply_Deserialization(t *testing.T) {
 		if len(reply.Data.Records) != 2 {
 			t.Fatalf("Records len = %d, want 2", len(reply.Data.Records))
 		}
-		if reply.Data.Records[0].OrderStatus == nil || *reply.Data.Records[0].OrderStatus != "2" {
+		if reply.Data.Records[0].OrderStatus == nil || *reply.Data.Records[0].OrderStatus != 2 {
 			t.Errorf("Records[0].OrderStatus = %v, want 2", reply.Data.Records[0].OrderStatus)
 		}
 		if reply.Data.Records[1].OrderStatus != nil {

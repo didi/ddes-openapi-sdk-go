@@ -6,13 +6,10 @@
 
 ### 破坏性变更
 
-以下为相对 `master` 的公开类型变更，共涉及 5 个模型、9 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
+以下为相对 `master` 仍保留的公开类型变更，共涉及 2 个模型、2 个字段。已有调用方如果直接赋值，需要同步调整代码：
 
 | 接口/模型 | 字段类型变更 | Builder 入参变更 |
 | --- | --- | --- |
-| `/river/Approval/getOrder` — `ApprovalOrderRecord` | `CarLevel`、`OrderStatus`、`PayType`、`IsInvoice`：`*int32` → `*string` | 对应参数：`int32` → `string` |
-| `/river/Bill/get` — `BillListItemOfWangYC` | `MemberId`：`*int64` → `*string`；`PersonalRealPay`：`*float32` → `*string` | `MemberId`：`int64` → `string`；`PersonalRealPay`：`float32` → `string` |
-| `/river/Bill/getNotGeneratedBillDetail` — `NotGenBDOfWangYCItem` | `IsSensitive`：`*int32` → `*string` | `IsSensitive`：`int32` → `string` |
 | `/river/Bill/detail` — `GetBillDetailOfWangYCReply` | `LastId`：`*int64` → `*string` | — |
 | `/river/Member/del` — `DelMemberApiReply` | `Data`：`[]int64` → `[]string` | — |
 
@@ -31,6 +28,7 @@
 
 - 修复审批、账单、预算中心、城市、员工、订单、规章等接口模型的数据类型不匹配问题，提升响应反序列化兼容性。
 - 修复部分 ID、订单号、枚举及金额相关字段在 number/string 混合返回时的解析失败问题。
+- 恢复审批订单、网约车账单及敏感订单字段的历史公开数据类型，同时保留 number/string 混合响应的容错反序列化能力。
 
 ### 测试与工程化
 

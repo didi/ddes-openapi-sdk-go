@@ -121,7 +121,7 @@ type NotGenBDOfWangYCItem struct {
 	TaxPayPrice              *float64 `json:"tax_pay_price,omitempty"`               // 实付税额 =企业实付金额*税率 同company_real_tax_pay 冗余字段
 	ExcludingTaxRefundPrice  *float64 `json:"excluding_tax_refund_price,omitempty"`  // 不含税实退金额 =企业实退金额*（1-税率）
 	TaxRefundPrice           *float64 `json:"tax_refund_price,omitempty"`            // 实退税额 =企业实退金额*税率
-	IsSensitive              *string  `json:"is_sensitive,omitempty"`                // 是否敏感订单 1:是 0:否
+	IsSensitive              *int32   `json:"is_sensitive,omitempty"`                // 是否敏感订单 1:是 0:否
 	SensitiveReason          *string  `json:"sensitive_reason,omitempty"`            // 敏感订单原因
 	CompanyCardRealRefund    *float64 `json:"company_card_real_refund,omitempty"`    // 企业出行卡实退金额
 	CancelTime               *string  `json:"cancel_time,omitempty"`                 // 取消时间
@@ -394,7 +394,7 @@ type NotGenBDOfWangYCItemBuilder struct {
 	excludingTaxRefundPriceSet  bool
 	taxRefundPrice              float64 // 实退税额 =企业实退金额*税率
 	taxRefundPriceSet           bool
-	isSensitive                 string // 是否敏感订单 1:是 0:否
+	isSensitive                 int32 // 是否敏感订单 1:是 0:否
 	isSensitiveSet              bool
 	sensitiveReason             string // 敏感订单原因
 	sensitiveReasonSet          bool
@@ -1049,7 +1049,7 @@ func (builder *NotGenBDOfWangYCItemBuilder) TaxRefundPrice(taxRefundPrice float6
 	builder.taxRefundPriceSet = true
 	return builder
 }
-func (builder *NotGenBDOfWangYCItemBuilder) IsSensitive(isSensitive string) *NotGenBDOfWangYCItemBuilder {
+func (builder *NotGenBDOfWangYCItemBuilder) IsSensitive(isSensitive int32) *NotGenBDOfWangYCItemBuilder {
 	builder.isSensitive = isSensitive
 	builder.isSensitiveSet = true
 	return builder
@@ -1788,7 +1788,8 @@ func (builder *NotGenBDOfWangYCItemBuilder) Build() *NotGenBDOfWangYCItem {
 // UnmarshalJSON 容错反序列化：未出账单明细字段众多，真实流量中 int64/float64/string
 // 等字段类型不稳定（number/string 混存），标准反序列化会失败。用 core.SmartDecode
 // 经中间 map 转换（number↔string 容错），不经 json.Unmarshal 到自身以避免递归。
-// CompanyRealPay 兼容 number、数字字符串、空字符串和 null。
+// CompanyRealPay 兼容 number、数字字符串、空字符串和 null；IsSensitive 等数字字段
+// 由 core.SmartDecode 兼容 number/string。
 func (n *NotGenBDOfWangYCItem) UnmarshalJSON(data []byte) error {
 	var fields map[string]json.RawMessage
 	if err := json.Unmarshal(data, &fields); err != nil {

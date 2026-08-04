@@ -136,7 +136,7 @@ type BillListItemOfWangYC struct {
 	LimitPay                  *float32 `json:"limit_pay,omitempty"`
 	LowSpeedFee               *float32 `json:"low_speed_fee,omitempty"`
 	MeetTime                  *string  `json:"meetTime,omitempty"`
-	MemberId                  *string  `json:"member_id,omitempty"`
+	MemberId                  *int64   `json:"member_id,omitempty"`
 	MemberMail                *string  `json:"member_mail,omitempty"`
 	MemberName                *string  `json:"member_name,omitempty"`
 	NightFee                  *float32 `json:"night_fee,omitempty"`
@@ -166,7 +166,7 @@ type BillListItemOfWangYC struct {
 	PayType                   *string  `json:"pay_type,omitempty"`
 	Period                    *string  `json:"period,omitempty"`
 	PersonalInstantDiscount   *float32 `json:"personal_instant_discount,omitempty"`
-	PersonalRealPay           *string  `json:"personal_real_pay,omitempty"`
+	PersonalRealPay           *float32 `json:"personal_real_pay,omitempty"`
 	PositionName              *string  `json:"position_name,omitempty"`
 	ProjectExtInfo            *string  `json:"project_ext_info,omitempty"`
 	RealVoucherPay            *float32 `json:"real_voucher_pay,omitempty"`
@@ -487,7 +487,7 @@ type BillListItemOfWangYCBuilder struct {
 	lowSpeedFeeSet               bool
 	meetTime                     string
 	meetTimeSet                  bool
-	memberId                     string
+	memberId                     int64
 	memberIdSet                  bool
 	memberMail                   string
 	memberMailSet                bool
@@ -547,7 +547,7 @@ type BillListItemOfWangYCBuilder struct {
 	periodSet                    bool
 	personalInstantDiscount      float32
 	personalInstantDiscountSet   bool
-	personalRealPay              string
+	personalRealPay              float32
 	personalRealPaySet           bool
 	positionName                 string
 	positionNameSet              bool
@@ -1320,7 +1320,7 @@ func (builder *BillListItemOfWangYCBuilder) MeetTime(meetTime string) *BillListI
 	builder.meetTimeSet = true
 	return builder
 }
-func (builder *BillListItemOfWangYCBuilder) MemberId(memberId string) *BillListItemOfWangYCBuilder {
+func (builder *BillListItemOfWangYCBuilder) MemberId(memberId int64) *BillListItemOfWangYCBuilder {
 	builder.memberId = memberId
 	builder.memberIdSet = true
 	return builder
@@ -1470,7 +1470,7 @@ func (builder *BillListItemOfWangYCBuilder) PersonalInstantDiscount(personalInst
 	builder.personalInstantDiscountSet = true
 	return builder
 }
-func (builder *BillListItemOfWangYCBuilder) PersonalRealPay(personalRealPay string) *BillListItemOfWangYCBuilder {
+func (builder *BillListItemOfWangYCBuilder) PersonalRealPay(personalRealPay float32) *BillListItemOfWangYCBuilder {
 	builder.personalRealPay = personalRealPay
 	builder.personalRealPaySet = true
 	return builder
