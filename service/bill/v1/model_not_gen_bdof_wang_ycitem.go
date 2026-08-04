@@ -1,6 +1,13 @@
 package v1
 
-import "github.com/didi/ddes-openapi-sdk-go/core"
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"strconv"
+
+	"github.com/didi/ddes-openapi-sdk-go/core"
+)
 
 // NotGenBDOfWangYCItem 未出账单 - 网约车,参考内部文档进行定义；
 type NotGenBDOfWangYCItem struct {
@@ -22,7 +29,7 @@ type NotGenBDOfWangYCItem struct {
 	PassengerPhone           *string  `json:"passenger_phone,omitempty"`             // 乘车人电话
 	PayType                  *string  `json:"pay_type,omitempty"`                    // 支付方式 枚举【\"企业支付\"、\"个人支付\"、\"混合支付\"、\"企业钱包支付\"】 当前订单支付金额的方式，如：企业支付、混合支付（指企业支付和个人支付两种支付方式同时支付一笔订单）
 	TotalPrice               *float64 `json:"total_price,omitempty"`                 // 订单总金额
-	CompanyRealPay           *string  `json:"company_real_pay,omitempty"`            // 企业实付金额
+	CompanyRealPay           *float64 `json:"company_real_pay,omitempty"`            // 企业实付金额
 	PersonalRealPay          *float64 `json:"personal_real_pay,omitempty"`           // 个人实付金额
 	RealVoucherPay           *float64 `json:"real_voucher_pay,omitempty"`            // 代金券(实际使用金额)
 	Cost                     *float64 `json:"cost,omitempty"`                        // 专车订单金额
@@ -203,7 +210,7 @@ type NotGenBDOfWangYCItemBuilder struct {
 	payTypeSet                  bool
 	totalPrice                  float64 // 订单总金额
 	totalPriceSet               bool
-	companyRealPay              string // 企业实付金额
+	companyRealPay              float64 // 企业实付金额
 	companyRealPaySet           bool
 	personalRealPay             float64 // 个人实付金额
 	personalRealPaySet          bool
@@ -582,7 +589,7 @@ func (builder *NotGenBDOfWangYCItemBuilder) TotalPrice(totalPrice float64) *NotG
 	builder.totalPriceSet = true
 	return builder
 }
-func (builder *NotGenBDOfWangYCItemBuilder) CompanyRealPay(companyRealPay string) *NotGenBDOfWangYCItemBuilder {
+func (builder *NotGenBDOfWangYCItemBuilder) CompanyRealPay(companyRealPay float64) *NotGenBDOfWangYCItemBuilder {
 	builder.companyRealPay = companyRealPay
 	builder.companyRealPaySet = true
 	return builder
@@ -1781,7 +1788,34 @@ func (builder *NotGenBDOfWangYCItemBuilder) Build() *NotGenBDOfWangYCItem {
 // UnmarshalJSON 容错反序列化：未出账单明细字段众多，真实流量中 int64/float64/string
 // 等字段类型不稳定（number/string 混存），标准反序列化会失败。用 core.SmartDecode
 // 经中间 map 转换（number↔string 容错），不经 json.Unmarshal 到自身以避免递归。
-// IsSensitive 已改为 *string，SmartDecode 的 setString 同样能容错 number→string。
+// CompanyRealPay 兼容 number、数字字符串、空字符串和 null。
 func (n *NotGenBDOfWangYCItem) UnmarshalJSON(data []byte) error {
-	return core.SmartDecode(data, n)
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+
+	n.CompanyRealPay = nil
+	if raw, ok := fields["company_real_pay"]; ok {
+		trimmed := bytes.TrimSpace(raw)
+		if bytes.Equal(trimmed, []byte("null")) || bytes.Equal(trimmed, []byte(`""`)) {
+			delete(fields, "company_real_pay")
+		} else if len(trimmed) > 0 && trimmed[0] == '"' {
+			var value string
+			if err := json.Unmarshal(trimmed, &value); err != nil {
+				return err
+			}
+			parsed, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return fmt.Errorf("company_real_pay: %w", err)
+			}
+			fields["company_real_pay"] = json.RawMessage(strconv.FormatFloat(parsed, 'f', -1, 64))
+		}
+	}
+
+	normalized, err := json.Marshal(fields)
+	if err != nil {
+		return err
+	}
+	return core.SmartDecode(normalized, n)
 }

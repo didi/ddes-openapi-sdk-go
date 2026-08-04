@@ -2371,3 +2371,49 @@ func TestGetTransactionBillDetailOfTaxi_AllScenarios(t *testing.T) {
 		emptyBody:   `{"errno":0,"errmsg":"SUCCESS","data":{"total":0,"transaction_list":[]},"request_id":"req_empty"}`,
 	})
 }
+
+func TestNotGenBDOfWangYCItemCompanyRealPayCompatibility(t *testing.T) {
+	tests := []struct {
+		name      string
+		payload   string
+		want      float64
+		wantNil   bool
+		wantError bool
+	}{
+		{name: "number", payload: `{"company_real_pay":12.34}`, want: 12.34},
+		{name: "numeric string", payload: `{"company_real_pay":"12.34"}`, want: 12.34},
+		{name: "empty string", payload: `{"company_real_pay":""}`, wantNil: true},
+		{name: "null", payload: `{"company_real_pay":null}`, wantNil: true},
+		{name: "non numeric string", payload: `{"company_real_pay":"invalid"}`, wantError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var item NotGenBDOfWangYCItem
+			err := json.Unmarshal([]byte(tt.payload), &item)
+			if tt.wantError {
+				if err == nil {
+					t.Fatal("expected unmarshaling error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Unmarshal failed: %v", err)
+			}
+			if tt.wantNil {
+				if item.CompanyRealPay != nil {
+					t.Fatalf("CompanyRealPay = %v, want nil", item.CompanyRealPay)
+				}
+				return
+			}
+			if item.CompanyRealPay == nil || *item.CompanyRealPay != tt.want {
+				t.Fatalf("CompanyRealPay = %v, want %v", item.CompanyRealPay, tt.want)
+			}
+		})
+	}
+
+	item := NewNotGenBDOfWangYCItemBuilder().CompanyRealPay(12.34).Build()
+	if item.CompanyRealPay == nil || *item.CompanyRealPay != 12.34 {
+		t.Fatalf("Builder CompanyRealPay = %v, want 12.34", item.CompanyRealPay)
+	}
+}
