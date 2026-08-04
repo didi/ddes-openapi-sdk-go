@@ -126,7 +126,7 @@ type BillListItemOfWangYC struct {
 	IsFixedPrice              *string  `json:"is_fixed_price,omitempty"`
 	IsReassignment            *string  `json:"is_reassignment,omitempty"`
 	IsSelfDrive               *string  `json:"is_self_drive,omitempty"`
-	IsSensitive               *string  `json:"is_sensitive,omitempty"`
+	IsSensitive               *float32 `json:"is_sensitive,omitempty"`
 	IsUnusual                 *string  `json:"is_unusual,omitempty"`
 	LastApprovalTime          *string  `json:"last_approval_time,omitempty"`
 	LastApproves              *string  `json:"last_approves,omitempty"`
@@ -467,7 +467,7 @@ type BillListItemOfWangYCBuilder struct {
 	isReassignmentSet            bool
 	isSelfDrive                  string
 	isSelfDriveSet               bool
-	isSensitive                  string
+	isSensitive                  float32
 	isSensitiveSet               bool
 	isUnusual                    string
 	isUnusualSet                 bool
@@ -1270,7 +1270,7 @@ func (builder *BillListItemOfWangYCBuilder) IsSelfDrive(isSelfDrive string) *Bil
 	builder.isSelfDriveSet = true
 	return builder
 }
-func (builder *BillListItemOfWangYCBuilder) IsSensitive(isSensitive string) *BillListItemOfWangYCBuilder {
+func (builder *BillListItemOfWangYCBuilder) IsSensitive(isSensitive float32) *BillListItemOfWangYCBuilder {
 	builder.isSensitive = isSensitive
 	builder.isSensitiveSet = true
 	return builder

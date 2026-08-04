@@ -6,17 +6,21 @@
 
 ### 破坏性变更
 
-以下公开模型字段及对应 Builder 方法的参数类型相对 `master` 发生变化。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
+以下为相对 `master` 的公开类型变更，共涉及 11 个模型、17 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
 
-- `service/approval/v1`：`ApprovalOrderRecord.CarLevel`、`OrderStatus`、`PayType`、`IsInvoice` 由 `*int32` 改为 `*string`；对应 Builder 参数由 `int32` 改为 `string`。
-- `service/approval/v1`：`TravelCity.Id` 由 `*int32` 改为 `*string`；`TravelCityBuilder.Id` 参数由 `int32` 改为 `string`。
-- `service/bill/v1`：`BillListItemOfWangYC.IsSensitive` 由 `*float32` 改为 `*string`，`MemberId` 由 `*int64` 改为 `*string`，`PersonalRealPay` 由 `*float32` 改为 `*string`；对应 Builder 参数同步改为 `string`。
-- `service/bill/v1`：`NotGenBDOfWangYCItem.CompanyRealPay` 由 `*float64` 改为 `*string`，`IsSensitive` 由 `*int32` 改为 `*string`；对应 Builder 参数同步改为 `string`。
-- `service/bill/v1`：`GetBillDetailOfWangYCReply.LastId` 由 `*int64` 改为 `*string`。
-- `service/city/v1`：`HotelCityInfo.CityId`、`TrainCityInfo.CityId` 由 `*string` 改为 `*int64`；对应 Builder 参数同步改为 `int64`。
-- `service/city/v1`：`ListAirportCityReply.CityId`、`CountryId` 以及 `ListCountryReply.CountryId` 由 `*int32` 改为 `*string`。
-- `service/member/v1`：`DelMemberApiReply.Data` 由 `[]int64` 改为 `[]string`。
-- `service/order/v1`：`OrderRecord.RegulationId` 由 `*int64` 改为 `*string`；对应 Builder 参数由 `int64` 改为 `string`。
+| 接口/模型 | 字段类型变更 | Builder 入参变更 |
+| --- | --- | --- |
+| `/river/Approval/getOrder` — `ApprovalOrderRecord` | `CarLevel`、`OrderStatus`、`PayType`、`IsInvoice`：`*int32` → `*string` | 对应参数：`int32` → `string` |
+| 审批出行模型 — `TravelCity` | `Id`：`*int32` → `*string` | `TravelCityBuilder.Id`：`int32` → `string` |
+| `/river/Bill/get` — `BillListItemOfWangYC` | `MemberId`：`*int64` → `*string`；`PersonalRealPay`：`*float32` → `*string` | `MemberId`：`int64` → `string`；`PersonalRealPay`：`float32` → `string` |
+| `/river/Bill/getNotGeneratedBillDetail` — `NotGenBDOfWangYCItem` | `CompanyRealPay`：`*float64` → `*string`；`IsSensitive`：`*int32` → `*string` | 对应参数：`float64/int32` → `string` |
+| `/river/Bill/detail` — `GetBillDetailOfWangYCReply` | `LastId`：`*int64` → `*string` | — |
+| `/river/DemeterAres/HotelCity/index` — `HotelCityInfo` | `CityId`：`*string` → `*int64` | `HotelCityInfoBuilder.CityId`：`string` → `int64` |
+| `/river/DemeterAres/TrainCity` — `TrainCityInfo` | `CityId`：`*string` → `*int64` | `TrainCityInfoBuilder.CityId`：`string` → `int64` |
+| `/river/DemeterAres/AirportCity/index` — `ListAirportCityReply` | `CityId`、`CountryId`：`*int32` → `*string` | — |
+| `/river/DemeterAres/Country/index` — `ListCountryReply` | `CountryId`：`*int32` → `*string` | — |
+| `/river/Member/del` — `DelMemberApiReply` | `Data`：`[]int64` → `[]string` | — |
+| 订单查询/详情 — `OrderRecord` | `RegulationId`：`*int64` → `*string` | `OrderRecordBuilder.RegulationId`：`int64` → `string` |
 
 ### 新增
 
