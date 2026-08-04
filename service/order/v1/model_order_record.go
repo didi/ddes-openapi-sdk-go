@@ -68,7 +68,7 @@ type OrderRecord struct {
 	ReasonType            *string                `json:"reason_type,omitempty"`              // 敏感订单解释原因类型；need_abnormal_msg=1时返回
 	OperationType         *int32                 `json:"operation_type,omitempty"`           // 0 、无，限仅开通敏感订单1.0 或 未开通敏感订单（含1.0+2.0） 1 、标记，（已开通敏感订单2.0，配置标记 or 智能） 3 、解释说明，（已开通敏感订单2.0，配置解释说明 or 智能） 4 、个人支付，（已开通配置敏感订单2.0，配置个人支付 or 智能）need_abnormal_msg为 1时返回
 	RuleName              *string                `json:"rule_name,omitempty"`                // 制度名称（need_rule_info = 1 时返回）
-	RegulationId          *string                `json:"regulation_id,omitempty"`            // 制度ID （need_rule_info = 1 时返回
+	RegulationId          *int64                 `json:"regulation_id,omitempty"`            // 制度ID （need_rule_info = 1 时返回
 	Type                  *string                `json:"type,omitempty"`                     // 订单类型(0:实时、1:预约)
 	DestCity              *string                `json:"dest_city,omitempty"`                // 目的城市ID
 	DestCityName          *string                `json:"dest_city_name,omitempty"`           // 目的城市名称
@@ -214,7 +214,7 @@ type OrderRecordBuilder struct {
 	operationTypeSet         bool
 	ruleName                 string // 制度名称（need_rule_info = 1 时返回）
 	ruleNameSet              bool
-	regulationId             string // 制度ID （need_rule_info = 1 时返回
+	regulationId             int64 // 制度ID （need_rule_info = 1 时返回
 	regulationIdSet          bool
 	type_                    string // 订单类型(0:实时、1:预约)
 	type_Set                 bool
@@ -569,7 +569,7 @@ func (builder *OrderRecordBuilder) RuleName(ruleName string) *OrderRecordBuilder
 	builder.ruleNameSet = true
 	return builder
 }
-func (builder *OrderRecordBuilder) RegulationId(regulationId string) *OrderRecordBuilder {
+func (builder *OrderRecordBuilder) RegulationId(regulationId int64) *OrderRecordBuilder {
 	builder.regulationId = regulationId
 	builder.regulationIdSet = true
 	return builder
@@ -887,9 +887,8 @@ func (builder *OrderRecordBuilder) Build() *OrderRecord {
 	return data
 }
 
-// UnmarshalJSON 容错反序列化：RequireLevel/RegulationId 等字段真实流量 number/string
-// 混存，*string 收 number 会失败。用 core.SmartDecode 经中间 map 转换（number→string
-// 容错），不经 json.Unmarshal 到自身以避免递归。
+// UnmarshalJSON 容错反序列化：订单字段真实流量存在 number/string 混存。
+// 用 core.SmartDecode 经中间 map 转换，避免标准反序列化因类型不一致失败。
 func (o *OrderRecord) UnmarshalJSON(data []byte) error {
 	return core.SmartDecode(data, o)
 }

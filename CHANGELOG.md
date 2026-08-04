@@ -6,7 +6,7 @@
 
 ### 破坏性变更
 
-以下为相对 `master` 的公开类型变更，共涉及 6 个模型、10 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
+以下为相对 `master` 的公开类型变更，共涉及 5 个模型、9 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
 
 | 接口/模型 | 字段类型变更 | Builder 入参变更 |
 | --- | --- | --- |
@@ -15,7 +15,6 @@
 | `/river/Bill/getNotGeneratedBillDetail` — `NotGenBDOfWangYCItem` | `IsSensitive`：`*int32` → `*string` | `IsSensitive`：`int32` → `string` |
 | `/river/Bill/detail` — `GetBillDetailOfWangYCReply` | `LastId`：`*int64` → `*string` | — |
 | `/river/Member/del` — `DelMemberApiReply` | `Data`：`[]int64` → `[]string` | — |
-| 订单查询/详情 — `OrderRecord` | `RegulationId`：`*int64` → `*string` | `OrderRecordBuilder.RegulationId`：`int64` → `string` |
 
 ### 新增
 

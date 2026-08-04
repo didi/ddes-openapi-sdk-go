@@ -1088,6 +1088,14 @@ func TestGetCarOrderDetailApiReply_MissingDataField(t *testing.T) {
 	}
 }
 
+func TestOrderRecordBuilderRegulationId(t *testing.T) {
+	const want int64 = 1125920826148759
+	record := NewOrderRecordBuilder().RegulationId(want).Build()
+	if record.RegulationId == nil || *record.RegulationId != want {
+		t.Fatalf("RegulationId = %v, want %d", record.RegulationId, want)
+	}
+}
+
 func TestGetFlightEstimatePriceApiReply_Deserialization(t *testing.T) {
 	jsonData := `{
 		"errno": 0,
