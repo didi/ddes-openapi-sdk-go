@@ -1,10 +1,8 @@
 package v1
 
-import "github.com/didi/ddes-openapi-sdk-go/core"
-
 // TrainCityInfo struct for TrainCityInfo
 type TrainCityInfo struct {
-	CityId               *int64         `json:"city_id,omitempty"`                // 滴滴城市ID
+	CityId               *string        `json:"city_id,omitempty"`                // 滴滴城市ID
 	CityNameCn           *string        `json:"city_name_cn,omitempty"`           // 城市中文名
 	CityNameEn           *string        `json:"city_name_en,omitempty"`           // 城市英文名
 	ProvinceId           *string        `json:"province_id,omitempty"`            // 省ID
@@ -18,7 +16,7 @@ type TrainCityInfo struct {
 }
 
 type TrainCityInfoBuilder struct {
-	cityId                  int64 // 滴滴城市ID
+	cityId                  string // 滴滴城市ID
 	cityIdSet               bool
 	cityNameCn              string // 城市中文名
 	cityNameCnSet           bool
@@ -45,7 +43,7 @@ type TrainCityInfoBuilder struct {
 func NewTrainCityInfoBuilder() *TrainCityInfoBuilder {
 	return &TrainCityInfoBuilder{}
 }
-func (builder *TrainCityInfoBuilder) CityId(cityId int64) *TrainCityInfoBuilder {
+func (builder *TrainCityInfoBuilder) CityId(cityId string) *TrainCityInfoBuilder {
 	builder.cityId = cityId
 	builder.cityIdSet = true
 	return builder
@@ -137,10 +135,4 @@ func (builder *TrainCityInfoBuilder) Build() *TrainCityInfo {
 		data.TrainStation = builder.trainStation
 	}
 	return data
-}
-
-// UnmarshalJSON 容错反序列化：CountryId 真实流量返回 number，*string 收 number 会失败。
-// 用 core.SmartDecode 经中间 map 转换，不经 json.Unmarshal 到自身以避免递归。
-func (t *TrainCityInfo) UnmarshalJSON(data []byte) error {
-	return core.SmartDecode(data, t)
 }

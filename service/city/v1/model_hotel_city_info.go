@@ -2,7 +2,7 @@ package v1
 
 // HotelCityInfo struct for HotelCityInfo
 type HotelCityInfo struct {
-	CityId               *int64  `json:"city_id,omitempty"`                // 滴滴城市ID
+	CityId               *string `json:"city_id,omitempty"`                // 滴滴城市ID
 	DescriptionCn        *string `json:"description_cn,omitempty"`         // 城市中文描述
 	DescriptionEn        *string `json:"description_en,omitempty"`         // 城市英文描述
 	CityNameCn           *string `json:"city_name_cn,omitempty"`           // 城市中文名
@@ -18,7 +18,7 @@ type HotelCityInfo struct {
 }
 
 type HotelCityInfoBuilder struct {
-	cityId                  int64 // 滴滴城市ID
+	cityId                  string // 滴滴城市ID
 	cityIdSet               bool
 	descriptionCn           string // 城市中文描述
 	descriptionCnSet        bool
@@ -49,7 +49,7 @@ type HotelCityInfoBuilder struct {
 func NewHotelCityInfoBuilder() *HotelCityInfoBuilder {
 	return &HotelCityInfoBuilder{}
 }
-func (builder *HotelCityInfoBuilder) CityId(cityId int64) *HotelCityInfoBuilder {
+func (builder *HotelCityInfoBuilder) CityId(cityId string) *HotelCityInfoBuilder {
 	builder.cityId = cityId
 	builder.cityIdSet = true
 	return builder

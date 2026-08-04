@@ -302,7 +302,7 @@ func TestListCityParamObjBuilder(t *testing.T) {
 
 func TestHotelCityInfoBuilder(t *testing.T) {
 	info := NewHotelCityInfoBuilder().
-		CityId(1001).
+		CityId("1001").
 		DescriptionCn("北京城市描述").
 		DescriptionEn("Beijing city description").
 		CityNameCn("北京").
@@ -317,7 +317,7 @@ func TestHotelCityInfoBuilder(t *testing.T) {
 		CountryNameEn("China").
 		Build()
 
-	if info.CityId == nil || *info.CityId != 1001 {
+	if info.CityId == nil || *info.CityId != "1001" {
 		t.Errorf("CityId = %v, want 1001", info.CityId)
 	}
 	if info.DescriptionCn == nil || *info.DescriptionCn != "北京城市描述" {
@@ -359,10 +359,10 @@ func TestHotelCityInfoBuilder(t *testing.T) {
 
 	// 部分设置
 	info2 := NewHotelCityInfoBuilder().
-		CityId(1002).
+		CityId("1002").
 		CityNameCn("上海").
 		Build()
-	if info2.CityId == nil || *info2.CityId != 1002 {
+	if info2.CityId == nil || *info2.CityId != "1002" {
 		t.Errorf("CityId = %v, want 1002", info2.CityId)
 	}
 	if info2.CityNameCn == nil || *info2.CityNameCn != "上海" {
@@ -377,7 +377,7 @@ func TestHotelCityInfoBuilder(t *testing.T) {
 
 func TestTrainCityInfoBuilder(t *testing.T) {
 	info := NewTrainCityInfoBuilder().
-		CityId(2001).
+		CityId("2001").
 		CityNameCn("北京").
 		CityNameEn("Beijing").
 		ProvinceId("1").
@@ -392,7 +392,7 @@ func TestTrainCityInfoBuilder(t *testing.T) {
 		}).
 		Build()
 
-	if info.CityId == nil || *info.CityId != 2001 {
+	if info.CityId == nil || *info.CityId != "2001" {
 		t.Errorf("CityId = %v, want 2001", info.CityId)
 	}
 	if info.CityNameCn == nil || *info.CityNameCn != "北京" {
@@ -428,9 +428,9 @@ func TestTrainCityInfoBuilder(t *testing.T) {
 
 	// 部分设置
 	info2 := NewTrainCityInfoBuilder().
-		CityId(2002).
+		CityId("2002").
 		Build()
-	if info2.CityId == nil || *info2.CityId != 2002 {
+	if info2.CityId == nil || *info2.CityId != "2002" {
 		t.Errorf("CityId = %v, want 2002", info2.CityId)
 	}
 	if info2.TrainStation != nil {
@@ -599,7 +599,7 @@ func TestListAirportCityApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CityId == nil || *record.CityId != "1" {
+	if record.CityId == nil || *record.CityId != 1 {
 		t.Errorf("CityId = %v, want 1", record.CityId)
 	}
 	if record.CityNameCn == nil || *record.CityNameCn != "北京" {
@@ -608,7 +608,7 @@ func TestListAirportCityApiReply_Deserialization(t *testing.T) {
 	if record.ProvinceId == nil || *record.ProvinceId != 1 {
 		t.Errorf("ProvinceId = %v, want 1", record.ProvinceId)
 	}
-	if record.CountryId == nil || *record.CountryId != "1" {
+	if record.CountryId == nil || *record.CountryId != 1 {
 		t.Errorf("CountryId = %v, want 1", record.CountryId)
 	}
 	if record.CanonicalCountryCode == nil || *record.CanonicalCountryCode != "CN" {
@@ -742,7 +742,7 @@ func TestListAirportCity_Success(t *testing.T) {
 	if len(resp.ListAirportCityApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListAirportCityApiReply.Data))
 	}
-	if resp.ListAirportCityApiReply.Data[0].CityId == nil || *resp.ListAirportCityApiReply.Data[0].CityId != "1" {
+	if resp.ListAirportCityApiReply.Data[0].CityId == nil || *resp.ListAirportCityApiReply.Data[0].CityId != 1 {
 		t.Errorf("Data[0].CityId = %v, want 1", resp.ListAirportCityApiReply.Data[0].CityId)
 	}
 }
@@ -2014,7 +2014,7 @@ func TestListCountryApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CountryId == nil || *record.CountryId != "1" {
+	if record.CountryId == nil || *record.CountryId != 1 {
 		t.Errorf("CountryId = %v, want 1", record.CountryId)
 	}
 	if record.CanonicalCountryCode == nil || *record.CanonicalCountryCode != "CN" {
@@ -2145,7 +2145,7 @@ func TestListCountry_Success(t *testing.T) {
 	if len(resp.ListCountryApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListCountryApiReply.Data))
 	}
-	if resp.ListCountryApiReply.Data[0].CountryId == nil || *resp.ListCountryApiReply.Data[0].CountryId != "1" {
+	if resp.ListCountryApiReply.Data[0].CountryId == nil || *resp.ListCountryApiReply.Data[0].CountryId != 1 {
 		t.Errorf("Data[0].CountryId = %v, want 1", resp.ListCountryApiReply.Data[0].CountryId)
 	}
 }
@@ -2491,7 +2491,7 @@ func TestListHotelCityApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CityId == nil || *record.CityId != 1001 {
+	if record.CityId == nil || *record.CityId != "1001" {
 		t.Errorf("CityId = %v, want 1001", record.CityId)
 	}
 	if record.DescriptionCn == nil || *record.DescriptionCn != "北京城市描述" {
@@ -2625,7 +2625,7 @@ func TestListHotelCity_Success(t *testing.T) {
 	if len(resp.ListHotelCityApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListHotelCityApiReply.Data))
 	}
-	if resp.ListHotelCityApiReply.Data[0].CityId == nil || *resp.ListHotelCityApiReply.Data[0].CityId != 1001 {
+	if resp.ListHotelCityApiReply.Data[0].CityId == nil || *resp.ListHotelCityApiReply.Data[0].CityId != "1001" {
 		t.Errorf("Data[0].CityId = %v, want 1001", resp.ListHotelCityApiReply.Data[0].CityId)
 	}
 }
@@ -2957,7 +2957,7 @@ func TestListTrainCityApiReply_Deserialization(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(reply.Data))
 	}
 	record := reply.Data[0]
-	if record.CityId == nil || *record.CityId != 2001 {
+	if record.CityId == nil || *record.CityId != "2001" {
 		t.Errorf("CityId = %v, want 2001", record.CityId)
 	}
 	if record.CityNameCn == nil || *record.CityNameCn != "北京" {
@@ -3094,7 +3094,7 @@ func TestListTrainCity_Success(t *testing.T) {
 	if len(resp.ListTrainCityApiReply.Data) != 1 {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListTrainCityApiReply.Data))
 	}
-	if resp.ListTrainCityApiReply.Data[0].CityId == nil || *resp.ListTrainCityApiReply.Data[0].CityId != 2001 {
+	if resp.ListTrainCityApiReply.Data[0].CityId == nil || *resp.ListTrainCityApiReply.Data[0].CityId != "2001" {
 		t.Errorf("Data[0].CityId = %v, want 2001", resp.ListTrainCityApiReply.Data[0].CityId)
 	}
 }

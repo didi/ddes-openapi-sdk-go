@@ -6,7 +6,7 @@
 
 ### 破坏性变更
 
-以下为相对 `master` 的公开类型变更，共涉及 11 个模型、17 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
+以下为相对 `master` 的公开类型变更，共涉及 7 个模型、12 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
 
 | 接口/模型 | 字段类型变更 | Builder 入参变更 |
 | --- | --- | --- |
@@ -15,10 +15,6 @@
 | `/river/Bill/get` — `BillListItemOfWangYC` | `MemberId`：`*int64` → `*string`；`PersonalRealPay`：`*float32` → `*string` | `MemberId`：`int64` → `string`；`PersonalRealPay`：`float32` → `string` |
 | `/river/Bill/getNotGeneratedBillDetail` — `NotGenBDOfWangYCItem` | `CompanyRealPay`：`*float64` → `*string`；`IsSensitive`：`*int32` → `*string` | 对应参数：`float64/int32` → `string` |
 | `/river/Bill/detail` — `GetBillDetailOfWangYCReply` | `LastId`：`*int64` → `*string` | — |
-| `/river/DemeterAres/HotelCity/index` — `HotelCityInfo` | `CityId`：`*string` → `*int64` | `HotelCityInfoBuilder.CityId`：`string` → `int64` |
-| `/river/DemeterAres/TrainCity` — `TrainCityInfo` | `CityId`：`*string` → `*int64` | `TrainCityInfoBuilder.CityId`：`string` → `int64` |
-| `/river/DemeterAres/AirportCity/index` — `ListAirportCityReply` | `CityId`、`CountryId`：`*int32` → `*string` | — |
-| `/river/DemeterAres/Country/index` — `ListCountryReply` | `CountryId`：`*int32` → `*string` | — |
 | `/river/Member/del` — `DelMemberApiReply` | `Data`：`[]int64` → `[]string` | — |
 | 订单查询/详情 — `OrderRecord` | `RegulationId`：`*int64` → `*string` | `OrderRecordBuilder.RegulationId`：`int64` → `string` |
 
