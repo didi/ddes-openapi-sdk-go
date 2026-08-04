@@ -2,7 +2,7 @@ package v1
 
 // TravelCity struct for TravelCity
 type TravelCity struct {
-	Id               *string `json:"id,omitempty"`                // 城市ID
+	Id               *int32  `json:"id,omitempty"`                // 城市ID
 	Name             *string `json:"name,omitempty"`              // 城市名称
 	AddressDimension *int32  `json:"address_dimension,omitempty"` // 目的地维度 默认0; 1：国家；2：省；0：城市(包括县级市)
 	CountryId        *int32  `json:"country_id,omitempty"`        // 出发国家ID
@@ -12,7 +12,7 @@ type TravelCity struct {
 }
 
 type TravelCityBuilder struct {
-	id                  string // 城市ID
+	id                  int32 // 城市ID
 	idSet               bool
 	name                string // 城市名称
 	nameSet             bool
@@ -31,7 +31,7 @@ type TravelCityBuilder struct {
 func NewTravelCityBuilder() *TravelCityBuilder {
 	return &TravelCityBuilder{}
 }
-func (builder *TravelCityBuilder) Id(id string) *TravelCityBuilder {
+func (builder *TravelCityBuilder) Id(id int32) *TravelCityBuilder {
 	builder.id = id
 	builder.idSet = true
 	return builder

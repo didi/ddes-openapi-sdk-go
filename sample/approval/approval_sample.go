@@ -90,7 +90,7 @@ func CreateTravelApproval() {
 		MemberType(0).PassengerPhone("00016218408").Build())
 	passengers = append(passengers, *v1.NewTripPassengerBuilder().PassengerType(0).PassengerName("tNam04").
 		MemberType(0).PassengerPhone("00016213494").Build())
-	cities = append(cities, *v1.NewTravelCityBuilder().Id("17").Name("成都市").Build())
+	cities = append(cities, *v1.NewTravelCityBuilder().Id(17).Name("成都市").Build())
 	trips = append(trips, *v1.NewTripBuilder().DepartureCity("北京市").DepartureCityId(1).
 		StartDate("2025-05-22").EndDate("2025-05-22").TripType("1,2").ToCitys(cities).Build())
 	apiReq := v1.NewCreateTravelApprovalApiReqBuilder().
@@ -243,7 +243,7 @@ func UpdateTravelApproval() {
 		MemberType(0).PassengerPhone("00016213494").Build())
 
 	cities := make([]v1.TravelCity, 0)
-	cities = append(cities, *v1.NewTravelCityBuilder().Id("17").Name("成都市").Build())
+	cities = append(cities, *v1.NewTravelCityBuilder().Id(17).Name("成都市").Build())
 
 	trips := make([]v1.Trip, 0)
 	trips = append(trips, *v1.NewTripBuilder().DepartureCity("北京市").DepartureCityId(1).
@@ -296,7 +296,7 @@ func UpdateBusinessByDateApproval() {
 		MemberType(0).PassengerPhone("00016244610").Build())
 
 	cities := make([]v1.TravelCity, 0)
-	cities = append(cities, *v1.NewTravelCityBuilder().Id("17").Name("成都市").Build())
+	cities = append(cities, *v1.NewTravelCityBuilder().Id(17).Name("成都市").Build())
 
 	trips := make([]v1.Trip, 0)
 	trips = append(trips, *v1.NewTripBuilder().DepartureCity("北京市").DepartureCityId(1).

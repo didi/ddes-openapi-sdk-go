@@ -241,7 +241,7 @@ func TestTripBuilder(t *testing.T) {
 		DepartureProvinceId(11).DepartureProvinceName("北京市").
 		DestinationAddressDimension(0).DestinationCountryId(1).DestinationCountryName("中国").
 		DestinationProvinceId(31).DestinationProvinceName("上海市").
-		ToCitys([]TravelCity{*NewTravelCityBuilder().Id("1").Name("北京").Build()}).
+		ToCitys([]TravelCity{*NewTravelCityBuilder().Id(1).Name("北京").Build()}).
 		Build()
 	if info.DepartureCity == nil || *info.DepartureCity != "北京" {
 		t.Errorf("DepartureCity = %v, want 北京", info.DepartureCity)
@@ -361,7 +361,7 @@ func TestCarRuleBuilder(t *testing.T) {
 func TestHotelRuleBuilder(t *testing.T) {
 	info := NewHotelRuleBuilder().
 		RuleId("H001").RuleName("酒店规则").RuleStatus("1").
-		CityList([]TravelCity{*NewTravelCityBuilder().Id("1").Name("北京").Build()}).
+		CityList([]TravelCity{*NewTravelCityBuilder().Id(1).Name("北京").Build()}).
 		TotalCount(3).AvailableCount(2).
 		StartTime("2026-01-01").EndTime("2026-01-03").Build()
 	if info.RuleId == nil || *info.RuleId != "H001" {
@@ -427,10 +427,10 @@ func TestBusinessCityBuilder(t *testing.T) {
 
 func TestTravelCityBuilder(t *testing.T) {
 	info := NewTravelCityBuilder().
-		Id("1").Name("北京").AddressDimension(0).
+		Id(1).Name("北京").AddressDimension(0).
 		CountryId(1).CountryName("中国").
 		ProvinceId(11).ProvinceName("北京市").Build()
-	if info.Id == nil || *info.Id != "1" {
+	if info.Id == nil || *info.Id != 1 {
 		t.Errorf("Id = %v, want 1", info.Id)
 	}
 	if info.Name == nil || *info.Name != "北京" {
@@ -439,7 +439,7 @@ func TestTravelCityBuilder(t *testing.T) {
 	if info.AddressDimension == nil || *info.AddressDimension != 0 {
 		t.Errorf("AddressDimension = %v, want 0", info.AddressDimension)
 	}
-	info2 := NewTravelCityBuilder().Id("2").Build()
+	info2 := NewTravelCityBuilder().Id(2).Build()
 	if info2.Name != nil {
 		t.Errorf("Name = %v, want nil", info2.Name)
 	}

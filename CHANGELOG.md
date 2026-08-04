@@ -6,12 +6,11 @@
 
 ### 破坏性变更
 
-以下为相对 `master` 的公开类型变更，共涉及 7 个模型、12 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
+以下为相对 `master` 的公开类型变更，共涉及 6 个模型、11 个字段。已有调用方如果直接赋值或调用 Builder，需要同步调整代码：
 
 | 接口/模型 | 字段类型变更 | Builder 入参变更 |
 | --- | --- | --- |
 | `/river/Approval/getOrder` — `ApprovalOrderRecord` | `CarLevel`、`OrderStatus`、`PayType`、`IsInvoice`：`*int32` → `*string` | 对应参数：`int32` → `string` |
-| 审批出行模型 — `TravelCity` | `Id`：`*int32` → `*string` | `TravelCityBuilder.Id`：`int32` → `string` |
 | `/river/Bill/get` — `BillListItemOfWangYC` | `MemberId`：`*int64` → `*string`；`PersonalRealPay`：`*float32` → `*string` | `MemberId`：`int64` → `string`；`PersonalRealPay`：`float32` → `string` |
 | `/river/Bill/getNotGeneratedBillDetail` — `NotGenBDOfWangYCItem` | `CompanyRealPay`：`*float64` → `*string`；`IsSensitive`：`*int32` → `*string` | 对应参数：`float64/int32` → `string` |
 | `/river/Bill/detail` — `GetBillDetailOfWangYCReply` | `LastId`：`*int64` → `*string` | — |
