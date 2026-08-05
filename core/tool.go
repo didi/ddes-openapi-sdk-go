@@ -120,6 +120,9 @@ type s struct {
 
 // setValue 设置字段值，处理类型转换
 func (d *SmartDecoder) setValue(field reflect.Value, value interface{}) error {
+	if value == nil {
+		return nil
+	}
 	if field.Kind() == reflect.Ptr {
 		if field.IsNil() {
 			field.Set(reflect.New(field.Type().Elem()))

@@ -44,3 +44,27 @@ func TestSmartDecoderDecodeKeepsStandardExactInt64Path(t *testing.T) {
 		t.Fatalf("decoded Id = %v, want 9007199254740993", decoded.Id)
 	}
 }
+
+func TestSmartDecodeKeepsNullSliceNil(t *testing.T) {
+	var decoded struct {
+		Items []string `json:"items"`
+	}
+	if err := SmartDecode([]byte(`{"items":null}`), &decoded); err != nil {
+		t.Fatalf("SmartDecode() error = %v", err)
+	}
+	if decoded.Items != nil {
+		t.Fatalf("decoded Items = %#v, want nil", decoded.Items)
+	}
+}
+
+func TestSmartDecodeKeepsEmptySliceNonNil(t *testing.T) {
+	var decoded struct {
+		Items []string `json:"items"`
+	}
+	if err := SmartDecode([]byte(`{"items":[]}`), &decoded); err != nil {
+		t.Fatalf("SmartDecode() error = %v", err)
+	}
+	if decoded.Items == nil || len(decoded.Items) != 0 {
+		t.Fatalf("decoded Items = %#v, want non-nil empty slice", decoded.Items)
+	}
+}

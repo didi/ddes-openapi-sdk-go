@@ -1107,6 +1107,16 @@ func TestOrderRecordRegulationIdStringDeserialization(t *testing.T) {
 	}
 }
 
+func TestOrderRecordNullStopoverPointsDeserialization(t *testing.T) {
+	var record OrderRecord
+	if err := json.Unmarshal([]byte(`{"stopover_points":null}`), &record); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if record.StopoverPoints != nil {
+		t.Fatalf("StopoverPoints = %#v, want nil", record.StopoverPoints)
+	}
+}
+
 func TestGetFlightEstimatePriceApiReply_Deserialization(t *testing.T) {
 	jsonData := `{
 		"errno": 0,
