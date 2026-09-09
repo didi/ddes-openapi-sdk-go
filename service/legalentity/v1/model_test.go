@@ -2567,3 +2567,158 @@ func TestGetLegalEntityV2_ErrorAndNot200(t *testing.T) {
 		t.Error("ApiReply should not be set on non-200")
 	}
 }
+
+func TestLegalEntityV2RecordBuilder_AllAndPartial(t *testing.T) {
+	rec := NewLegalEntityV2RecordBuilder().
+		LegalEntityId("12345678543222245346").
+		Name("某公司").
+		OutLegalEntityId("108").
+		Status(1).
+		ParentId(112689540238402).
+		StartTime("2023-01-01 12:00:00").
+		EndTime("2026-01-01 12:00:00").
+		TaxpayerNo("9653242523MQ46574").
+		Address("北京").
+		Telephone("010-88880000").
+		OpenBank("某银行").
+		BankCardNo("6222000011112222").
+		OutParentId("1").
+		BelongEnterpriseName("某某集团").
+		Build()
+	if rec.LegalEntityId == nil || *rec.LegalEntityId != "12345678543222245346" {
+		t.Errorf("LegalEntityId = %v", rec.LegalEntityId)
+	}
+	if rec.OutParentId == nil || *rec.OutParentId != "1" {
+		t.Errorf("OutParentId = %v", rec.OutParentId)
+	}
+	if rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+	partial := NewLegalEntityV2RecordBuilder().Name("x").Build()
+	if partial.LegalEntityId != nil || partial.OutParentId != nil || partial.Status != nil {
+		t.Error("unset fields should be nil")
+	}
+}
+
+func TestGetLegalEntityV2Reply_MultipleRecordsAndMissingData(t *testing.T) {
+	// 多条 + 部分缺失
+	var r1 GetLegalEntityV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":0,"data":{"records":[{"legal_entity_id":"1","name":"A"},{"legal_entity_id":"2"}]}}`), &r1); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(r1.Data.Records) != 2 || r1.Data.Records[1].Name != nil {
+		t.Error("multiple records partial fields failed")
+	}
+	// 响应无 data 字段
+	var r2 GetLegalEntityV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":10003,"errmsg":"err","request_id":"r"}`), &r2); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if r2.Data != nil {
+		t.Errorf("Data = %v, want nil", r2.Data)
+	}
+}
+
+func TestGetLegalEntityV2_EmptyRecords(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"next_token":"","records":[],"company_total":0},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	svc := &legalEntity{option: newLegalEntityTestOption(testServer.URL)}
+	resp, err := svc.GetLegalEntityV2(context.Background(), NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.GetLegalEntityV2ApiReply.Data == nil || len(resp.GetLegalEntityV2ApiReply.Data.Records) != 0 {
+		t.Fatal("empty records failed")
+	}
+}
+
+func TestGetLegalEntityV2_AES128Encrypted(t *testing.T) {
+	plain := `{"errno":0,"data":{"next_token":"","records":[{"legal_entity_id":"9","out_parent_id":"1"}]},"request_id":"r"}`
+	key := make([]byte, 16)
+	for i := range key {
+		key[i] = byte(i + 1)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.StdEncoding.EncodeToString(cipher)
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newLegalEntityTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(key)}
+	svc := &legalEntity{option: option}
+	resp, err := svc.GetLegalEntityV2(context.Background(), NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil {
+		t.Fatalf("GetLegalEntityV2() error = %v", err)
+	}
+	rec := resp.GetLegalEntityV2ApiReply.Data.Records[0]
+	if rec.LegalEntityId == nil || *rec.LegalEntityId != "9" {
+		t.Errorf("LegalEntityId = %v", rec.LegalEntityId)
+	}
+}
+
+func TestGetLegalEntityV2_AES256Encrypted(t *testing.T) {
+	plain := `{"errno":0,"data":{"records":[{"legal_entity_id":"7"}]}}`
+	key := make([]byte, 32)
+	for i := range key {
+		key[i] = byte(i + 2)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.URLEncoding.EncodeToString(cipher)
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newLegalEntityTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 2, Key: string(key)}
+	svc := &legalEntity{option: option}
+	resp, err := svc.GetLegalEntityV2(context.Background(), NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.GetLegalEntityV2ApiReply.Data == nil || len(resp.GetLegalEntityV2ApiReply.Data.Records) != 1 {
+		t.Fatal("AES256 decrypt failed")
+	}
+}
+
+func TestGetLegalEntityV2_EncryptedNoEncryptData(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[{"legal_entity_id":"5"}]}}`))
+	}))
+	defer testServer.Close()
+	option := newLegalEntityTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(make([]byte, 16))}
+	svc := &legalEntity{option: option}
+	resp, err := svc.GetLegalEntityV2(context.Background(), NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.GetLegalEntityV2ApiReply.Data == nil || len(resp.GetLegalEntityV2ApiReply.Data.Records) != 1 {
+		t.Fatal("plain fallback failed")
+	}
+}
+
+func TestGetLegalEntityV2_CustomHeader(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-Custom-Header") != "custom-value" {
+			t.Errorf("expected custom header, got %s", r.Header.Get("X-Custom-Header"))
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[]},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	svc := &legalEntity{option: newLegalEntityTestOption(testServer.URL)}
+	reqOption := &core.ReqOption{Header: http.Header{}}
+	reqOption.Header.Set("X-Custom-Header", "custom-value")
+	if _, err := svc.GetLegalEntityV2(context.Background(), NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build(), reqOption); err != nil {
+		t.Fatalf("error = %v", err)
+	}
+}

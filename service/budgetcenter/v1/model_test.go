@@ -2428,3 +2428,172 @@ func TestGetBudgetCenterV2_ErrorAndNot200(t *testing.T) {
 		t.Error("ApiReply should not be set on non-200")
 	}
 }
+
+func TestBudgetCenterV2RecordBuilder_AllAndPartial(t *testing.T) {
+	rec := NewBudgetCenterV2RecordBuilder().
+		Id("3001").
+		Name("研发部").
+		CompanyId("777").
+		BelongEnterpriseName("某某集团").
+		Status("1").
+		ThirdOutId("T1").
+		Type("1").
+		BudgetCycle(1).
+		OutBudgetId("OB1").
+		TotalQuota("5000.00").
+		IsLimitQuota(1).
+		MemberNum(150).
+		AvailableQuota("3000.00").
+		FreezeQuota("0.00").
+		LeaderId("9001").
+		ParentId("2000").
+		OutParentId("OUT_P").
+		MemberUsed(0).
+		StartDate("2026-01-01").
+		ExpiryDate("2026-12-31").
+		CreateTime("2026-01-01 00:00:00").
+		UpdateTime("2026-02-01 00:00:00").
+		LegalEntityId("1,2").
+		OutLegalEntityId("OUT_LE").
+		BudgetExtraInfo("{}").
+		LeaderItemList([]LeaderItem{*NewLeaderItemBuilder().Build()}).
+		LimitRuleList([]LimitRuleItem{*NewLimitRuleItemBuilder().Build()}).
+		Build()
+	if rec.CompanyId == nil || *rec.CompanyId != "777" {
+		t.Errorf("CompanyId = %v", rec.CompanyId)
+	}
+	if rec.MemberNum == nil || *rec.MemberNum != 150 {
+		t.Errorf("MemberNum = %v", rec.MemberNum)
+	}
+	if rec.CreateTime == nil || *rec.CreateTime != "2026-01-01 00:00:00" {
+		t.Errorf("CreateTime = %v", rec.CreateTime)
+	}
+	if len(rec.LeaderItemList) != 1 || len(rec.LimitRuleList) != 1 {
+		t.Error("slice fields should be set")
+	}
+	partial := NewBudgetCenterV2RecordBuilder().Name("x").Build()
+	if partial.CompanyId != nil || partial.MemberNum != nil || partial.LeaderItemList != nil {
+		t.Error("unset fields should be nil")
+	}
+}
+
+func TestGetBudgetCenterV2Reply_MultipleRecordsAndMissingData(t *testing.T) {
+	var r1 GetBudgetCenterV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":0,"data":{"records":[{"id":"1","company_id":"777"},{"id":"2"}]}}`), &r1); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(r1.Data.Records) != 2 || r1.Data.Records[1].CompanyId != nil {
+		t.Error("multiple records partial fields failed")
+	}
+	var r2 GetBudgetCenterV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":10003,"errmsg":"err"}`), &r2); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if r2.Data != nil {
+		t.Errorf("Data = %v, want nil", r2.Data)
+	}
+}
+
+func TestGetBudgetCenterV2_EmptyRecords(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"next_token":"","records":[],"company_total":0},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	svc := &budgetCenter{option: newBudgetCenterTestOption(testServer.URL)}
+	resp, err := svc.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.GetBudgetCenterV2ApiReply.Data == nil || len(resp.GetBudgetCenterV2ApiReply.Data.Records) != 0 {
+		t.Fatal("empty records failed")
+	}
+}
+
+func TestGetBudgetCenterV2_AES128Encrypted(t *testing.T) {
+	plain := `{"errno":0,"data":{"next_token":"","records":[{"id":"9","company_id":"777"}]},"request_id":"r"}`
+	key := make([]byte, 16)
+	for i := range key {
+		key[i] = byte(i + 1)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.StdEncoding.EncodeToString(cipher)
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newBudgetCenterTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(key)}
+	svc := &budgetCenter{option: option}
+	resp, err := svc.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil {
+		t.Fatalf("GetBudgetCenterV2() error = %v", err)
+	}
+	rec := resp.GetBudgetCenterV2ApiReply.Data.Records[0]
+	if rec.CompanyId == nil || *rec.CompanyId != "777" {
+		t.Errorf("CompanyId = %v", rec.CompanyId)
+	}
+}
+
+func TestGetBudgetCenterV2_AES256Encrypted(t *testing.T) {
+	plain := `{"errno":0,"data":{"records":[{"id":"7"}]}}`
+	key := make([]byte, 32)
+	for i := range key {
+		key[i] = byte(i + 2)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.URLEncoding.EncodeToString(cipher)
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newBudgetCenterTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 2, Key: string(key)}
+	svc := &budgetCenter{option: option}
+	resp, err := svc.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.GetBudgetCenterV2ApiReply.Data == nil || len(resp.GetBudgetCenterV2ApiReply.Data.Records) != 1 {
+		t.Fatal("AES256 decrypt failed")
+	}
+}
+
+func TestGetBudgetCenterV2_EncryptedNoEncryptData(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[{"id":"5"}]}}`))
+	}))
+	defer testServer.Close()
+	option := newBudgetCenterTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(make([]byte, 16))}
+	svc := &budgetCenter{option: option}
+	resp, err := svc.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.GetBudgetCenterV2ApiReply.Data == nil || len(resp.GetBudgetCenterV2ApiReply.Data.Records) != 1 {
+		t.Fatal("plain fallback failed")
+	}
+}
+
+func TestGetBudgetCenterV2_CustomHeader(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-Custom-Header") != "custom-value" {
+			t.Errorf("expected custom header, got %s", r.Header.Get("X-Custom-Header"))
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[]},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	svc := &budgetCenter{option: newBudgetCenterTestOption(testServer.URL)}
+	reqOption := &core.ReqOption{Header: http.Header{}}
+	reqOption.Header.Set("X-Custom-Header", "custom-value")
+	if _, err := svc.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), reqOption); err != nil {
+		t.Fatalf("error = %v", err)
+	}
+}

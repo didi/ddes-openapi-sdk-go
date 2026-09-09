@@ -1383,3 +1383,154 @@ func TestListRegulationV2_ErrorAndNot200(t *testing.T) {
 		t.Error("ApiReply should not be set on non-200")
 	}
 }
+
+func TestRegulationV2RecordBuilder_AllAndPartial(t *testing.T) {
+	rec := NewRegulationV2RecordBuilder().
+		RegulationId("1").
+		RegulationName("差旅").
+		RegulationEmployeeName("员工差旅").
+		RegulationEmployeeDescription("全员").
+		RegulationStatus("1").
+		IsApprove(2).
+		SceneType("2").
+		IsUseQuota(0).
+		Source(3).
+		CityType(2).
+		ApprovalType(1).
+		BelongEnterpriseName("某某集团").
+		Build()
+	if rec.RegulationEmployeeName == nil || *rec.RegulationEmployeeName != "员工差旅" {
+		t.Errorf("RegulationEmployeeName = %v", rec.RegulationEmployeeName)
+	}
+	if rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+	if rec.Source == nil || *rec.Source != 3 {
+		t.Errorf("Source = %v", rec.Source)
+	}
+	partial := NewRegulationV2RecordBuilder().RegulationId("x").Build()
+	if partial.RegulationEmployeeName != nil || partial.Source != nil || partial.BelongEnterpriseName != nil {
+		t.Error("unset fields should be nil")
+	}
+}
+
+func TestListRegulationV2Reply_MultipleRecordsAndMissingData(t *testing.T) {
+	var r1 ListRegulationV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":0,"data":{"records":[{"regulation_id":"1","regulation_employee_name":"A"},{"regulation_id":"2"}]}}`), &r1); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(r1.Data.Records) != 2 || r1.Data.Records[1].RegulationEmployeeName != nil {
+		t.Error("multiple records partial fields failed")
+	}
+	var r2 ListRegulationV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":10003,"errmsg":"err"}`), &r2); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if r2.Data != nil {
+		t.Errorf("Data = %v, want nil", r2.Data)
+	}
+}
+
+func TestListRegulationV2_EmptyRecords(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"next_token":"","records":[],"company_total":0},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	svc := &regulation{option: newRegulationTestOption(testServer.URL)}
+	resp, err := svc.ListRegulationV2(context.Background(), NewListRegulationV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.ListRegulationV2ApiReply.Data == nil || len(resp.ListRegulationV2ApiReply.Data.Records) != 0 {
+		t.Fatal("empty records failed")
+	}
+}
+
+func TestListRegulationV2_AES128Encrypted(t *testing.T) {
+	plain := `{"errno":0,"data":{"next_token":"","records":[{"regulation_id":"9","regulation_employee_name":"员工差旅"}]},"request_id":"r"}`
+	key := make([]byte, 16)
+	for i := range key {
+		key[i] = byte(i + 1)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.StdEncoding.EncodeToString(cipher)
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newRegulationTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(key)}
+	svc := &regulation{option: option}
+	resp, err := svc.ListRegulationV2(context.Background(), NewListRegulationV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil {
+		t.Fatalf("ListRegulationV2() error = %v", err)
+	}
+	rec := resp.ListRegulationV2ApiReply.Data.Records[0]
+	if rec.RegulationEmployeeName == nil || *rec.RegulationEmployeeName != "员工差旅" {
+		t.Errorf("RegulationEmployeeName = %v", rec.RegulationEmployeeName)
+	}
+}
+
+func TestListRegulationV2_AES256Encrypted(t *testing.T) {
+	plain := `{"errno":0,"data":{"records":[{"regulation_id":"7"}]}}`
+	key := make([]byte, 32)
+	for i := range key {
+		key[i] = byte(i + 2)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.URLEncoding.EncodeToString(cipher)
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newRegulationTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 2, Key: string(key)}
+	svc := &regulation{option: option}
+	resp, err := svc.ListRegulationV2(context.Background(), NewListRegulationV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.ListRegulationV2ApiReply.Data == nil || len(resp.ListRegulationV2ApiReply.Data.Records) != 1 {
+		t.Fatal("AES256 decrypt failed")
+	}
+}
+
+func TestListRegulationV2_EncryptedNoEncryptData(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[{"regulation_id":"5"}]}}`))
+	}))
+	defer testServer.Close()
+	option := newRegulationTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(make([]byte, 16))}
+	svc := &regulation{option: option}
+	resp, err := svc.ListRegulationV2(context.Background(), NewListRegulationV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil || resp.ListRegulationV2ApiReply.Data == nil || len(resp.ListRegulationV2ApiReply.Data.Records) != 1 {
+		t.Fatal("plain fallback failed")
+	}
+}
+
+func TestListRegulationV2_CustomHeader(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-Custom-Header") != "custom-value" {
+			t.Errorf("expected custom header, got %s", r.Header.Get("X-Custom-Header"))
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[]},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	svc := &regulation{option: newRegulationTestOption(testServer.URL)}
+	reqOption := &core.ReqOption{Header: http.Header{}}
+	reqOption.Header.Set("X-Custom-Header", "custom-value")
+	if _, err := svc.ListRegulationV2(context.Background(), NewListRegulationV2ApiReqBuilder().ClientId("c").Build(), reqOption); err != nil {
+		t.Fatalf("error = %v", err)
+	}
+}

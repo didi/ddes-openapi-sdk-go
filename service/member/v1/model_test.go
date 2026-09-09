@@ -2035,3 +2035,148 @@ func TestListMemberV2_HttpNot200(t *testing.T) {
 		t.Error("ApiReply should not be set on non-200")
 	}
 }
+
+func TestMemberV2RecordBuilder_AllFields(t *testing.T) {
+	rec := NewMemberV2RecordBuilder().
+		Id("1125922289295589").
+		Phone("+86 13800001234").
+		Realname("张三").
+		EmployeeNumber("D1001").
+		ThirdUserId("ext_1").
+		Email("a@example.com").
+		Department("研发").
+		BranchName("北京").
+		SystemRole(2).
+		RoleIds("1_2").
+		Residentsname("青岛").
+		UseCompanyMoney(1).
+		TotalQuota("937.70").
+		AvailableQuota("100.00").
+		IsRemark("1").
+		BudgetCenterId("2001").
+		SetDismissTime("2026-01-01").
+		DismissTime("").
+		ImmediateSuperiorPhone("+86 13900005678").
+		InvoiceInfo("备注").
+		LegalEntityId("3001").
+		RankId("4001").
+		OutRankId("P7").
+		EnglishSurname("Zhang").
+		EnglishName("San").
+		Nickname("昵称").
+		Sex(1).
+		BirthDate("1990-01-01").
+		Source("4").
+		ImmediateSuperiorEid("D1000").
+		OutLegalEntityId("OUT_3001").
+		CertRealname("张三").
+		CertEnglishSurname("Zhang").
+		CertEnglishName("San").
+		Status(1).
+		MonthQuota("937.70").
+		BelongEnterpriseName("某某集团").
+		ConDepartmentIds([]string{"1", "2"}).
+		ResidentsList([]ResidentsListInfo{*NewResidentsListInfoBuilder().Build()}).
+		LimitRuleList([]LimitRuleInfo{*NewLimitRuleInfoBuilder().Build()}).
+		UseCarConfig([]string{"r1"}).
+		RegulationId([]string{"g1"}).
+		GuestCarRight(0).
+		CardList([]CardInfo{*NewCardInfoBuilder().Build()}).
+		Build()
+
+	// 关键字段断言（覆盖各类型）
+	if rec.Id == nil || *rec.Id != "1125922289295589" {
+		t.Errorf("Id = %v", rec.Id)
+	}
+	if rec.SystemRole == nil || *rec.SystemRole != 2 {
+		t.Errorf("SystemRole = %v", rec.SystemRole)
+	}
+	if rec.TotalQuota == nil || *rec.TotalQuota != "937.70" {
+		t.Errorf("TotalQuota = %v", rec.TotalQuota)
+	}
+	if rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+	if rec.SetDismissTime == nil || *rec.SetDismissTime != "2026-01-01" {
+		t.Errorf("SetDismissTime = %v", rec.SetDismissTime)
+	}
+	if len(rec.ConDepartmentIds) != 2 || len(rec.ResidentsList) != 1 || len(rec.LimitRuleList) != 1 ||
+		len(rec.UseCarConfig) != 1 || len(rec.RegulationId) != 1 || len(rec.CardList) != 1 {
+		t.Error("slice fields should be set")
+	}
+
+	// 部分字段：未设置应为 nil/空
+	partial := NewMemberV2RecordBuilder().Id("1").Build()
+	if partial.Phone != nil || partial.Realname != nil || partial.BelongEnterpriseName != nil {
+		t.Error("unset fields should be nil")
+	}
+	if partial.ConDepartmentIds != nil || partial.CardList != nil {
+		t.Error("unset slices should be nil")
+	}
+}
+
+func TestListMemberV2Reply_MultipleRecordsPartialFields(t *testing.T) {
+	jsonData := `{"errno":0,"data":{"records":[
+		{"id":"1","realname":"张三","belong_enterprise_name":"某某集团"},
+		{"id":"2"},
+		{"id":"3","status":4,"month_quota":"50.00"}
+	]}}`
+	var reply ListMemberV2ApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(reply.Data.Records) != 3 {
+		t.Fatalf("Records len = %d, want 3", len(reply.Data.Records))
+	}
+	if reply.Data.Records[1].Realname != nil {
+		t.Error("Records[1].Realname should be nil")
+	}
+	if reply.Data.Records[2].Status == nil || *reply.Data.Records[2].Status != 4 {
+		t.Errorf("Records[2].Status = %v", reply.Data.Records[2].Status)
+	}
+}
+
+func TestListMemberV2Reply_MissingDataField(t *testing.T) {
+	var reply ListMemberV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":10003,"errmsg":"param error","request_id":"r"}`), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Data != nil {
+		t.Errorf("Data = %v, want nil", reply.Data)
+	}
+}
+
+func TestListMemberV2_EmptyRecords(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"next_token":"","records":[],"progress":1,"company_total":0},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	m := &member{option: newMemberTestOption(testServer.URL)}
+	resp, err := m.ListMemberV2(context.Background(), NewListMemberV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if resp.ListMemberV2ApiReply.Data == nil || len(resp.ListMemberV2ApiReply.Data.Records) != 0 {
+		t.Fatal("empty records parse failed")
+	}
+}
+
+func TestListMemberV2_CustomHeader(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-Custom-Header") != "custom-value" {
+			t.Errorf("expected X-Custom-Header custom-value, got %s", r.Header.Get("X-Custom-Header"))
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[]},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+	m := &member{option: newMemberTestOption(testServer.URL)}
+
+	reqOption := &core.ReqOption{Header: http.Header{}}
+	reqOption.Header.Set("X-Custom-Header", "custom-value")
+	_, err := m.ListMemberV2(context.Background(), NewListMemberV2ApiReqBuilder().ClientId("c").Build(), reqOption)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+}
