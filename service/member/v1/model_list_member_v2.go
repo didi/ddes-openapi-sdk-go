@@ -7,7 +7,7 @@ import (
 	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
-// ListMemberV2ApiReq 集团账户（上级公司统一对接）查询员工列表请求，POST /open-apis/v2/member/get；普通企业用 ListMember
+// ListMemberV2ApiReq 集团账户（上级公司统一对接）查询员工列表请求，GET /open-apis/v2/member/get；普通企业用 ListMember
 type ListMemberV2ApiReq struct {
 	apiReq *core.ApiReq
 }

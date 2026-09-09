@@ -91,11 +91,11 @@ func (legalEntity *legalEntity) CreateLegalEntity(ctx context.Context, req *Crea
 	return &createLegalEntityApiResp, nil
 }
 
-// GetLegalEntityV2 公司主体查询（集团账户-上级公司统一对接），POST /open-apis/v2/legalEntity/get；普通企业用 GetLegalEntity。
+// GetLegalEntityV2 公司主体查询（集团账户-上级公司统一对接），GET /open-apis/v2/legalEntity/get；普通企业用 GetLegalEntity。
 // 支持 belong_enterprise_name/taxpayer_no 定位子公司、query_sub_company 聚合下级公司、next_token 跨公司分页。
 func (legalEntity *legalEntity) GetLegalEntityV2(ctx context.Context, req *GetLegalEntityV2ApiReq, reqOption *core.ReqOption) (*GetLegalEntityV2ApiResp, error) {
 	apiReq := req.apiReq
-	apiReq.HttpMethod = http.MethodPost
+	apiReq.HttpMethod = http.MethodGet
 	apiReq.ApiPath = "/open-apis/v2/legalEntity/get"
 
 	apiResp, err := core.Request(ctx, apiReq, legalEntity.option, reqOption)

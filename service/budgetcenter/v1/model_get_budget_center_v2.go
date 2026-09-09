@@ -7,7 +7,7 @@ import (
 	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
-// GetBudgetCenterV2ApiReq 集团账户（上级公司统一对接）查询部门/项目请求，POST /open-apis/v2/budgetCenter/get；普通企业用 GetBudgetCenter。
+// GetBudgetCenterV2ApiReq 集团账户（上级公司统一对接）查询部门/项目请求，GET /open-apis/v2/budgetCenter/get；普通企业用 GetBudgetCenter。
 // v2 契约无 offset/is_get_poi/is_get_extend_fields（分页用 next_token，无 POI/扩展字段返回）。
 type GetBudgetCenterV2ApiReq struct {
 	apiReq *core.ApiReq

@@ -7,7 +7,7 @@ import (
 	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
-// ListRegulationV2ApiReq 集团账户（上级公司统一对接）查询制度列表请求，POST /open-apis/v2/regulation/get；普通企业用 ListRegulation。
+// ListRegulationV2ApiReq 集团账户（上级公司统一对接）查询制度列表请求，GET /open-apis/v2/regulation/get；普通企业用 ListRegulation。
 // v2 契约为 next_token 跨公司分页（/river 版无分页）。
 type ListRegulationV2ApiReq struct {
 	apiReq *core.ApiReq

@@ -23,7 +23,7 @@
 - `/river/Member/single`、`/river/Member/edit`：data 新增 `residents_adcode`（常驻地行政区划代码）、`home_address`（家庭住址）。
 - `/river/Regulation/get`、`/river/Regulation/detail`：响应新增 `regulation_employee_name`、`regulation_employee_description`。
 - `/river/Member/del`：新增 `employee_phone`、`employee_email` 删除标识（与 `member_id`/`employee_number` 四选一，优先级：滴滴侧ID > 手机号 > 工号 > 邮箱）。
-- 新增集团账户（上级公司统一对接）v2 查询接口支持，4 个域各新增一个 `*V2` 方法（POST `/open-apis/v2/<domain>/get`），现有 `/river/*` 方法不受影响：
+- 新增集团账户（上级公司统一对接）v2 查询接口支持，4 个域各新增一个 `*V2` 方法（GET `/open-apis/v2/<domain>/get`），现有 `/river/*` 方法不受影响：
   - `MemberService.V1.Member.ListMemberV2`：员工列表，支持 `is_last_id` 游标分页；
   - `LegalEntityService.V1.LegalEntity.GetLegalEntityV2`：公司主体查询，支持 `keyword`/`legal_entity_id`/`out_legal_entity_id`/`status` 精准筛选；
   - `BudgetCenterService.V1.BudgetCenter.GetBudgetCenterV2`：部门/项目查询，支持 `third_out_id`（v2 契约无 `is_get_poi`/`is_get_extend_fields`）；

@@ -1870,8 +1870,8 @@ func TestListMemberV2Reply_EmptyAndError(t *testing.T) {
 
 func TestListMemberV2_Success(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			t.Errorf("expected POST, got %s", r.Method)
+		if r.Method != http.MethodGet {
+			t.Errorf("expected GET, got %s", r.Method)
 		}
 		if r.URL.Path != "/open-apis/v2/member/get" {
 			t.Errorf("expected path /open-apis/v2/member/get, got %s", r.URL.Path)

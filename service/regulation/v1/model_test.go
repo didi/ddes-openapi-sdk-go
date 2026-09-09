@@ -1338,8 +1338,8 @@ func TestListRegulationV2Reply_Deserialization(t *testing.T) {
 
 func TestListRegulationV2_Success(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			t.Errorf("expected POST, got %s", r.Method)
+		if r.Method != http.MethodGet {
+			t.Errorf("expected GET, got %s", r.Method)
 		}
 		if r.URL.Path != "/open-apis/v2/regulation/get" {
 			t.Errorf("expected /open-apis/v2/regulation/get, got %s", r.URL.Path)

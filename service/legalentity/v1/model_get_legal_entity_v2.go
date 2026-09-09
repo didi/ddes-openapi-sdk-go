@@ -7,7 +7,7 @@ import (
 	"github.com/didi/ddes-openapi-sdk-go/core"
 )
 
-// GetLegalEntityV2ApiReq 集团账户（上级公司统一对接）查询公司主体请求，POST /open-apis/v2/legalEntity/get；普通企业用 GetLegalEntity
+// GetLegalEntityV2ApiReq 集团账户（上级公司统一对接）查询公司主体请求，GET /open-apis/v2/legalEntity/get；普通企业用 GetLegalEntity
 type GetLegalEntityV2ApiReq struct {
 	apiReq *core.ApiReq
 }

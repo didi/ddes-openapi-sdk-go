@@ -359,11 +359,11 @@ func (member *member) ListMember(ctx context.Context, req *ListMemberApiReq, req
 	return &listMemberApiResp, nil
 }
 
-// ListMemberV2 员工列表（集团账户-上级公司统一对接），POST /open-apis/v2/member/get；普通企业用 ListMember。
+// ListMemberV2 员工列表（集团账户-上级公司统一对接），GET /open-apis/v2/member/get；普通企业用 ListMember。
 // 支持 belong_enterprise_name/taxpayer_no 定位子公司、query_sub_company 聚合下级公司、next_token 跨公司分页、is_last_id 游标分页。
 func (member *member) ListMemberV2(ctx context.Context, req *ListMemberV2ApiReq, reqOption *core.ReqOption) (*ListMemberV2ApiResp, error) {
 	apiReq := req.apiReq
-	apiReq.HttpMethod = http.MethodPost
+	apiReq.HttpMethod = http.MethodGet
 	apiReq.ApiPath = "/open-apis/v2/member/get"
 
 	apiResp, err := core.Request(ctx, apiReq, member.option, reqOption)
