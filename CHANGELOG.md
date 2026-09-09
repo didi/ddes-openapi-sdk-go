@@ -2,6 +2,39 @@
 
 本文记录当前分支相对 `master` 的变更。
 
+## [1.3.0] - 2026-09-09
+
+### 破坏性变更
+
+以下为相对 `master` 仍保留的公开类型变更，共涉及 1 个响应模型字段类型。已有调用方如果直接引用，需要同步调整代码：
+
+| 接口/模型 | 变更 | 说明 |
+| --- | --- | --- |
+| `/river/Rank/getRanks` — `ListRankReply` | `Records`：`[]RankInfo` → `[]RankRecord` | 修复性变更：服务端响应字段为 `id`，原复用请求侧 `RankInfo`（`rank_id`）导致职级 ID 永远解析为空；`RankRecord` 字段为 `Id`/`Name`/`OutRankId`。请求侧 `RankInfo`（create/update/del）不受影响 |
+
+### 新增
+
+- 集团账户参数支持（`belong_enterprise_name`/`taxpayer_no`，任选其一），覆盖 11 个接口、13 处落点：
+  - query 参数：`/river/Rank/getRanks`、`/river/Member/getQuota`、`/river/Regulation/detail`、`/river/Role/get`；
+  - 请求体顶层：`/river/Member/single`、`/river/Member/edit`、`/river/Member/del`；
+  - param_json 内：`/open-apis/v1/rank/create|update|del`、`/river/LegalEntity/add|edit|del`。
+- `/river/LegalEntity/get`：请求新增 `out_legal_entity_id` 精准查询；响应新增 `out_parent_id`（上级公司外部编号，2025.06.18 上线）。
+- `/river/Member/getQuota`：请求新增 `monthly_limit_only_query`（1 仅按自然月（默认）/ 2 查询所有限额）。
+- `/river/Member/single`、`/river/Member/edit`：data 新增 `residents_adcode`（常驻地行政区划代码）、`home_address`（家庭住址）。
+- `/river/Regulation/get`、`/river/Regulation/detail`：响应新增 `regulation_employee_name`、`regulation_employee_description`。
+- `/river/Member/del`：新增 `employee_phone`、`employee_email` 删除标识（与 `member_id`/`employee_number` 四选一，优先级：滴滴侧ID > 手机号 > 工号 > 邮箱）。
+
+### 修复
+
+- 修复 `/river/Rank/getRanks` 响应职级 ID 解析为空的问题（见破坏性变更）。
+- 修复 `/river/Member/single`、`/river/Member/edit` 常驻地 ID 不生效的问题：`MemberInfo` 字段 `RedisentsIds` 更名为 `ResidentsIds`，json key 由 `redisents_ids` 修正为服务端实际读取的 `residents_ids`。
+
+### 测试与工程化
+
+- 为上述全部新增字段与修复补齐单元测试（模型序列化、query 写入、响应反序列化、Builder、多标识删除场景）。
+- 新增 `docs/接口对齐diff清单.md`（SDK ↔ PHP openapi ↔ openapi-go ↔ 官方文档四方对照证据链）。
+- SDK 版本号由 `1.2.0` 调整为 `1.3.0`。
+
 ## [1.2.0] - 2026-08-03
 
 ### 破坏性变更
