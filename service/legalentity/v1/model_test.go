@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -2338,5 +2339,104 @@ func TestUpdateLegalEntity_WithReqOption(t *testing.T) {
 	}
 	if resp.UpdateLegalEntityApiReply == nil {
 		t.Fatal("UpdateLegalEntityApiReply is nil")
+	}
+}
+
+func TestGetLegalEntityApiReqBuilder_OutLegalEntityId(t *testing.T) {
+	req := NewGetLegalEntityApiReqBuilder().
+		ClientId("test_client").
+		Keyword("测试").
+		LegalEntityId("108").
+		OutLegalEntityId("OUT_108").
+		Offset(0).
+		Length(10).
+		Build()
+
+	if got := req.apiReq.QueryParams.Get("out_legal_entity_id"); got != "OUT_108" {
+		t.Errorf("out_legal_entity_id = %q, want OUT_108", got)
+	}
+	// 既有参数不受影响
+	if got := req.apiReq.QueryParams.Get("keyword"); got != "测试" {
+		t.Errorf("keyword = %q, want 测试", got)
+	}
+	// 不设置时不存在
+	reqN := NewGetLegalEntityApiReqBuilder().ClientId("c").Build()
+	if _, ok := reqN.apiReq.QueryParams["out_legal_entity_id"]; ok {
+		t.Error("out_legal_entity_id should not exist")
+	}
+}
+
+func TestLegalEntityRecord_OutParentId(t *testing.T) {
+	// 响应解析
+	jsonData := `{"legal_entity_id":123,"out_parent_id":"1","name":"某公司"}`
+	var record LegalEntityRecord
+	if err := json.Unmarshal([]byte(jsonData), &record); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if record.OutParentId == nil || *record.OutParentId != "1" {
+		t.Errorf("OutParentId = %v, want 1", record.OutParentId)
+	}
+
+	// key 缺失为 nil
+	var record2 LegalEntityRecord
+	if err := json.Unmarshal([]byte(`{"legal_entity_id":456}`), &record2); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if record2.OutParentId != nil {
+		t.Errorf("OutParentId = %v, want nil", record2.OutParentId)
+	}
+
+	// Builder
+	built := NewLegalEntityRecordBuilder().OutParentId("9").Build()
+	if built.OutParentId == nil || *built.OutParentId != "9" {
+		t.Errorf("builder OutParentId = %v", built.OutParentId)
+	}
+}
+
+func TestLegalEntityRequests_GroupAccountParams(t *testing.T) {
+	// del：+belong +taxpayer
+	delReq := NewDelLegalEntityRequestBuilder().
+		LegalEntityId("123").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+	if delReq.BelongEnterpriseName == nil || *delReq.BelongEnterpriseName != "某某集团" {
+		t.Errorf("del BelongEnterpriseName = %v", delReq.BelongEnterpriseName)
+	}
+	if delReq.TaxpayerNo == nil || *delReq.TaxpayerNo != "91110000XXXXXXXXXX" {
+		t.Errorf("del TaxpayerNo = %v", delReq.TaxpayerNo)
+	}
+
+	// create：+belong（taxpayer_no 为既有业务字段）
+	createReq := NewCreateLegalEntityRequestBuilder().
+		Name("某公司").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		BelongEnterpriseName("某某集团").
+		Build()
+	if createReq.BelongEnterpriseName == nil || *createReq.BelongEnterpriseName != "某某集团" {
+		t.Errorf("create BelongEnterpriseName = %v", createReq.BelongEnterpriseName)
+	}
+	if createReq.TaxpayerNo == nil || *createReq.TaxpayerNo != "91110000XXXXXXXXXX" {
+		t.Errorf("create TaxpayerNo = %v", createReq.TaxpayerNo)
+	}
+	data, _ := json.Marshal(createReq)
+	if !bytes.Contains(data, []byte("belong_enterprise_name")) {
+		t.Errorf("belong_enterprise_name not serialized: %s", data)
+	}
+
+	// update：+belong
+	updateReq := NewUpdateLegalEntityRequestBuilder().
+		LegalEntityId("123").
+		BelongEnterpriseName("某某集团").
+		Build()
+	if updateReq.BelongEnterpriseName == nil || *updateReq.BelongEnterpriseName != "某某集团" {
+		t.Errorf("update BelongEnterpriseName = %v", updateReq.BelongEnterpriseName)
+	}
+
+	// 不设置时省略
+	empty := NewDelLegalEntityRequestBuilder().LegalEntityId("1").Build()
+	data2, _ := json.Marshal(empty)
+	if bytes.Contains(data2, []byte("belong_enterprise_name")) {
+		t.Error("belong_enterprise_name should be omitted")
 	}
 }

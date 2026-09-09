@@ -593,3 +593,35 @@ func TestListRole_WithReqOption(t *testing.T) {
 		t.Fatalf("Data len = %d, want 1", len(resp.ListRoleApiReply.Data))
 	}
 }
+
+func TestListRoleApiReqBuilder_GroupAccountParams(t *testing.T) {
+	req := NewListRoleApiReqBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp("1583484681").
+		Sign("test_sign").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+
+	if got := req.apiReq.QueryParams.Get("belong_enterprise_name"); got != "某某集团" {
+		t.Errorf("belong_enterprise_name = %q, want 某某集团", got)
+	}
+	if got := req.apiReq.QueryParams.Get("taxpayer_no"); got != "91110000XXXXXXXXXX" {
+		t.Errorf("taxpayer_no = %q", got)
+	}
+	// 签名等既有参数不受影响
+	if got := req.apiReq.QueryParams.Get("sign"); got != "test_sign" {
+		t.Errorf("sign = %q, want test_sign", got)
+	}
+
+	// 不设置时不存在
+	reqN := NewListRoleApiReqBuilder().ClientId("c").Build()
+	if _, ok := reqN.apiReq.QueryParams["belong_enterprise_name"]; ok {
+		t.Error("belong_enterprise_name should not exist")
+	}
+	if _, ok := reqN.apiReq.QueryParams["taxpayer_no"]; ok {
+		t.Error("taxpayer_no should not exist")
+	}
+}

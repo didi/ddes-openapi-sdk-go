@@ -52,3 +52,11 @@ func (builder *ListRoleApiReqBuilder) Sign(sign string) *ListRoleApiReqBuilder {
 	builder.apiReq.QueryParams.Set("sign", sign)
 	return builder
 }
+func (builder *ListRoleApiReqBuilder) BelongEnterpriseName(belongEnterpriseName string) *ListRoleApiReqBuilder {
+	builder.apiReq.QueryParams.Set("belong_enterprise_name", belongEnterpriseName)
+	return builder
+}
+func (builder *ListRoleApiReqBuilder) TaxpayerNo(taxpayerNo string) *ListRoleApiReqBuilder {
+	builder.apiReq.QueryParams.Set("taxpayer_no", taxpayerNo)
+	return builder
+}

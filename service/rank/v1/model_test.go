@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -570,8 +571,8 @@ func TestListRankApiReply_Deserialization(t *testing.T) {
 		"data": {
 			"total": 2,
 			"records": [
-				{"rank_id": "1125922289295589", "out_rank_id": "OUT_001", "name": "P7"},
-				{"rank_id": "1125922289295590", "out_rank_id": "OUT_002", "name": "P6"}
+				{"id": "1125922289295589", "out_rank_id": "OUT_001", "name": "P7"},
+				{"id": "1125922289295590", "out_rank_id": "OUT_002", "name": "P6"}
 			]
 		},
 		"request_id": "req_001"
@@ -594,8 +595,8 @@ func TestListRankApiReply_Deserialization(t *testing.T) {
 	if len(reply.Data.Records) != 2 {
 		t.Fatalf("Records len = %d, want 2", len(reply.Data.Records))
 	}
-	if reply.Data.Records[0].RankId == nil || *reply.Data.Records[0].RankId != "1125922289295589" {
-		t.Errorf("Records[0].RankId = %v, want 1125922289295589", reply.Data.Records[0].RankId)
+	if reply.Data.Records[0].Id == nil || *reply.Data.Records[0].Id != "1125922289295589" {
+		t.Errorf("Records[0].Id = %v, want 1125922289295589", reply.Data.Records[0].Id)
 	}
 	if reply.Data.Records[0].Name == nil || *reply.Data.Records[0].Name != "P7" {
 		t.Errorf("Records[0].Name = %v, want P7", reply.Data.Records[0].Name)
@@ -621,9 +622,9 @@ func TestListRankApiReply_MultipleItems(t *testing.T) {
 		"data": {
 			"total": 3,
 			"records": [
-				{"rank_id": "1001", "name": "P7"},
+				{"id": "1001", "name": "P7"},
 				{"out_rank_id": "OUT_002"},
-				{"rank_id": "1003", "out_rank_id": "OUT_003", "name": "P5"}
+				{"id": "1003", "out_rank_id": "OUT_003", "name": "P5"}
 			]
 		},
 		"request_id": "req_multi"
@@ -640,16 +641,16 @@ func TestListRankApiReply_MultipleItems(t *testing.T) {
 	if reply.Data.Records[0].Name == nil || *reply.Data.Records[0].Name != "P7" {
 		t.Errorf("Records[0].Name = %v, want P7", reply.Data.Records[0].Name)
 	}
-	// 第2条缺少 name 和 rank_id
+	// 第2条缺少 name 和 id
 	if reply.Data.Records[1].Name != nil {
 		t.Errorf("Records[1].Name = %v, want nil", reply.Data.Records[1].Name)
 	}
-	if reply.Data.Records[1].RankId != nil {
-		t.Errorf("Records[1].RankId = %v, want nil", reply.Data.Records[1].RankId)
+	if reply.Data.Records[1].Id != nil {
+		t.Errorf("Records[1].Id = %v, want nil", reply.Data.Records[1].Id)
 	}
 	// 第3条全字段
-	if reply.Data.Records[2].RankId == nil || *reply.Data.Records[2].RankId != "1003" {
-		t.Errorf("Records[2].RankId = %v, want 1003", reply.Data.Records[2].RankId)
+	if reply.Data.Records[2].Id == nil || *reply.Data.Records[2].Id != "1003" {
+		t.Errorf("Records[2].Id = %v, want 1003", reply.Data.Records[2].Id)
 	}
 }
 
@@ -1447,7 +1448,7 @@ func TestListRank_Success(t *testing.T) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":2,"records":[{"rank_id":"1125922289295589","out_rank_id":"OUT_001","name":"P7"},{"rank_id":"1125922289295590","out_rank_id":"OUT_002","name":"P6"}]},"request_id":"req_001"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":2,"records":[{"id":"1125922289295589","out_rank_id":"OUT_001","name":"P7"},{"id":"1125922289295590","out_rank_id":"OUT_002","name":"P6"}]},"request_id":"req_001"}`))
 	}))
 	defer testServer.Close()
 
@@ -1483,8 +1484,8 @@ func TestListRank_Success(t *testing.T) {
 	if len(resp.ListRankApiReply.Data.Records) != 2 {
 		t.Fatalf("Records len = %d, want 2", len(resp.ListRankApiReply.Data.Records))
 	}
-	if resp.ListRankApiReply.Data.Records[0].RankId == nil || *resp.ListRankApiReply.Data.Records[0].RankId != "1125922289295589" {
-		t.Errorf("Records[0].RankId = %v, want 1125922289295589", resp.ListRankApiReply.Data.Records[0].RankId)
+	if resp.ListRankApiReply.Data.Records[0].Id == nil || *resp.ListRankApiReply.Data.Records[0].Id != "1125922289295589" {
+		t.Errorf("Records[0].Id = %v, want 1125922289295589", resp.ListRankApiReply.Data.Records[0].Id)
 	}
 }
 
@@ -1986,5 +1987,107 @@ func TestUpdateRank_WithReqOption(t *testing.T) {
 	}
 	if resp.UpdateRankApiReply == nil {
 		t.Fatal("UpdateRankApiReply is nil")
+	}
+}
+
+func TestRankRecordBuilder(t *testing.T) {
+	// 全字段
+	record := NewRankRecordBuilder().
+		Id("3241893421").
+		Name("didi").
+		OutRankId("D1").
+		Build()
+	if record.Id == nil || *record.Id != "3241893421" {
+		t.Errorf("Id = %v, want 3241893421", record.Id)
+	}
+	if record.Name == nil || *record.Name != "didi" {
+		t.Errorf("Name = %v, want didi", record.Name)
+	}
+	if record.OutRankId == nil || *record.OutRankId != "D1" {
+		t.Errorf("OutRankId = %v, want D1", record.OutRankId)
+	}
+
+	// 部分字段：未设置应为空
+	partial := NewRankRecordBuilder().Name("P7").Build()
+	if partial.Id != nil {
+		t.Errorf("Id = %v, want nil", partial.Id)
+	}
+	if partial.OutRankId != nil {
+		t.Errorf("OutRankId = %v, want nil", partial.OutRankId)
+	}
+}
+
+func TestListRankApiReqBuilder_GroupAccountParams(t *testing.T) {
+	req := NewListRankApiReqBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp("1583484681").
+		Offset(0).
+		Length(10).
+		Sign("test_sign").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+
+	if got := req.apiReq.QueryParams.Get("belong_enterprise_name"); got != "某某集团" {
+		t.Errorf("belong_enterprise_name = %q, want 某某集团", got)
+	}
+	if got := req.apiReq.QueryParams.Get("taxpayer_no"); got != "91110000XXXXXXXXXX" {
+		t.Errorf("taxpayer_no = %q, want 91110000XXXXXXXXXX", got)
+	}
+	// 既有参数不受影响
+	if got := req.apiReq.QueryParams.Get("length"); got != "10" {
+		t.Errorf("length = %q, want 10", got)
+	}
+}
+
+func TestListRankApiReqBuilder_GroupAccountParamsNotSet(t *testing.T) {
+	req := NewListRankApiReqBuilder().
+		ClientId("test_client").
+		Sign("test_sign").
+		Build()
+
+	if _, ok := req.apiReq.QueryParams["belong_enterprise_name"]; ok {
+		t.Error("belong_enterprise_name should not be set")
+	}
+	if _, ok := req.apiReq.QueryParams["taxpayer_no"]; ok {
+		t.Error("taxpayer_no should not be set")
+	}
+}
+
+func TestRankInfoGroupAccountParamsSerialization(t *testing.T) {
+	info := NewRankInfoBuilder().
+		Name("P7").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+
+	data, err := json.Marshal(info)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if m["belong_enterprise_name"] != "某某集团" {
+		t.Errorf("belong_enterprise_name = %v, want 某某集团", m["belong_enterprise_name"])
+	}
+	if m["taxpayer_no"] != "91110000XXXXXXXXXX" {
+		t.Errorf("taxpayer_no = %v, want 91110000XXXXXXXXXX", m["taxpayer_no"])
+	}
+	if m["name"] != "P7" {
+		t.Errorf("name = %v, want P7", m["name"])
+	}
+
+	// 不设置时省略
+	empty := NewRankInfoBuilder().Name("P6").Build()
+	data2, _ := json.Marshal(empty)
+	if bytes.Contains(data2, []byte("belong_enterprise_name")) {
+		t.Error("belong_enterprise_name should be omitted")
+	}
+	if bytes.Contains(data2, []byte("taxpayer_no")) {
+		t.Error("taxpayer_no should be omitted")
 	}
 }

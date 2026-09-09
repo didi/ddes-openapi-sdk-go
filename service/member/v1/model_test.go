@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -1563,5 +1564,180 @@ func TestGetMemberDetail_WithReqOption(t *testing.T) {
 	}
 	if resp.GetMemberDetailApiReply == nil {
 		t.Fatal("GetMemberDetailApiReply is nil")
+	}
+}
+
+func TestMemberInfoResidentsIdsSerialization(t *testing.T) {
+	// P0 修复验证：json key 必须是 residents_ids（服务端 PHP Single.php:195 只读该 key）
+	info := NewMemberInfoBuilder().
+		Realname("张三").
+		ResidentsIds("1_2_3").
+		Build()
+
+	data, err := json.Marshal(info)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if m["residents_ids"] != "1_2_3" {
+		t.Errorf("residents_ids = %v, want 1_2_3", m["residents_ids"])
+	}
+	if _, ok := m["redisents_ids"]; ok {
+		t.Error("redisents_ids should not appear (legacy wrong tag)")
+	}
+	// 不设置时省略
+	info2 := NewMemberInfoBuilder().Realname("李四").Build()
+	data2, _ := json.Marshal(info2)
+	if bytes.Contains(data2, []byte("residents_ids")) {
+		t.Error("residents_ids should be omitted when not set")
+	}
+}
+
+func TestMemberInfoResidentsAdcodeAndHomeAddress(t *testing.T) {
+	info := NewMemberInfoBuilder().
+		ResidentsAdcode("110000,110100").
+		HomeAddress([]HomeAddressInfo{
+			*NewHomeAddressInfoBuilder().Build(),
+		}).
+		Build()
+
+	if info.ResidentsAdcode == nil || *info.ResidentsAdcode != "110000,110100" {
+		t.Errorf("ResidentsAdcode = %v, want 110000,110100", info.ResidentsAdcode)
+	}
+	if len(info.HomeAddress) != 1 {
+		t.Errorf("HomeAddress len = %d, want 1", len(info.HomeAddress))
+	}
+
+	data, err := json.Marshal(info)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	if !bytes.Contains(data, []byte("residents_adcode")) {
+		t.Error("residents_adcode should be serialized")
+	}
+	if !bytes.Contains(data, []byte("home_address")) {
+		t.Error("home_address should be serialized")
+	}
+
+	// 部分字段：不设置为空
+	partial := NewMemberInfoBuilder().Realname("王五").Build()
+	if partial.ResidentsAdcode != nil {
+		t.Errorf("ResidentsAdcode = %v, want nil", partial.ResidentsAdcode)
+	}
+	if partial.HomeAddress != nil {
+		t.Errorf("HomeAddress = %v, want nil", partial.HomeAddress)
+	}
+}
+
+func TestDelMemberRequestMultiIdentifierAndGroupParams(t *testing.T) {
+	// 仅手机号
+	req := NewDelMemberRequestBuilder().
+		ClientId("test_client").
+		EmployeePhone(`["+86 13800001234"]`).
+		Build()
+	data, _ := json.Marshal(req)
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+	if m["employee_phone"] != `["+86 13800001234"]` {
+		t.Errorf("employee_phone = %v", m["employee_phone"])
+	}
+	if _, ok := m["member_id"]; ok {
+		t.Error("member_id should be omitted")
+	}
+
+	// 仅邮箱
+	req2 := NewDelMemberRequestBuilder().EmployeeEmail(`["a@example.com"]`).Build()
+	data2, _ := json.Marshal(req2)
+	if !bytes.Contains(data2, []byte(`"employee_email":"[\"a@example.com\"]"`)) {
+		t.Errorf("employee_email not serialized: %s", data2)
+	}
+
+	// 与 member_id 共存 + 集团参数
+	req3 := NewDelMemberRequestBuilder().
+		MemberId("123_456").
+		EmployeePhone(`["+86 13800005678"]`).
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+	data3, _ := json.Marshal(req3)
+	m3 := map[string]interface{}{}
+	json.Unmarshal(data3, &m3)
+	for _, key := range []string{"member_id", "employee_phone", "belong_enterprise_name", "taxpayer_no"} {
+		if _, ok := m3[key]; !ok {
+			t.Errorf("%s should be serialized", key)
+		}
+	}
+	if m3["belong_enterprise_name"] != "某某集团" {
+		t.Errorf("belong_enterprise_name = %v", m3["belong_enterprise_name"])
+	}
+}
+
+func TestMemberCreateUpdateRequestGroupParams(t *testing.T) {
+	// create 顶层
+	createReq := NewCreateMemberRequestBuilder().
+		ClientId("test_client").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+	if createReq.BelongEnterpriseName == nil || *createReq.BelongEnterpriseName != "某某集团" {
+		t.Errorf("CreateRequest BelongEnterpriseName = %v", createReq.BelongEnterpriseName)
+	}
+	if createReq.TaxpayerNo == nil || *createReq.TaxpayerNo != "91110000XXXXXXXXXX" {
+		t.Errorf("CreateRequest TaxpayerNo = %v", createReq.TaxpayerNo)
+	}
+
+	// update 顶层 + 序列化
+	updateReq := NewUpdateMemberRequestBuilder().
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+	data, _ := json.Marshal(updateReq)
+	if !bytes.Contains(data, []byte("belong_enterprise_name")) || !bytes.Contains(data, []byte("taxpayer_no")) {
+		t.Errorf("group params not serialized: %s", data)
+	}
+
+	// 不设置时省略
+	empty := NewCreateMemberRequestBuilder().ClientId("test_client").Build()
+	data2, _ := json.Marshal(empty)
+	if bytes.Contains(data2, []byte("belong_enterprise_name")) {
+		t.Error("belong_enterprise_name should be omitted")
+	}
+}
+
+func TestGetMemberQuotaApiReqBuilder_GroupAndMonthlyLimit(t *testing.T) {
+	req := NewGetMemberQuotaApiReqBuilder().
+		ClientId("test_client").
+		MemberIds("123,456").
+		MonthlyLimitOnlyQuery(2).
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+
+	if got := req.apiReq.QueryParams.Get("monthly_limit_only_query"); got != "2" {
+		t.Errorf("monthly_limit_only_query = %q, want 2", got)
+	}
+	if got := req.apiReq.QueryParams.Get("belong_enterprise_name"); got != "某某集团" {
+		t.Errorf("belong_enterprise_name = %q, want 某某集团", got)
+	}
+	if got := req.apiReq.QueryParams.Get("taxpayer_no"); got != "91110000XXXXXXXXXX" {
+		t.Errorf("taxpayer_no = %q", got)
+	}
+
+	// int32 零值仍写入
+	req0 := NewGetMemberQuotaApiReqBuilder().MonthlyLimitOnlyQuery(0).Build()
+	if got := req0.apiReq.QueryParams.Get("monthly_limit_only_query"); got != "0" {
+		t.Errorf("monthly_limit_only_query(0) = %q, want 0", got)
+	}
+
+	// 不设置时不存在
+	reqN := NewGetMemberQuotaApiReqBuilder().ClientId("c").Build()
+	if _, ok := reqN.apiReq.QueryParams["monthly_limit_only_query"]; ok {
+		t.Error("monthly_limit_only_query should not exist")
+	}
+	if _, ok := reqN.apiReq.QueryParams["belong_enterprise_name"]; ok {
+		t.Error("belong_enterprise_name should not exist")
 	}
 }

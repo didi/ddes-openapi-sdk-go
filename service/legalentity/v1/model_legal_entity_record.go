@@ -9,6 +9,7 @@ type LegalEntityRecord struct {
 	Name             *string `json:"name,omitempty"`                // 公司主体名称
 	OpenBank         *string `json:"open_bank,omitempty"`           // 开户行名称
 	OutLegalEntityId *string `json:"out_legal_entity_id,omitempty"` // 外部主体编号
+	OutParentId      *string `json:"out_parent_id,omitempty"`       // 上级公司外部编号
 	ParentId         *int64  `json:"parent_id,omitempty"`           // 上级公司 id
 	StartTime        *string `json:"start_time,omitempty"`          // 公司主体有效期开始日期
 	TaxpayerNo       *string `json:"taxpayer_no,omitempty"`         // 纳税人识别号
@@ -41,6 +42,8 @@ type LegalEntityRecordBuilder struct {
 	telephoneSet        bool
 	status              int32 // 公司状态，0 停用，1 启用
 	statusSet           bool
+	outParentId         string // 上级公司外部编号
+	outParentIdSet      bool
 }
 
 func NewLegalEntityRecordBuilder() *LegalEntityRecordBuilder {
@@ -106,6 +109,11 @@ func (builder *LegalEntityRecordBuilder) Status(status int32) *LegalEntityRecord
 	builder.statusSet = true
 	return builder
 }
+func (builder *LegalEntityRecordBuilder) OutParentId(outParentId string) *LegalEntityRecordBuilder {
+	builder.outParentId = outParentId
+	builder.outParentIdSet = true
+	return builder
+}
 
 func (builder *LegalEntityRecordBuilder) Build() *LegalEntityRecord {
 	data := &LegalEntityRecord{}
@@ -144,6 +152,9 @@ func (builder *LegalEntityRecordBuilder) Build() *LegalEntityRecord {
 	}
 	if builder.statusSet {
 		data.Status = &builder.status
+	}
+	if builder.outParentIdSet {
+		data.OutParentId = &builder.outParentId
 	}
 	return data
 }

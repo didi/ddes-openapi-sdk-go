@@ -1203,3 +1203,69 @@ func TestListRegulation_WithReqOption(t *testing.T) {
 		t.Fatal("ListRegulationApiReply is nil")
 	}
 }
+
+func TestGetRegulationApiReqBuilder_GroupAccountParams(t *testing.T) {
+	req := NewGetRegulationApiReqBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp("1583484681").
+		Sign("test_sign").
+		RegulationId("123").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+
+	if got := req.apiReq.QueryParams.Get("belong_enterprise_name"); got != "某某集团" {
+		t.Errorf("belong_enterprise_name = %q, want 某某集团", got)
+	}
+	if got := req.apiReq.QueryParams.Get("taxpayer_no"); got != "91110000XXXXXXXXXX" {
+		t.Errorf("taxpayer_no = %q", got)
+	}
+	// 既有参数不受影响
+	if got := req.apiReq.QueryParams.Get("regulation_id"); got != "123" {
+		t.Errorf("regulation_id = %q, want 123", got)
+	}
+
+	// 不设置时不存在
+	reqN := NewGetRegulationApiReqBuilder().ClientId("c").Build()
+	if _, ok := reqN.apiReq.QueryParams["belong_enterprise_name"]; ok {
+		t.Error("belong_enterprise_name should not exist")
+	}
+	if _, ok := reqN.apiReq.QueryParams["taxpayer_no"]; ok {
+		t.Error("taxpayer_no should not exist")
+	}
+}
+
+func TestRegulationInfoEmployeeFields(t *testing.T) {
+	// 正常解析
+	jsonData := `{"regulation_id":"1","regulation_name":"差旅","regulation_employee_name":"员工差旅","regulation_employee_description":"适用于全员"}`
+	var info RegulationInfo
+	if err := json.Unmarshal([]byte(jsonData), &info); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if info.RegulationEmployeeName == nil || *info.RegulationEmployeeName != "员工差旅" {
+		t.Errorf("RegulationEmployeeName = %v, want 员工差旅", info.RegulationEmployeeName)
+	}
+	if info.RegulationEmployeeDescription == nil || *info.RegulationEmployeeDescription != "适用于全员" {
+		t.Errorf("RegulationEmployeeDescription = %v", info.RegulationEmployeeDescription)
+	}
+
+	// key 缺失为 nil
+	var info2 RegulationInfo
+	if err := json.Unmarshal([]byte(`{"regulation_id":"2"}`), &info2); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if info2.RegulationEmployeeName != nil || info2.RegulationEmployeeDescription != nil {
+		t.Errorf("missing keys should be nil: %v %v", info2.RegulationEmployeeName, info2.RegulationEmployeeDescription)
+	}
+
+	// Builder
+	built := NewRegulationInfoBuilder().
+		RegulationEmployeeName("员工用车").
+		RegulationEmployeeDescription("desc").
+		Build()
+	if built.RegulationEmployeeName == nil || *built.RegulationEmployeeName != "员工用车" {
+		t.Errorf("builder RegulationEmployeeName = %v", built.RegulationEmployeeName)
+	}
+}

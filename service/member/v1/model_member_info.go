@@ -2,44 +2,46 @@ package v1
 
 // MemberInfo struct for MemberInfo
 type MemberInfo struct {
-	MemberType                      *int32     `json:"member_type,omitempty"`                        // 员工信息类型，枚举值数字 0：手机号，1：工号。2：邮箱；默认为0
-	Phone                           *string    `json:"phone,omitempty"`                              // 员工手机号，member_type 为0时必传
-	Realname                        *string    `json:"realname,omitempty"`                           // 员工姓名
-	EmployeeNumber                  *string    `json:"employee_number,omitempty"`                    // 员工工号，member_type 为1时必传 员工在公司的员工号
-	Email                           *string    `json:"email,omitempty"`                              // 邮箱，member_type 为2时必传
-	SystemRole                      *int32     `json:"system_role,omitempty"`                        // 系统角色，枚举值数字 0 车辆预定人员，1 普通管理员，2 超级管理员
-	RoleIds                         *string    `json:"role_ids,omitempty"`                           // 角色，可以通过角色API获取对应的ID
-	ImmediateSuperiorPhone          *string    `json:"immediate_superior_phone,omitempty"`           // 员工直属上级的手机号码，直属上级可在审批流中担任审批人 immediate_superior_phone与immediate_superior_eid以手机号优先
-	ImmediateSuperiorEmail          *string    `json:"immediate_superior_email,omitempty"`           // 直属上级邮箱
-	ImmediateSuperiorEmployeeNumber *string    `json:"immediate_superior_employee_number,omitempty"` // 员工直属上级的员工编号，直属上级可在审批流中担任审批人
-	ImmediateSuperiorMemberID       *int32     `json:"immediate_superior_memberID,omitempty"`        // 直属上级 ID
-	ClearImmediateSuperior          *int32     `json:"clear_immediate_superior,omitempty"`           // 清除上级；数字1 清除；【更新参数】
-	Residentsname                   *string    `json:"residentsname,omitempty"`                      // 常驻地中文
-	RedisentsIds                    *string    `json:"redisents_ids,omitempty"`                      // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
-	UseCompanyMoney                 *int32     `json:"use_company_money,omitempty"`                  // 是否企业支付余额，枚举值数字 0 否，1 是
-	TotalQuota                      *string    `json:"total_quota,omitempty"`                        // 每月配额，单位元 0 不限
-	IsRemark                        *int32     `json:"is_remark,omitempty"`                          // 叫车时备注信息是否必填，枚举值数字 0 选填，1 必填，2 按制度填写
-	BudgetCenterId                  *int64     `json:"budget_center_id,omitempty"`                   // 所在部门ID，budget_center_id与out_budget_id同时存在时，以budget_center_id为准
-	OutBudgetId                     *string    `json:"out_budget_id,omitempty"`                      // 客户部门CODE
-	ConDepartmentIds                *string    `json:"con_department_ids,omitempty"`                 // 所在兼岗部门ID，con_department_ids与con_department_codes都存在时，以con_department_ids为准 多个使用“_”连接
-	ConDepartmentCodes              *string    `json:"con_department_codes,omitempty"`               // 所在兼岗部门CODE（同部门新增修改的out_budget_id），con_department_ids与con_department_codes都存在时，以con_department_ids为准 多个使用“_”连接
-	RegulationId                    *string    `json:"regulation_id,omitempty"`                      // 用车制度ID数组，制度ID；通过制度列表接口查询；多个用 _ 连接；默认为空，若该员工的所有制度都是在es后台通过部门/职级/全员方式分配，则员工身上的制度字段不用传；同时注意检查use_company_money字段是否传输，制度和企业支付权限都有才能企业支付
-	SetDismissTime                  *string    `json:"set_dismiss_time,omitempty"`                   // 设置的员工离职日期，设置员工离职日期，到期后自动加入已离职名单，不传或为空时认为不设置离职时间，不传不更新；传空更新为空 格式为 yyyy-MM-dd，时间需要传入大于今天，隔天凌晨处理离职时间。
-	ProjectIds                      *string    `json:"project_ids,omitempty"`                        // 所在项目ID，可以填多个，以_分隔。通过成本中心查询api获取id（类型为2）
-	ProjectCodesDetail              *string    `json:"project_codes_detail,omitempty"`               // 项目信息，人员上绑定的项目信息，将project_codes_detail的值转为 json 字符 \"project_codes_detail\":\"[{\"project_name\":\"出差巡视\",\"project_code\":\"travelcode\" },{\"project_name\":\"出差巡视\",\"project_code\":\"travelcode\" }] \"，project_ids与project_code_detail同时有值时，以project_ids为准。元素上限100个
-	LegalEntityId                   *string    `json:"legal_entity_id,omitempty"`                    // 所在公司主体id
-	OutLegalEntityId                *string    `json:"out_legal_entity_id,omitempty"`                // 外部所在公司主体id
-	RankId                          *string    `json:"rank_id,omitempty"`                            // 职级id
-	OutRankId                       *string    `json:"out_rank_id,omitempty"`                        // 外部职级 ID
-	EnglishSurname                  *string    `json:"english_surname,omitempty"`                    // 英文姓，同lastname
-	EnglishName                     *string    `json:"english_name,omitempty"`                       // 英文名，同firstname 有middlename时 english_name=firstname middlename
-	Nickname                        *string    `json:"nickname,omitempty"`                           // 昵称
-	Sex                             *int32     `json:"sex,omitempty"`                                // 性别，枚举值数字 0 未知 1 男 2 女
-	BirthDate                       *string    `json:"birth_date,omitempty"`                         // 出生日期，格式2000-01-01，注：1、若采用AES256整体加密，此字段需明文传输，无需单独再加密 2、若不整体加密传输时，此字段只可采用AES128加密传输 3、若采用AES128整体加密，此字段仍需采用AES128单独加密（存在历史客户原因）
-	CardList                        []CardInfo `json:"card_list,omitempty"`                          // 证件信息
-	CertRealname                    *string    `json:"cert_realname,omitempty"`                      // 证件中文姓名，证件上的真实中文姓名，不超过50个字符
-	CertEnglishSurname              *string    `json:"cert_english_surname,omitempty"`               // 证件英文姓，证件上的真实英文姓，不超过50个字符
-	CertEnglishName                 *string    `json:"cert_english_name,omitempty"`                  // 证件英文名，证件上的真实英文名，不超过50个字符
+	MemberType                      *int32            `json:"member_type,omitempty"`                        // 员工信息类型，枚举值数字 0：手机号，1：工号。2：邮箱；默认为0
+	Phone                           *string           `json:"phone,omitempty"`                              // 员工手机号，member_type 为0时必传
+	Realname                        *string           `json:"realname,omitempty"`                           // 员工姓名
+	EmployeeNumber                  *string           `json:"employee_number,omitempty"`                    // 员工工号，member_type 为1时必传 员工在公司的员工号
+	Email                           *string           `json:"email,omitempty"`                              // 邮箱，member_type 为2时必传
+	SystemRole                      *int32            `json:"system_role,omitempty"`                        // 系统角色，枚举值数字 0 车辆预定人员，1 普通管理员，2 超级管理员
+	RoleIds                         *string           `json:"role_ids,omitempty"`                           // 角色，可以通过角色API获取对应的ID
+	ImmediateSuperiorPhone          *string           `json:"immediate_superior_phone,omitempty"`           // 员工直属上级的手机号码，直属上级可在审批流中担任审批人 immediate_superior_phone与immediate_superior_eid以手机号优先
+	ImmediateSuperiorEmail          *string           `json:"immediate_superior_email,omitempty"`           // 直属上级邮箱
+	ImmediateSuperiorEmployeeNumber *string           `json:"immediate_superior_employee_number,omitempty"` // 员工直属上级的员工编号，直属上级可在审批流中担任审批人
+	ImmediateSuperiorMemberID       *int32            `json:"immediate_superior_memberID,omitempty"`        // 直属上级 ID
+	ClearImmediateSuperior          *int32            `json:"clear_immediate_superior,omitempty"`           // 清除上级；数字1 清除；【更新参数】
+	Residentsname                   *string           `json:"residentsname,omitempty"`                      // 常驻地中文
+	ResidentsIds                    *string           `json:"residents_ids,omitempty"`                      // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
+	ResidentsAdcode                 *string           `json:"residents_adcode,omitempty"`                   // 常驻地行政区划代码，多个使用英文逗号分隔，与residents_ids二选一
+	UseCompanyMoney                 *int32            `json:"use_company_money,omitempty"`                  // 是否企业支付余额，枚举值数字 0 否，1 是
+	TotalQuota                      *string           `json:"total_quota,omitempty"`                        // 每月配额，单位元 0 不限
+	IsRemark                        *int32            `json:"is_remark,omitempty"`                          // 叫车时备注信息是否必填，枚举值数字 0 选填，1 必填，2 按制度填写
+	BudgetCenterId                  *int64            `json:"budget_center_id,omitempty"`                   // 所在部门ID，budget_center_id与out_budget_id同时存在时，以budget_center_id为准
+	OutBudgetId                     *string           `json:"out_budget_id,omitempty"`                      // 客户部门CODE
+	ConDepartmentIds                *string           `json:"con_department_ids,omitempty"`                 // 所在兼岗部门ID，con_department_ids与con_department_codes都存在时，以con_department_ids为准 多个使用“_”连接
+	ConDepartmentCodes              *string           `json:"con_department_codes,omitempty"`               // 所在兼岗部门CODE（同部门新增修改的out_budget_id），con_department_ids与con_department_codes都存在时，以con_department_ids为准 多个使用“_”连接
+	RegulationId                    *string           `json:"regulation_id,omitempty"`                      // 用车制度ID数组，制度ID；通过制度列表接口查询；多个用 _ 连接；默认为空，若该员工的所有制度都是在es后台通过部门/职级/全员方式分配，则员工身上的制度字段不用传；同时注意检查use_company_money字段是否传输，制度和企业支付权限都有才能企业支付
+	SetDismissTime                  *string           `json:"set_dismiss_time,omitempty"`                   // 设置的员工离职日期，设置员工离职日期，到期后自动加入已离职名单，不传或为空时认为不设置离职时间，不传不更新；传空更新为空 格式为 yyyy-MM-dd，时间需要传入大于今天，隔天凌晨处理离职时间。
+	ProjectIds                      *string           `json:"project_ids,omitempty"`                        // 所在项目ID，可以填多个，以_分隔。通过成本中心查询api获取id（类型为2）
+	ProjectCodesDetail              *string           `json:"project_codes_detail,omitempty"`               // 项目信息，人员上绑定的项目信息，将project_codes_detail的值转为 json 字符 \"project_codes_detail\":\"[{\"project_name\":\"出差巡视\",\"project_code\":\"travelcode\" },{\"project_name\":\"出差巡视\",\"project_code\":\"travelcode\" }] \"，project_ids与project_code_detail同时有值时，以project_ids为准。元素上限100个
+	LegalEntityId                   *string           `json:"legal_entity_id,omitempty"`                    // 所在公司主体id
+	OutLegalEntityId                *string           `json:"out_legal_entity_id,omitempty"`                // 外部所在公司主体id
+	RankId                          *string           `json:"rank_id,omitempty"`                            // 职级id
+	OutRankId                       *string           `json:"out_rank_id,omitempty"`                        // 外部职级 ID
+	EnglishSurname                  *string           `json:"english_surname,omitempty"`                    // 英文姓，同lastname
+	EnglishName                     *string           `json:"english_name,omitempty"`                       // 英文名，同firstname 有middlename时 english_name=firstname middlename
+	Nickname                        *string           `json:"nickname,omitempty"`                           // 昵称
+	Sex                             *int32            `json:"sex,omitempty"`                                // 性别，枚举值数字 0 未知 1 男 2 女
+	BirthDate                       *string           `json:"birth_date,omitempty"`                         // 出生日期，格式2000-01-01，注：1、若采用AES256整体加密，此字段需明文传输，无需单独再加密 2、若不整体加密传输时，此字段只可采用AES128加密传输 3、若采用AES128整体加密，此字段仍需采用AES128单独加密（存在历史客户原因）
+	CardList                        []CardInfo        `json:"card_list,omitempty"`                          // 证件信息
+	CertRealname                    *string           `json:"cert_realname,omitempty"`                      // 证件中文姓名，证件上的真实中文姓名，不超过50个字符
+	CertEnglishSurname              *string           `json:"cert_english_surname,omitempty"`               // 证件英文姓，证件上的真实英文姓，不超过50个字符
+	CertEnglishName                 *string           `json:"cert_english_name,omitempty"`                  // 证件英文名，证件上的真实英文名，不超过50个字符
+	HomeAddress                     []HomeAddressInfo `json:"home_address,omitempty"`                       // 家庭住址信息，用于用车管控
 }
 
 type MemberInfoBuilder struct {
@@ -69,8 +71,12 @@ type MemberInfoBuilder struct {
 	clearImmediateSuperiorSet          bool
 	residentsname                      string // 常驻地中文
 	residentsnameSet                   bool
-	redisentsIds                       string // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
-	redisentsIdsSet                    bool
+	residentsIds                       string // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
+	residentsIdsSet                    bool
+	residentsAdcode                    string // 常驻地行政区划代码，多个使用英文逗号分隔，与residents_ids二选一
+	residentsAdcodeSet                 bool
+	homeAddress                        []HomeAddressInfo // 家庭住址信息，用于用车管控
+	homeAddressSet                     bool
 	useCompanyMoney                    int32 // 是否企业支付余额，枚举值数字 0 否，1 是
 	useCompanyMoneySet                 bool
 	totalQuota                         string // 每月配额，单位元 0 不限
@@ -189,9 +195,19 @@ func (builder *MemberInfoBuilder) Residentsname(residentsname string) *MemberInf
 	builder.residentsnameSet = true
 	return builder
 }
-func (builder *MemberInfoBuilder) RedisentsIds(redisentsIds string) *MemberInfoBuilder {
-	builder.redisentsIds = redisentsIds
-	builder.redisentsIdsSet = true
+func (builder *MemberInfoBuilder) ResidentsIds(residentsIds string) *MemberInfoBuilder {
+	builder.residentsIds = residentsIds
+	builder.residentsIdsSet = true
+	return builder
+}
+func (builder *MemberInfoBuilder) ResidentsAdcode(residentsAdcode string) *MemberInfoBuilder {
+	builder.residentsAdcode = residentsAdcode
+	builder.residentsAdcodeSet = true
+	return builder
+}
+func (builder *MemberInfoBuilder) HomeAddress(homeAddress []HomeAddressInfo) *MemberInfoBuilder {
+	builder.homeAddress = homeAddress
+	builder.homeAddressSet = true
 	return builder
 }
 func (builder *MemberInfoBuilder) UseCompanyMoney(useCompanyMoney int32) *MemberInfoBuilder {
@@ -356,8 +372,14 @@ func (builder *MemberInfoBuilder) Build() *MemberInfo {
 	if builder.residentsnameSet {
 		data.Residentsname = &builder.residentsname
 	}
-	if builder.redisentsIdsSet {
-		data.RedisentsIds = &builder.redisentsIds
+	if builder.residentsIdsSet {
+		data.ResidentsIds = &builder.residentsIds
+	}
+	if builder.residentsAdcodeSet {
+		data.ResidentsAdcode = &builder.residentsAdcode
+	}
+	if builder.homeAddressSet {
+		data.HomeAddress = builder.homeAddress
 	}
 	if builder.useCompanyMoneySet {
 		data.UseCompanyMoney = &builder.useCompanyMoney

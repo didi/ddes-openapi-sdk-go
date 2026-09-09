@@ -204,6 +204,18 @@ func (builder *GetMemberQuotaApiReqBuilder) EndDate(enddate string) *GetMemberQu
 	builder.apiReq.QueryParams.Set("end_date", enddate)
 	return builder
 }
+func (builder *GetMemberQuotaApiReqBuilder) MonthlyLimitOnlyQuery(monthlyLimitOnlyQuery int32) *GetMemberQuotaApiReqBuilder {
+	builder.apiReq.QueryParams.Set("monthly_limit_only_query", fmt.Sprint(monthlyLimitOnlyQuery))
+	return builder
+}
+func (builder *GetMemberQuotaApiReqBuilder) BelongEnterpriseName(belongEnterpriseName string) *GetMemberQuotaApiReqBuilder {
+	builder.apiReq.QueryParams.Set("belong_enterprise_name", belongEnterpriseName)
+	return builder
+}
+func (builder *GetMemberQuotaApiReqBuilder) TaxpayerNo(taxpayerNo string) *GetMemberQuotaApiReqBuilder {
+	builder.apiReq.QueryParams.Set("taxpayer_no", taxpayerNo)
+	return builder
+}
 
 type ListMemberApiReq struct {
 	apiReq *core.ApiReq

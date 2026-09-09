@@ -56,6 +56,14 @@ func (builder *GetRegulationApiReqBuilder) RegulationId(regulationid string) *Ge
 	builder.apiReq.QueryParams.Set("regulation_id", regulationid)
 	return builder
 }
+func (builder *GetRegulationApiReqBuilder) BelongEnterpriseName(belongEnterpriseName string) *GetRegulationApiReqBuilder {
+	builder.apiReq.QueryParams.Set("belong_enterprise_name", belongEnterpriseName)
+	return builder
+}
+func (builder *GetRegulationApiReqBuilder) TaxpayerNo(taxpayerNo string) *GetRegulationApiReqBuilder {
+	builder.apiReq.QueryParams.Set("taxpayer_no", taxpayerNo)
+	return builder
+}
 
 type ListRegulationApiReq struct {
 	apiReq *core.ApiReq

@@ -129,6 +129,14 @@ func (builder *ListRankApiReqBuilder) Sign(sign string) *ListRankApiReqBuilder {
 	builder.apiReq.QueryParams.Set("sign", sign)
 	return builder
 }
+func (builder *ListRankApiReqBuilder) BelongEnterpriseName(belongEnterpriseName string) *ListRankApiReqBuilder {
+	builder.apiReq.QueryParams.Set("belong_enterprise_name", belongEnterpriseName)
+	return builder
+}
+func (builder *ListRankApiReqBuilder) TaxpayerNo(taxpayerNo string) *ListRankApiReqBuilder {
+	builder.apiReq.QueryParams.Set("taxpayer_no", taxpayerNo)
+	return builder
+}
 
 type UpdateRankApiReq struct {
 	apiReq            *core.ApiReq

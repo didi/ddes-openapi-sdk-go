@@ -129,6 +129,10 @@ func (builder *GetLegalEntityApiReqBuilder) LegalEntityId(legalentityid string) 
 	builder.apiReq.QueryParams.Set("legal_entity_id", legalentityid)
 	return builder
 }
+func (builder *GetLegalEntityApiReqBuilder) OutLegalEntityId(outlegalentityid string) *GetLegalEntityApiReqBuilder {
+	builder.apiReq.QueryParams.Set("out_legal_entity_id", outlegalentityid)
+	return builder
+}
 func (builder *GetLegalEntityApiReqBuilder) Offset(offset int32) *GetLegalEntityApiReqBuilder {
 	builder.apiReq.QueryParams.Set("offset", fmt.Sprint(offset))
 	return builder

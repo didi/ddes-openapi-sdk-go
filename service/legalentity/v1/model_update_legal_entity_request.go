@@ -2,57 +2,60 @@ package v1
 
 // UpdateLegalEntityRequest struct for UpdateLegalEntityRequest
 type UpdateLegalEntityRequest struct {
-	ClientId         *string `json:"client_id,omitempty"`           // 申请应用时分配的AppKey
-	AccessToken      *string `json:"access_token,omitempty"`        // 授权后的access token
-	CompanyId        *string `json:"company_id,omitempty"`          // 企业ID
-	Timestamp        *int32  `json:"timestamp,omitempty"`           // 当前时间戳(精确到秒级)
-	Sign             *string `json:"sign,omitempty"`                // 签名
-	Name             *string `json:"name,omitempty"`                // 公司主体名称
-	LegalEntityId    *string `json:"legal_entity_id,omitempty"`     // 公司主体编号
-	OutLegalEntityId *string `json:"out_legal_entity_id,omitempty"` // 外部公司主体编号，不可重复，滴滴后台有效的公司ID不重复
-	ParentId         *int32  `json:"parent_id,omitempty"`           // 上级公司id，新建公司信息之后，滴滴返回的公司ID
-	StartTime        *string `json:"start_time,omitempty"`          // 公司主体有效期开始日期，不传 默认为当前日期 格式：yyyy-MM-dd HH:mm:ss
-	EndTime          *string `json:"end_time,omitempty"`            // 公司主体有效期结束日期，不传默认为长期有效 格式：yyyy-MM-dd HH:mm:ss 需大于当前时间
-	TaxpayerNo       *string `json:"taxpayer_no,omitempty"`         // 纳税人识别号，长度为 15/18/20 位
-	Address          *string `json:"address,omitempty"`             // 公司主体注册地址
-	Telephone        *string `json:"telephone,omitempty"`           // 公司主体注册电话
-	OpenBank         *string `json:"open_bank,omitempty"`           // 开户行名称
-	BankCardNo       *string `json:"bank_card_no,omitempty"`        // 开户行账号，纯数字
+	ClientId             *string `json:"client_id,omitempty"`              // 申请应用时分配的AppKey
+	AccessToken          *string `json:"access_token,omitempty"`           // 授权后的access token
+	CompanyId            *string `json:"company_id,omitempty"`             // 企业ID
+	Timestamp            *int32  `json:"timestamp,omitempty"`              // 当前时间戳(精确到秒级)
+	Sign                 *string `json:"sign,omitempty"`                   // 签名
+	Name                 *string `json:"name,omitempty"`                   // 公司主体名称
+	LegalEntityId        *string `json:"legal_entity_id,omitempty"`        // 公司主体编号
+	OutLegalEntityId     *string `json:"out_legal_entity_id,omitempty"`    // 外部公司主体编号，不可重复，滴滴后台有效的公司ID不重复
+	ParentId             *int32  `json:"parent_id,omitempty"`              // 上级公司id，新建公司信息之后，滴滴返回的公司ID
+	StartTime            *string `json:"start_time,omitempty"`             // 公司主体有效期开始日期，不传 默认为当前日期 格式：yyyy-MM-dd HH:mm:ss
+	EndTime              *string `json:"end_time,omitempty"`               // 公司主体有效期结束日期，不传默认为长期有效 格式：yyyy-MM-dd HH:mm:ss 需大于当前时间
+	TaxpayerNo           *string `json:"taxpayer_no,omitempty"`            // 纳税人识别号，长度为 15/18/20 位
+	Address              *string `json:"address,omitempty"`                // 公司主体注册地址
+	Telephone            *string `json:"telephone,omitempty"`              // 公司主体注册电话
+	OpenBank             *string `json:"open_bank,omitempty"`              // 开户行名称
+	BankCardNo           *string `json:"bank_card_no,omitempty"`           // 开户行账号，纯数字
+	BelongEnterpriseName *string `json:"belong_enterprise_name,omitempty"` // 归属企业名称（集团账户）
 }
 
 type UpdateLegalEntityRequestBuilder struct {
-	clientId            string // 申请应用时分配的AppKey
-	clientIdSet         bool
-	accessToken         string // 授权后的access token
-	accessTokenSet      bool
-	companyId           string // 企业ID
-	companyIdSet        bool
-	timestamp           int32 // 当前时间戳(精确到秒级)
-	timestampSet        bool
-	sign                string // 签名
-	signSet             bool
-	name                string // 公司主体名称
-	nameSet             bool
-	legalEntityId       string // 公司主体编号
-	legalEntityIdSet    bool
-	outLegalEntityId    string // 外部公司主体编号，不可重复，滴滴后台有效的公司ID不重复
-	outLegalEntityIdSet bool
-	parentId            int32 // 上级公司id，新建公司信息之后，滴滴返回的公司ID
-	parentIdSet         bool
-	startTime           string // 公司主体有效期开始日期，不传 默认为当前日期 格式：yyyy-MM-dd HH:mm:ss
-	startTimeSet        bool
-	endTime             string // 公司主体有效期结束日期，不传默认为长期有效 格式：yyyy-MM-dd HH:mm:ss 需大于当前时间
-	endTimeSet          bool
-	taxpayerNo          string // 纳税人识别号，长度为 15/18/20 位
-	taxpayerNoSet       bool
-	address             string // 公司主体注册地址
-	addressSet          bool
-	telephone           string // 公司主体注册电话
-	telephoneSet        bool
-	openBank            string // 开户行名称
-	openBankSet         bool
-	bankCardNo          string // 开户行账号，纯数字
-	bankCardNoSet       bool
+	clientId                string // 申请应用时分配的AppKey
+	clientIdSet             bool
+	accessToken             string // 授权后的access token
+	accessTokenSet          bool
+	companyId               string // 企业ID
+	companyIdSet            bool
+	timestamp               int32 // 当前时间戳(精确到秒级)
+	timestampSet            bool
+	sign                    string // 签名
+	signSet                 bool
+	name                    string // 公司主体名称
+	nameSet                 bool
+	legalEntityId           string // 公司主体编号
+	legalEntityIdSet        bool
+	outLegalEntityId        string // 外部公司主体编号，不可重复，滴滴后台有效的公司ID不重复
+	outLegalEntityIdSet     bool
+	parentId                int32 // 上级公司id，新建公司信息之后，滴滴返回的公司ID
+	parentIdSet             bool
+	startTime               string // 公司主体有效期开始日期，不传 默认为当前日期 格式：yyyy-MM-dd HH:mm:ss
+	startTimeSet            bool
+	endTime                 string // 公司主体有效期结束日期，不传默认为长期有效 格式：yyyy-MM-dd HH:mm:ss 需大于当前时间
+	endTimeSet              bool
+	taxpayerNo              string // 纳税人识别号，长度为 15/18/20 位
+	taxpayerNoSet           bool
+	address                 string // 公司主体注册地址
+	addressSet              bool
+	telephone               string // 公司主体注册电话
+	telephoneSet            bool
+	openBank                string // 开户行名称
+	openBankSet             bool
+	bankCardNo              string // 开户行账号，纯数字
+	bankCardNoSet           bool
+	belongEnterpriseName    string // 归属企业名称（集团账户）
+	belongEnterpriseNameSet bool
 }
 
 func NewUpdateLegalEntityRequestBuilder() *UpdateLegalEntityRequestBuilder {
@@ -138,6 +141,11 @@ func (builder *UpdateLegalEntityRequestBuilder) BankCardNo(bankCardNo string) *U
 	builder.bankCardNoSet = true
 	return builder
 }
+func (builder *UpdateLegalEntityRequestBuilder) BelongEnterpriseName(belongEnterpriseName string) *UpdateLegalEntityRequestBuilder {
+	builder.belongEnterpriseName = belongEnterpriseName
+	builder.belongEnterpriseNameSet = true
+	return builder
+}
 
 func (builder *UpdateLegalEntityRequestBuilder) Build() *UpdateLegalEntityRequest {
 	data := &UpdateLegalEntityRequest{}
@@ -188,6 +196,9 @@ func (builder *UpdateLegalEntityRequestBuilder) Build() *UpdateLegalEntityReques
 	}
 	if builder.bankCardNoSet {
 		data.BankCardNo = &builder.bankCardNo
+	}
+	if builder.belongEnterpriseNameSet {
+		data.BelongEnterpriseName = &builder.belongEnterpriseName
 	}
 	return data
 }
