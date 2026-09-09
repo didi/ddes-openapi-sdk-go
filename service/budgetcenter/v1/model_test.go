@@ -2305,3 +2305,126 @@ func TestUpdateBudgetCenter_WithReqOption(t *testing.T) {
 		t.Fatal("UpdateBudgetCenterApiReply is nil")
 	}
 }
+
+// --- GetBudgetCenterV2（集团账户 v2）测试 ---
+
+func TestGetBudgetCenterV2ApiReqBuilder_Params(t *testing.T) {
+	req := NewGetBudgetCenterV2ApiReqBuilder().
+		ClientId("c").
+		Id("123").
+		OutBudgetId("OB1").
+		Type(2).
+		IsExactName(1).
+		Name("项目A").
+		ThirdOutId("T1").
+		IsNeedLimitRule(1).
+		Length(100).
+		NextToken("N1").
+		QuerySubCompany("1").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+	for k, v := range map[string]string{
+		"id": "123", "out_budget_id": "OB1", "type": "2", "is_exact_name": "1",
+		"name": "项目A", "third_out_id": "T1", "is_need_limit_rule": "1",
+		"length": "100", "next_token": "N1", "query_sub_company": "1",
+		"belong_enterprise_name": "某某集团", "taxpayer_no": "91110000XXXXXXXXXX",
+	} {
+		if got := req.apiReq.QueryParams.Get(k); got != v {
+			t.Errorf("query[%s] = %q, want %q", k, got, v)
+		}
+	}
+	// int 零值写入
+	req0 := NewGetBudgetCenterV2ApiReqBuilder().Type(0).IsExactName(0).Length(0).IsNeedLimitRule(0).Build()
+	for _, k := range []string{"type", "is_exact_name", "length", "is_need_limit_rule"} {
+		if got := req0.apiReq.QueryParams.Get(k); got != "0" {
+			t.Errorf("%s(0) = %q, want 0", k, got)
+		}
+	}
+	// 未设置不存在
+	reqN := NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build()
+	for _, k := range []string{"id", "next_token", "belong_enterprise_name", "taxpayer_no"} {
+		if _, ok := reqN.apiReq.QueryParams[k]; ok {
+			t.Errorf("%s should not exist", k)
+		}
+	}
+}
+
+func TestGetBudgetCenterV2Reply_Deserialization(t *testing.T) {
+	jsonData := `{"errno":0,"data":{"next_token":"N","records":[{
+		"id":"1","name":"研发部","company_id":"777","belong_enterprise_name":"某某集团",
+		"create_time":"2026-01-01 00:00:00","update_time":"2026-02-01 00:00:00",
+		"member_num":150,"is_limit_quota":1,"poi_list":[{"poi_id":"x"}]}],
+		"progress":0.5,"company_total":2,"company_list_has_change":false}}`
+	var reply GetBudgetCenterV2ApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	rec := reply.Data.Records[0]
+	if rec.CompanyId == nil || *rec.CompanyId != "777" {
+		t.Errorf("CompanyId = %v", rec.CompanyId)
+	}
+	if rec.CreateTime == nil || *rec.CreateTime != "2026-01-01 00:00:00" {
+		t.Errorf("CreateTime = %v", rec.CreateTime)
+	}
+	if rec.MemberNum == nil || *rec.MemberNum != 150 {
+		t.Errorf("MemberNum = %v", rec.MemberNum)
+	}
+	if rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+	// poi_list 是 v2 契约外字段：多余 key 忽略不报错（模型无该字段）
+	// 空 records
+	var r2 GetBudgetCenterV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":0,"data":{"records":[]}}`), &r2); err != nil || len(r2.Data.Records) != 0 {
+		t.Errorf("empty records parse failed: %v", err)
+	}
+}
+
+func TestGetBudgetCenterV2_Success(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/open-apis/v2/budgetCenter/get" {
+			t.Errorf("expected /open-apis/v2/budgetCenter/get, got %s", r.URL.Path)
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"next_token":"","records":[{"id":"1","company_id":"777"}],"company_total":1},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+
+	option := newBudgetCenterTestOption(testServer.URL)
+	svc := &budgetCenter{option: option}
+	req := NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Type(1).Length(10).Build()
+	resp, err := svc.GetBudgetCenterV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("GetBudgetCenterV2() error = %v", err)
+	}
+	if resp.GetBudgetCenterV2ApiReply.Data == nil || len(resp.GetBudgetCenterV2ApiReply.Data.Records) != 1 {
+		t.Fatal("records parse failed")
+	}
+}
+
+func TestGetBudgetCenterV2_ErrorAndNot200(t *testing.T) {
+	ts1 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":10003,"errmsg":"param error"}`))
+	}))
+	defer ts1.Close()
+	svc := &budgetCenter{option: newBudgetCenterTestOption(ts1.URL)}
+	resp, _ := svc.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if resp.GetBudgetCenterV2ApiReply.Data != nil {
+		t.Error("Data should be nil on errno!=0")
+	}
+
+	ts2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer ts2.Close()
+	svc2 := &budgetCenter{option: newBudgetCenterTestOption(ts2.URL)}
+	resp2, _ := svc2.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if resp2.GetBudgetCenterV2ApiReply != nil {
+		t.Error("ApiReply should not be set on non-200")
+	}
+}

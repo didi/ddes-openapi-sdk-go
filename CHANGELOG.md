@@ -2,6 +2,24 @@
 
 本文记录当前分支相对 `master` 的变更。
 
+## [1.4.0] - 2026-09-09
+
+### 新增
+
+- 新增集团账户（上级公司统一对接）v2 查询接口支持，4 个域各新增一个 `*V2` 方法（POST `/open-apis/v2/<domain>/get`），现有 `/river/*` 方法不受影响：
+  - `MemberService.V1.Member.ListMemberV2`：员工列表，支持 `is_last_id` 游标分页；
+  - `LegalEntityService.V1.LegalEntity.GetLegalEntityV2`：公司主体查询，支持 `keyword`/`legal_entity_id`/`out_legal_entity_id`/`status` 精准筛选；
+  - `BudgetCenterService.V1.BudgetCenter.GetBudgetCenterV2`：部门/项目查询，支持 `third_out_id`（v2 契约无 `is_get_poi`/`is_get_extend_fields`）；
+  - `RegulationService.V1.Regulation.ListRegulationV2`：制度列表（v2 为分页结构，`/river` 版无分页）。
+- 四个 V2 方法均支持集团参数 `belong_enterprise_name`/`taxpayer_no`（定位子公司）、`query_sub_company`（聚合下级公司）、`next_token` 跨公司分页。
+- V2 响应新增外层分页结构：`next_token`/`records`/`progress`/`company_total`/`company_list_has_change`；records 元素按 openapi-go IDL 契约新建独立模型（`MemberV2Record` 44 字段、`LegalEntityV2Record`（`legal_entity_id` 为 string，不丢大数精度）、`BudgetCenterV2Record`（新增 `company_id`/`create_time`/`update_time`）、`RegulationV2Record`）。
+- `sample/member/list_member_v2.go` 新增 next_token 自动翻页循环示例。
+
+### 测试与工程化
+
+- 四域 V2 全量单元测试（builder 参数矩阵、分页响应解析、大 ID 精度、多余字段忽略、httptest 资源层含 AES128/AES256 加密分支）。
+- SDK 版本号由 `1.3.0` 调整为 `1.4.0`。
+
 ## [1.3.0] - 2026-09-09
 
 ### 破坏性变更

@@ -13,6 +13,7 @@ import (
 
 func main() {
 	ListMember() // 用户查询~员工列表（批量查询）
+	//ListMemberV2() // 集团账户（上级公司统一对接）~员工列表查询，/open-apis/v2/member/get，next_token 跨公司翻页
 	//GetMemberDetail() // 用户查询~员工明细
 	//GetMemberQuota()  // 员工限额查询
 	//CreateMember()    // 用户新增

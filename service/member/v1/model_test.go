@@ -1741,3 +1741,297 @@ func TestGetMemberQuotaApiReqBuilder_GroupAndMonthlyLimit(t *testing.T) {
 		t.Error("belong_enterprise_name should not exist")
 	}
 }
+
+// --- ListMemberV2（集团账户 v2）测试 ---
+
+func TestListMemberV2ApiReqBuilder_FullParams(t *testing.T) {
+	req := NewListMemberV2ApiReqBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		Sign("test_sign").
+		Email("a@example.com").
+		EmployeeNumber("D1001").
+		Phone("+86 13800001234").
+		Status("1,4").
+		Length(100).
+		NextToken("TOKEN_1").
+		IsLastId(1).
+		QuerySubCompany("1").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+
+	wantKeys := map[string]string{
+		"client_id": "test_client", "email": "a@example.com",
+		"status": "1,4", "length": "100", "next_token": "TOKEN_1",
+		"is_last_id": "1", "query_sub_company": "1",
+		"belong_enterprise_name": "某某集团", "taxpayer_no": "91110000XXXXXXXXXX",
+	}
+	for k, v := range wantKeys {
+		if got := req.apiReq.QueryParams.Get(k); got != v {
+			t.Errorf("query[%s] = %q, want %q", k, got, v)
+		}
+	}
+}
+
+func TestListMemberV2ApiReqBuilder_PartialAndZeroInt(t *testing.T) {
+	// 部分参数 + int 零值仍写入
+	req := NewListMemberV2ApiReqBuilder().
+		ClientId("c").
+		Length(0).
+		IsLastId(0).
+		Build()
+	if got := req.apiReq.QueryParams.Get("length"); got != "0" {
+		t.Errorf("length = %q, want 0", got)
+	}
+	if got := req.apiReq.QueryParams.Get("is_last_id"); got != "0" {
+		t.Errorf("is_last_id = %q, want 0", got)
+	}
+	// 未设置的不存在
+	for _, k := range []string{"email", "phone", "next_token", "belong_enterprise_name", "taxpayer_no", "query_sub_company"} {
+		if _, ok := req.apiReq.QueryParams[k]; ok {
+			t.Errorf("%s should not exist", k)
+		}
+	}
+}
+
+func TestListMemberV2Reply_Deserialization(t *testing.T) {
+	jsonData := `{
+		"errno": 0, "errmsg": "SUCCESS",
+		"data": {
+			"next_token": "NEXT_2",
+			"records": [{
+				"id": "1125922289295589",
+				"set_dismiss_time": "2026-01-01",
+				"belong_enterprise_name": "某某集团",
+				"status": 1,
+				"con_department_ids": ["1","2"]
+			}],
+			"progress": 1,
+			"company_total": 3,
+			"company_list_has_change": false
+		},
+		"request_id": "req_v2"
+	}`
+	var reply ListMemberV2ApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Data == nil || len(reply.Data.Records) != 1 {
+		t.Fatalf("Data.Records parse failed")
+	}
+	rec := reply.Data.Records[0]
+	if rec.Id == nil || *rec.Id != "1125922289295589" {
+		t.Errorf("Id = %v", rec.Id)
+	}
+	if rec.SetDismissTime == nil || *rec.SetDismissTime != "2026-01-01" {
+		t.Errorf("SetDismissTime = %v", rec.SetDismissTime)
+	}
+	if rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+	if reply.Data.NextToken == nil || *reply.Data.NextToken != "NEXT_2" {
+		t.Errorf("NextToken = %v", reply.Data.NextToken)
+	}
+	if reply.Data.Progress == nil || *reply.Data.Progress != 1 {
+		t.Errorf("Progress = %v", reply.Data.Progress)
+	}
+	if reply.Data.CompanyTotal == nil || *reply.Data.CompanyTotal != 3 {
+		t.Errorf("CompanyTotal = %v", reply.Data.CompanyTotal)
+	}
+	if reply.Data.CompanyListHasChange == nil || *reply.Data.CompanyListHasChange {
+		t.Errorf("CompanyListHasChange = %v", reply.Data.CompanyListHasChange)
+	}
+}
+
+func TestListMemberV2Reply_EmptyAndError(t *testing.T) {
+	// 翻页结束：next_token 空字符串
+	var r1 ListMemberV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":0,"data":{"next_token":"","records":[]}}`), &r1); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if r1.Data.NextToken == nil || *r1.Data.NextToken != "" {
+		t.Errorf("NextToken = %v, want empty string pointer", r1.Data.NextToken)
+	}
+	// errno 非 0
+	var r2 ListMemberV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":10003,"errmsg":"param error"}`), &r2); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if r2.Errno == nil || *r2.Errno != 10003 {
+		t.Errorf("Errno = %v", r2.Errno)
+	}
+	if r2.Data != nil {
+		t.Errorf("Data = %v, want nil", r2.Data)
+	}
+}
+
+func TestListMemberV2_Success(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/open-apis/v2/member/get" {
+			t.Errorf("expected path /open-apis/v2/member/get, got %s", r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"next_token":"N1","records":[{"id":"1","realname":"张三","belong_enterprise_name":"某某集团"}],"progress":0.5,"company_total":2,"company_list_has_change":false},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+
+	option := newMemberTestOption(testServer.URL)
+	m := &member{option: option}
+
+	req := NewListMemberV2ApiReqBuilder().
+		ClientId("test_client").
+		CompanyId("test_company").
+		Length(10).
+		QuerySubCompany("1").
+		BelongEnterpriseName("某某集团").
+		Build()
+
+	resp, err := m.ListMemberV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("ListMemberV2() error = %v", err)
+	}
+	if resp.ListMemberV2ApiReply == nil {
+		t.Fatal("ListMemberV2ApiReply is nil")
+	}
+	if resp.ListMemberV2ApiReply.Data == nil || len(resp.ListMemberV2ApiReply.Data.Records) != 1 {
+		t.Fatal("records parse failed")
+	}
+	if rec := resp.ListMemberV2ApiReply.Data.Records[0]; rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+}
+
+func TestListMemberV2_ApiError(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":10003,"errmsg":"param error"}`))
+	}))
+	defer testServer.Close()
+	option := newMemberTestOption(testServer.URL)
+	m := &member{option: option}
+	req := NewListMemberV2ApiReqBuilder().ClientId("c").Build()
+	resp, err := m.ListMemberV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if resp.ListMemberV2ApiReply.Data != nil {
+		t.Errorf("Data should be nil on errno!=0")
+	}
+}
+
+func TestListMemberV2_AES128Encrypted(t *testing.T) {
+	plain := `{"errno":0,"errmsg":"SUCCESS","data":{"next_token":"N","records":[{"id":"9","set_dismiss_time":"2026-01-01"}]},"request_id":"r"}`
+	key := make([]byte, 16)
+	for i := range key {
+		key[i] = byte(i + 1)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.StdEncoding.EncodeToString(cipher)
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newMemberTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(key)}
+	m := &member{option: option}
+
+	req := NewListMemberV2ApiReqBuilder().ClientId("c").Build()
+	resp, err := m.ListMemberV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("ListMemberV2() error = %v", err)
+	}
+	if resp.ListMemberV2ApiReply.Data == nil || len(resp.ListMemberV2ApiReply.Data.Records) != 1 {
+		t.Fatal("decrypt+parse failed")
+	}
+	if rec := resp.ListMemberV2ApiReply.Data.Records[0]; rec.SetDismissTime == nil || *rec.SetDismissTime != "2026-01-01" {
+		t.Errorf("SetDismissTime = %v", rec.SetDismissTime)
+	}
+}
+
+func TestListMemberV2_AES256Encrypted(t *testing.T) {
+	plain := `{"errno":0,"data":{"next_token":"","records":[{"id":"7"}]}}`
+	key := make([]byte, 32)
+	for i := range key {
+		key[i] = byte(i + 2)
+	}
+	cipher, err := core.AESEncryptECB([]byte(plain), key)
+	if err != nil {
+		t.Fatalf("encrypt failed: %v", err)
+	}
+	encryptData := base64.URLEncoding.EncodeToString(cipher)
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"encrypt_data":"` + encryptData + `"}`))
+	}))
+	defer testServer.Close()
+
+	option := newMemberTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 2, Key: string(key)}
+	m := &member{option: option}
+
+	req := NewListMemberV2ApiReqBuilder().ClientId("c").Build()
+	resp, err := m.ListMemberV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("ListMemberV2() error = %v", err)
+	}
+	if resp.ListMemberV2ApiReply.Data == nil || len(resp.ListMemberV2ApiReply.Data.Records) != 1 {
+		t.Fatal("decrypt+parse failed")
+	}
+}
+
+func TestListMemberV2_EncryptedNoEncryptData(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"records":[{"id":"5"}]}}`))
+	}))
+	defer testServer.Close()
+
+	key := make([]byte, 16)
+	option := newMemberTestOption(testServer.URL)
+	option.EnableEncryption = true
+	option.EncryptionOption = &core.EncryptionOption{Ent: 1, Key: string(key)}
+	m := &member{option: option}
+
+	req := NewListMemberV2ApiReqBuilder().ClientId("c").Build()
+	resp, err := m.ListMemberV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("ListMemberV2() error = %v", err)
+	}
+	if resp.ListMemberV2ApiReply.Data == nil || len(resp.ListMemberV2ApiReply.Data.Records) != 1 {
+		t.Fatal("plain fallback parse failed")
+	}
+}
+
+func TestListMemberV2_HttpNot200(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`internal error`))
+	}))
+	defer testServer.Close()
+	option := newMemberTestOption(testServer.URL)
+	m := &member{option: option}
+	req := NewListMemberV2ApiReqBuilder().ClientId("c").Build()
+	resp, err := m.ListMemberV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if resp.ListMemberV2ApiReply != nil {
+		t.Error("ApiReply should not be set on non-200")
+	}
+}

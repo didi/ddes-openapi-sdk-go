@@ -2440,3 +2440,130 @@ func TestLegalEntityRequests_GroupAccountParams(t *testing.T) {
 		t.Error("belong_enterprise_name should be omitted")
 	}
 }
+
+// --- GetLegalEntityV2（集团账户 v2）测试 ---
+
+func TestGetLegalEntityV2ApiReqBuilder_Params(t *testing.T) {
+	req := NewGetLegalEntityV2ApiReqBuilder().
+		ClientId("test_client").
+		AccessToken("test_token").
+		CompanyId("test_company").
+		Timestamp(1583484681).
+		Sign("test_sign").
+		Keyword("测试").
+		LegalEntityId("123").
+		OutLegalEntityId("OUT_108").
+		Status(1).
+		Length(100).
+		NextToken("T1").
+		QuerySubCompany("1").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+	for k, v := range map[string]string{
+		"keyword": "测试", "out_legal_entity_id": "OUT_108", "status": "1",
+		"length": "100", "next_token": "T1", "query_sub_company": "1",
+		"belong_enterprise_name": "某某集团", "taxpayer_no": "91110000XXXXXXXXXX",
+	} {
+		if got := req.apiReq.QueryParams.Get(k); got != v {
+			t.Errorf("query[%s] = %q, want %q", k, got, v)
+		}
+	}
+	// status 零值仍写入
+	req0 := NewGetLegalEntityV2ApiReqBuilder().Status(0).Length(0).Build()
+	if got := req0.apiReq.QueryParams.Get("status"); got != "0" {
+		t.Errorf("status(0) = %q, want 0", got)
+	}
+	if got := req0.apiReq.QueryParams.Get("length"); got != "0" {
+		t.Errorf("length(0) = %q, want 0", got)
+	}
+	// 未设置不存在
+	reqN := NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build()
+	for _, k := range []string{"keyword", "next_token", "belong_enterprise_name"} {
+		if _, ok := reqN.apiReq.QueryParams[k]; ok {
+			t.Errorf("%s should not exist", k)
+		}
+	}
+}
+
+func TestGetLegalEntityV2Reply_BigIdAndFields(t *testing.T) {
+	jsonData := `{"errno":0,"data":{"next_token":"","records":[{
+		"legal_entity_id":"12345678543222245346",
+		"name":"某公司","out_legal_entity_id":"108","status":1,
+		"parent_id":112689540238402,"out_parent_id":"1",
+		"belong_enterprise_name":"某某集团"}],
+		"progress":1,"company_total":1,"company_list_has_change":false}}`
+	var reply GetLegalEntityV2ApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	rec := reply.Data.Records[0]
+	if rec.LegalEntityId == nil || *rec.LegalEntityId != "12345678543222245346" {
+		t.Errorf("LegalEntityId = %v（应按 string 解析不丢精度）", rec.LegalEntityId)
+	}
+	if rec.OutParentId == nil || *rec.OutParentId != "1" {
+		t.Errorf("OutParentId = %v", rec.OutParentId)
+	}
+	if rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+	// 多余 key 忽略
+	var r2 GetLegalEntityV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":0,"data":{"records":[{"legal_entity_id":"1","unknown_field":"x"}]}}`), &r2); err != nil {
+		t.Fatalf("unknown field should be ignored: %v", err)
+	}
+}
+
+func TestGetLegalEntityV2_Success(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/open-apis/v2/legalEntity/get" {
+			t.Errorf("expected /open-apis/v2/legalEntity/get, got %s", r.URL.Path)
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"next_token":"N","records":[{"legal_entity_id":"1","out_parent_id":"9"}],"progress":0.5,"company_total":2,"company_list_has_change":false},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+
+	option := newLegalEntityTestOption(testServer.URL)
+	svc := &legalEntity{option: option}
+	req := NewGetLegalEntityV2ApiReqBuilder().
+		ClientId("c").
+		OutLegalEntityId("108").
+		BelongEnterpriseName("某某集团").
+		Build()
+	resp, err := svc.GetLegalEntityV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("GetLegalEntityV2() error = %v", err)
+	}
+	if resp.GetLegalEntityV2ApiReply.Data == nil || len(resp.GetLegalEntityV2ApiReply.Data.Records) != 1 {
+		t.Fatal("records parse failed")
+	}
+}
+
+func TestGetLegalEntityV2_ErrorAndNot200(t *testing.T) {
+	// errno 非 0
+	ts1 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":10003,"errmsg":"param error"}`))
+	}))
+	defer ts1.Close()
+	svc := &legalEntity{option: newLegalEntityTestOption(ts1.URL)}
+	resp, _ := svc.GetLegalEntityV2(context.Background(), NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if resp.GetLegalEntityV2ApiReply.Data != nil {
+		t.Error("Data should be nil on errno!=0")
+	}
+
+	// HTTP 非 200
+	ts2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadGateway)
+	}))
+	defer ts2.Close()
+	svc2 := &legalEntity{option: newLegalEntityTestOption(ts2.URL)}
+	resp2, _ := svc2.GetLegalEntityV2(context.Background(), NewGetLegalEntityV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if resp2.GetLegalEntityV2ApiReply != nil {
+		t.Error("ApiReply should not be set on non-200")
+	}
+}

@@ -91,6 +91,74 @@ func (legalEntity *legalEntity) CreateLegalEntity(ctx context.Context, req *Crea
 	return &createLegalEntityApiResp, nil
 }
 
+// GetLegalEntityV2 公司主体查询（集团账户-上级公司统一对接），POST /open-apis/v2/legalEntity/get；普通企业用 GetLegalEntity。
+// 支持 belong_enterprise_name/taxpayer_no 定位子公司、query_sub_company 聚合下级公司、next_token 跨公司分页。
+func (legalEntity *legalEntity) GetLegalEntityV2(ctx context.Context, req *GetLegalEntityV2ApiReq, reqOption *core.ReqOption) (*GetLegalEntityV2ApiResp, error) {
+	apiReq := req.apiReq
+	apiReq.HttpMethod = http.MethodPost
+	apiReq.ApiPath = "/open-apis/v2/legalEntity/get"
+
+	apiResp, err := core.Request(ctx, apiReq, legalEntity.option, reqOption)
+	if err != nil {
+		return nil, err
+	}
+	getLegalEntityV2ApiResp := GetLegalEntityV2ApiResp{
+		ApiResp: apiResp,
+	}
+	getLegalEntityV2ApiReply := GetLegalEntityV2ApiReply{}
+	if http.StatusOK == apiResp.StatusCode && nil != apiResp.Body {
+		serializer := legalEntity.option.Serializer
+		if nil != reqOption && nil != reqOption.Serializer {
+			serializer = reqOption.Serializer
+		}
+		if legalEntity.option.EnableEncryption && nil != legalEntity.option.EncryptionOption {
+			var respBodyMap map[string]interface{}
+			if err := json.Unmarshal(apiResp.Body, &respBodyMap); err != nil {
+				return nil, err
+			}
+			if value, ok := respBodyMap["encrypt_data"]; ok {
+				if encryptData, ok := value.(string); ok {
+					var decodedCiphertext []byte
+					switch legalEntity.option.EncryptionOption.Ent {
+					case 1:
+						decodedCiphertext128, err := base64.StdEncoding.DecodeString(encryptData)
+						if err != nil {
+							return nil, err
+						}
+						decodedCiphertext = decodedCiphertext128
+					case 2:
+						decodedCiphertext128, err := base64.URLEncoding.DecodeString(encryptData)
+						if err != nil {
+							return nil, err
+						}
+						decodedCiphertext = decodedCiphertext128
+					default:
+						return nil, fmt.Errorf("未支持的Ent：%d", legalEntity.option.EncryptionOption.Ent)
+					}
+					decryptECB, err := core.AESDecryptECB(decodedCiphertext, []byte(legalEntity.option.EncryptionOption.Key))
+					if err != nil {
+						return nil, err
+					}
+					legalEntity.option.Logger.Debug(ctx, "decrypt data：", string(decryptECB))
+					if err := serializer.Deserialize(decryptECB, &getLegalEntityV2ApiReply); err != nil {
+						return nil, err
+					}
+				}
+			} else {
+				if err := serializer.Deserialize(apiResp.Body, &getLegalEntityV2ApiReply); err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			if err := serializer.Deserialize(apiResp.Body, &getLegalEntityV2ApiReply); err != nil {
+				return nil, err
+			}
+		}
+		getLegalEntityV2ApiResp.GetLegalEntityV2ApiReply = &getLegalEntityV2ApiReply
+	}
+	return &getLegalEntityV2ApiResp, nil
+}
+
 // DelLegalEntity 公司主体停用
 func (legalEntity *legalEntity) DelLegalEntity(ctx context.Context, req *DelLegalEntityApiReq, reqOption *core.ReqOption) (*DelLegalEntityApiResp, error) {
 	apiReq := req.apiReq

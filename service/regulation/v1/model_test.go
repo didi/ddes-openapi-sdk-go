@@ -1269,3 +1269,117 @@ func TestRegulationInfoEmployeeFields(t *testing.T) {
 		t.Errorf("builder RegulationEmployeeName = %v", built.RegulationEmployeeName)
 	}
 }
+
+// --- ListRegulationV2（集团账户 v2）测试 ---
+
+func TestListRegulationV2ApiReqBuilder_Params(t *testing.T) {
+	req := NewListRegulationV2ApiReqBuilder().
+		ClientId("c").
+		AccessToken("t").
+		CompanyId("comp").
+		Timestamp("1583484681").
+		Sign("s").
+		Length(100).
+		NextToken("N1").
+		QuerySubCompany("1").
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("91110000XXXXXXXXXX").
+		Build()
+	for k, v := range map[string]string{
+		"length": "100", "next_token": "N1", "query_sub_company": "1",
+		"belong_enterprise_name": "某某集团", "taxpayer_no": "91110000XXXXXXXXXX",
+	} {
+		if got := req.apiReq.QueryParams.Get(k); got != v {
+			t.Errorf("query[%s] = %q, want %q", k, got, v)
+		}
+	}
+	// length 零值写入
+	req0 := NewListRegulationV2ApiReqBuilder().Length(0).Build()
+	if got := req0.apiReq.QueryParams.Get("length"); got != "0" {
+		t.Errorf("length(0) = %q, want 0", got)
+	}
+	// 未设置不存在
+	reqN := NewListRegulationV2ApiReqBuilder().ClientId("c").Build()
+	for _, k := range []string{"next_token", "belong_enterprise_name", "taxpayer_no", "query_sub_company"} {
+		if _, ok := reqN.apiReq.QueryParams[k]; ok {
+			t.Errorf("%s should not exist", k)
+		}
+	}
+}
+
+func TestListRegulationV2Reply_Deserialization(t *testing.T) {
+	jsonData := `{"errno":0,"data":{"next_token":"N","records":[{
+		"regulation_id":"1","regulation_name":"差旅","regulation_employee_name":"员工差旅",
+		"regulation_employee_description":"全员适用","belong_enterprise_name":"某某集团"}],
+		"progress":1,"company_total":1,"company_list_has_change":false}}`
+	var reply ListRegulationV2ApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	rec := reply.Data.Records[0]
+	if rec.RegulationEmployeeName == nil || *rec.RegulationEmployeeName != "员工差旅" {
+		t.Errorf("RegulationEmployeeName = %v", rec.RegulationEmployeeName)
+	}
+	if rec.RegulationEmployeeDescription == nil || *rec.RegulationEmployeeDescription != "全员适用" {
+		t.Errorf("RegulationEmployeeDescription = %v", rec.RegulationEmployeeDescription)
+	}
+	if rec.BelongEnterpriseName == nil || *rec.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v", rec.BelongEnterpriseName)
+	}
+	// 部分字段缺失
+	var r2 ListRegulationV2ApiReply
+	if err := json.Unmarshal([]byte(`{"errno":0,"data":{"records":[{"regulation_id":"2"}]}}`), &r2); err != nil {
+		t.Fatalf("partial fields failed: %v", err)
+	}
+	if r2.Data.Records[0].RegulationEmployeeName != nil {
+		t.Error("missing key should be nil")
+	}
+}
+
+func TestListRegulationV2_Success(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/open-apis/v2/regulation/get" {
+			t.Errorf("expected /open-apis/v2/regulation/get, got %s", r.URL.Path)
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":0,"data":{"next_token":"","records":[{"regulation_id":"1","regulation_employee_name":"员工差旅"}],"company_total":1},"request_id":"r"}`))
+	}))
+	defer testServer.Close()
+
+	option := newRegulationTestOption(testServer.URL)
+	svc := &regulation{option: option}
+	req := NewListRegulationV2ApiReqBuilder().ClientId("c").Length(10).QuerySubCompany("1").Build()
+	resp, err := svc.ListRegulationV2(context.Background(), req, nil)
+	if err != nil {
+		t.Fatalf("ListRegulationV2() error = %v", err)
+	}
+	if resp.ListRegulationV2ApiReply.Data == nil || len(resp.ListRegulationV2ApiReply.Data.Records) != 1 {
+		t.Fatal("records parse failed")
+	}
+}
+
+func TestListRegulationV2_ErrorAndNot200(t *testing.T) {
+	ts1 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"errno":10003,"errmsg":"param error"}`))
+	}))
+	defer ts1.Close()
+	svc := &regulation{option: newRegulationTestOption(ts1.URL)}
+	resp, _ := svc.ListRegulationV2(context.Background(), NewListRegulationV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if resp.ListRegulationV2ApiReply.Data != nil {
+		t.Error("Data should be nil on errno!=0")
+	}
+
+	ts2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	defer ts2.Close()
+	svc2 := &regulation{option: newRegulationTestOption(ts2.URL)}
+	resp2, _ := svc2.ListRegulationV2(context.Background(), NewListRegulationV2ApiReqBuilder().ClientId("c").Build(), nil)
+	if resp2.ListRegulationV2ApiReply != nil {
+		t.Error("ApiReply should not be set on non-200")
+	}
+}
