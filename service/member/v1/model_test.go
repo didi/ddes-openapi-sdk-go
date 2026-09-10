@@ -2180,3 +2180,129 @@ func TestListMemberV2_CustomHeader(t *testing.T) {
 		t.Fatalf("error = %v", err)
 	}
 }
+
+// --- CreateMemberReply / UpdateMemberReply 失败场景字段测试 ---
+
+func TestCreateMemberReplyBuilder(t *testing.T) {
+	reply := NewCreateMemberReplyBuilder().
+		Id(1125921312180375).
+		Phone("13800000001").
+		MemberId("1125921312180376").
+		Status(4).
+		Build()
+
+	if reply.Id != 1125921312180375 {
+		t.Errorf("Id = %d, want 1125921312180375", reply.Id)
+	}
+	if reply.Phone == nil || *reply.Phone != "13800000001" {
+		t.Errorf("Phone = %v, want 13800000001", reply.Phone)
+	}
+	if reply.MemberId == nil || *reply.MemberId != "1125921312180376" {
+		t.Errorf("MemberId = %v, want 1125921312180376", reply.MemberId)
+	}
+	if reply.Status == nil || *reply.Status != 4 {
+		t.Errorf("Status = %v, want 4", reply.Status)
+	}
+
+	// 部分字段
+	partial := NewCreateMemberReplyBuilder().Id(123).Build()
+	if partial.Phone != nil || partial.MemberId != nil || partial.Status != nil {
+		t.Errorf("partial build should leave Phone/MemberId/Status nil, got %+v", partial)
+	}
+}
+
+func TestCreateMemberReply_Deserialization(t *testing.T) {
+	// 新增成功场景：id/phone，无 member_id/status
+	success := `{"id": 1125921312180375, "phone": "13800000001"}`
+	var okReply CreateMemberReply
+	if err := json.Unmarshal([]byte(success), &okReply); err != nil {
+		t.Fatalf("Unmarshal success case failed: %v", err)
+	}
+	if okReply.Id != 1125921312180375 {
+		t.Errorf("Id = %d, want 1125921312180375", okReply.Id)
+	}
+	if okReply.MemberId != nil || okReply.Status != nil {
+		t.Errorf("success case MemberId/Status should be nil, got %+v", okReply)
+	}
+
+	// 员工已存在场景：member_id 为 number（文档 int64），须容错转 string
+	exists := `{"member_id": 1125921312180376, "phone": "13800000001", "status": 4}`
+	var exReply CreateMemberReply
+	if err := json.Unmarshal([]byte(exists), &exReply); err != nil {
+		t.Fatalf("Unmarshal exists case failed: %v", err)
+	}
+	if exReply.MemberId == nil || *exReply.MemberId != "1125921312180376" {
+		t.Errorf("MemberId = %v, want 1125921312180376", exReply.MemberId)
+	}
+	if exReply.Status == nil || *exReply.Status != 4 {
+		t.Errorf("Status = %v, want 4", exReply.Status)
+	}
+
+	// member_id 为 string 形式（服务端历史行为不确定，两种形式均须兼容）
+	existsStr := `{"member_id": "1125921312180377", "status": 6}`
+	var strReply CreateMemberReply
+	if err := json.Unmarshal([]byte(existsStr), &strReply); err != nil {
+		t.Fatalf("Unmarshal string member_id case failed: %v", err)
+	}
+	if strReply.MemberId == nil || *strReply.MemberId != "1125921312180377" {
+		t.Errorf("MemberId = %v, want 1125921312180377", strReply.MemberId)
+	}
+}
+
+func TestUpdateMemberReplyBuilder(t *testing.T) {
+	reply := NewUpdateMemberReplyBuilder().
+		MemberId("1125921312180378").
+		Phone("13800000002").
+		Status(4).
+		Build()
+
+	if reply.MemberId == nil || *reply.MemberId != "1125921312180378" {
+		t.Errorf("MemberId = %v, want 1125921312180378", reply.MemberId)
+	}
+	if reply.Phone == nil || *reply.Phone != "13800000002" {
+		t.Errorf("Phone = %v, want 13800000002", reply.Phone)
+	}
+	if reply.Status == nil || *reply.Status != 4 {
+		t.Errorf("Status = %v, want 4", reply.Status)
+	}
+
+	// 部分字段
+	partial := NewUpdateMemberReplyBuilder().Status(6).Build()
+	if partial.MemberId != nil || partial.Phone != nil {
+		t.Errorf("partial build should leave MemberId/Phone nil, got %+v", partial)
+	}
+	if partial.Status == nil || *partial.Status != 6 {
+		t.Errorf("partial Status = %v, want 6", partial.Status)
+	}
+}
+
+func TestUpdateMemberApiReply_Deserialization(t *testing.T) {
+	// 编辑成功：data 为 null/缺失，Data 应为 nil 不报错
+	success := `{"errno": 0, "errmsg": "SUCCESS", "request_id": "rid-1"}`
+	var okReply UpdateMemberApiReply
+	if err := json.Unmarshal([]byte(success), &okReply); err != nil {
+		t.Fatalf("Unmarshal success case failed: %v", err)
+	}
+	if okReply.Data != nil {
+		t.Errorf("success case Data should be nil, got %+v", okReply.Data)
+	}
+
+	// 编辑失败（员工已离职）：member_id number 容错 + phone + status
+	failed := `{"errno": 0, "errmsg": "SUCCESS", "data": {"member_id": 1125921312180379, "phone": "13800000002", "status": 4}, "request_id": "rid-2"}`
+	var failReply UpdateMemberApiReply
+	if err := json.Unmarshal([]byte(failed), &failReply); err != nil {
+		t.Fatalf("Unmarshal failed case failed: %v", err)
+	}
+	if failReply.Data == nil {
+		t.Fatal("failed case Data is nil, want UpdateMemberReply")
+	}
+	if failReply.Data.MemberId == nil || *failReply.Data.MemberId != "1125921312180379" {
+		t.Errorf("Data.MemberId = %v, want 1125921312180379", failReply.Data.MemberId)
+	}
+	if failReply.Data.Phone == nil || *failReply.Data.Phone != "13800000002" {
+		t.Errorf("Data.Phone = %v, want 13800000002", failReply.Data.Phone)
+	}
+	if failReply.Data.Status == nil || *failReply.Data.Status != 4 {
+		t.Errorf("Data.Status = %v, want 4", failReply.Data.Status)
+	}
+}

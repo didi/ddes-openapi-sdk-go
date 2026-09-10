@@ -1534,3 +1534,82 @@ func TestListRegulationV2_CustomHeader(t *testing.T) {
 		t.Fatalf("error = %v", err)
 	}
 }
+
+// --- CarRuleInfo 与 RegulationInfo.CarRule 测试 ---
+
+func TestCarRuleInfoBuilder(t *testing.T) {
+	info := NewCarRuleInfoBuilder().
+		CallType([]int32{1, 2}).
+		UseScene([]int32{1}).
+		Build()
+
+	if len(info.CallType) != 2 || info.CallType[0] != 1 || info.CallType[1] != 2 {
+		t.Errorf("CallType = %v, want [1 2]", info.CallType)
+	}
+	if len(info.UseScene) != 1 || info.UseScene[0] != 1 {
+		t.Errorf("UseScene = %v, want [1]", info.UseScene)
+	}
+
+	// 部分字段：仅设置 CallType
+	partial := NewCarRuleInfoBuilder().CallType([]int32{2}).Build()
+	if len(partial.CallType) != 1 || partial.CallType[0] != 2 {
+		t.Errorf("partial CallType = %v, want [2]", partial.CallType)
+	}
+	if partial.UseScene != nil {
+		t.Errorf("partial UseScene = %v, want nil", partial.UseScene)
+	}
+}
+
+func TestGetRegulationApiReply_WithCarRule(t *testing.T) {
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": {
+			"regulation_id": "1125920826148759",
+			"regulation_name": "按日期2",
+			"regulation_status": "1",
+			"car_rule": {
+				"call_type": [1],
+				"use_scene": [1, 2]
+			},
+			"approval_type": 3
+		},
+		"request_id": "test_request_id"
+	}`
+
+	var reply GetRegulationApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Data.CarRule == nil {
+		t.Fatal("Data.CarRule is nil, want CarRuleInfo")
+	}
+	if len(reply.Data.CarRule.CallType) != 1 || reply.Data.CarRule.CallType[0] != 1 {
+		t.Errorf("CarRule.CallType = %v, want [1]", reply.Data.CarRule.CallType)
+	}
+	if len(reply.Data.CarRule.UseScene) != 2 || reply.Data.CarRule.UseScene[1] != 2 {
+		t.Errorf("CarRule.UseScene = %v, want [1 2]", reply.Data.CarRule.UseScene)
+	}
+	if reply.Data.ApprovalType == nil || *reply.Data.ApprovalType != 3 {
+		t.Errorf("ApprovalType = %v, want 3", reply.Data.ApprovalType)
+	}
+}
+
+func TestGetRegulationApiReply_WithoutCarRule(t *testing.T) {
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": {
+			"regulation_id": "1125920826148759",
+			"regulation_name": "通用规则"
+		}
+	}`
+
+	var reply GetRegulationApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Data.CarRule != nil {
+		t.Errorf("CarRule = %v, want nil when response has no car_rule", reply.Data.CarRule)
+	}
+}

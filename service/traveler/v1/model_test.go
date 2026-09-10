@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -1584,5 +1585,63 @@ func TestUpdateTraveler_WithReqOption(t *testing.T) {
 	}
 	if resp.UpdateTravelerApiReply == nil {
 		t.Fatal("UpdateTravelerApiReply is nil")
+	}
+}
+
+// --- TravelerInfo 新增字段（type / 集团账户参数）测试 ---
+
+func TestTravelerInfoBuilder_NewFields(t *testing.T) {
+	info := NewTravelerInfoBuilder().
+		Phone("+8613800138000").
+		Name("张三").
+		Type(3).
+		BelongEnterpriseName("某某集团").
+		TaxpayerNo("9653242523MQ46574").
+		Build()
+
+	if info.Type == nil || *info.Type != 3 {
+		t.Errorf("Type = %v, want 3", info.Type)
+	}
+	if info.BelongEnterpriseName == nil || *info.BelongEnterpriseName != "某某集团" {
+		t.Errorf("BelongEnterpriseName = %v, want 某某集团", info.BelongEnterpriseName)
+	}
+	if info.TaxpayerNo == nil || *info.TaxpayerNo != "9653242523MQ46574" {
+		t.Errorf("TaxpayerNo = %v, want 9653242523MQ46574", info.TaxpayerNo)
+	}
+
+	// 序列化进 param_json：三个新字段均应出现
+	b, err := json.Marshal(info)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	s := string(b)
+	for _, want := range []string{`"type":3`, `"belong_enterprise_name":"某某集团"`, `"taxpayer_no":"9653242523MQ46574"`} {
+		if !bytes.Contains(b, []byte(want)) {
+			t.Errorf("serialized json %s missing %s", s, want)
+		}
+	}
+}
+
+func TestTravelerInfoBuilder_NewFieldsOmitted(t *testing.T) {
+	info := NewTravelerInfoBuilder().Phone("+8613800138000").Name("李四").Build()
+
+	if info.Type != nil {
+		t.Errorf("Type = %v, want nil", info.Type)
+	}
+	if info.BelongEnterpriseName != nil {
+		t.Errorf("BelongEnterpriseName = %v, want nil", info.BelongEnterpriseName)
+	}
+	if info.TaxpayerNo != nil {
+		t.Errorf("TaxpayerNo = %v, want nil", info.TaxpayerNo)
+	}
+
+	b, err := json.Marshal(info)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	for _, notWant := range []string{"type", "belong_enterprise_name", "taxpayer_no"} {
+		if bytes.Contains(b, []byte(notWant)) {
+			t.Errorf("serialized json %s should not contain %s", string(b), notWant)
+		}
 	}
 }

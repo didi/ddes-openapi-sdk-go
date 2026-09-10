@@ -11,6 +11,7 @@
 | 接口/模型 | 变更 | 说明 |
 | --- | --- | --- |
 | `/river/Rank/getRanks` — `ListRankReply` | `Records`：`[]RankInfo` → `[]RankRecord` | 修复性变更：服务端响应字段为 `id`，原复用请求侧 `RankInfo`（`rank_id`）导致职级 ID 永远解析为空；`RankRecord` 字段为 `Id`/`Name`/`OutRankId`。请求侧 `RankInfo`（create/update/del）不受影响 |
+| `/river/Member/edit` — `UpdateMemberApiReply` | `Data`：`interface{}` → `*UpdateMemberReply` | 修复性变更：原 `UpdateMemberReply` 为空结构体、Data 无类型语义；现补齐 `MemberId`/`Phone`/`Status`（员工信息更新失败场景返回），对 Data 做类型断言的调用方需同步调整 |
 
 ### 新增
 
@@ -22,6 +23,11 @@
 - `/river/Member/getQuota`：请求新增 `monthly_limit_only_query`（1 仅按自然月（默认）/ 2 查询所有限额）。
 - `/river/Member/single`、`/river/Member/edit`：data 新增 `residents_adcode`（常驻地行政区划代码）、`home_address`（家庭住址）。
 - `/river/Regulation/get`、`/river/Regulation/detail`：响应新增 `regulation_employee_name`、`regulation_employee_description`。
+- `/open-apis/v1/traveler/create|update|del`：`TravelerInfo`（param_json 内）新增 `type`（外部出行人类型：0-公司维护（默认）、3-项目维度）及集团账户参数 `belong_enterprise_name`/`taxpayer_no`（与 Java SDK 落点一致），修复集团账户场景无法传参与项目维度出行人无法创建的问题。
+- `/river/Regulation/detail`：响应新增 `car_rule`（用车规则，`CarRuleInfo{call_type, use_scene}`，文档 11315）。
+- `/river/Member/single`：响应新增 `member_id`、`status`（添加员工失败-员工已存在场景返回；status：1-正常、4-离职、6-未绑定手机号）。
+- `/river/Member/edit`：响应补齐 `member_id`/`phone`/`status`（员工信息更新失败-员工已离职或被删除场景返回），`UpdateMemberApiReply.Data` 类型见破坏性变更表。
+- 上述 `member_id` 字段真实流量可能为 number 或 string，已按 SDK 惯例实现 `UnmarshalJSON` 容错（number/string 统一转 `*string`）。
 - `/river/Member/del`：新增 `employee_phone`、`employee_email` 删除标识（与 `member_id`/`employee_number` 四选一，优先级：滴滴侧ID > 手机号 > 工号 > 邮箱）。
 - 新增集团账户（上级公司统一对接）v2 查询接口支持，4 个域各新增一个 `*V2` 方法（GET `/open-apis/v2/<domain>/get`），现有 `/river/*` 方法不受影响：
   - `MemberService.V1.Member.ListMemberV2`：员工列表，支持 `is_last_id` 游标分页；

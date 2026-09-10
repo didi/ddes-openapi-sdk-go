@@ -2,42 +2,51 @@ package v1
 
 // TravelerInfo struct for TravelerInfo
 type TravelerInfo struct {
-	TravelerId       *string          `json:"traveler_id,omitempty"`        // 滴滴侧出行人ID;更新的时候必填
-	Phone            *string          `json:"phone,omitempty"`              // 外部出行人 手机号
-	Name             *string          `json:"name,omitempty"`               // 外部出行人姓名
-	EnglishSurname   *string          `json:"english_surname,omitempty"`    // 英文姓
-	EnglishName      *string          `json:"english_name,omitempty"`       // 英文名
-	Remark           *string          `json:"remark,omitempty"`             // 备注信息
-	Sex              *int32           `json:"sex,omitempty"`                // 性别
-	OutTravelerId    *string          `json:"out_traveler_id,omitempty"`    // 外部出行人唯一ID
-	BirthDate        *string          `json:"birth_date,omitempty"`         // 出生日期
-	CardList         []TravelCardInfo `json:"card_list,omitempty"`          // 身份证件信息
-	ForceClearFields []string         `json:"force_clear_fields,omitempty"` // 强制清空字段;目前只支持传 card_list
+	TravelerId           *string          `json:"traveler_id,omitempty"`            // 滴滴侧出行人ID;更新的时候必填
+	Phone                *string          `json:"phone,omitempty"`                  // 外部出行人 手机号
+	Name                 *string          `json:"name,omitempty"`                   // 外部出行人姓名
+	EnglishSurname       *string          `json:"english_surname,omitempty"`        // 英文姓
+	EnglishName          *string          `json:"english_name,omitempty"`           // 英文名
+	Remark               *string          `json:"remark,omitempty"`                 // 备注信息
+	Sex                  *int32           `json:"sex,omitempty"`                    // 性别
+	OutTravelerId        *string          `json:"out_traveler_id,omitempty"`        // 外部出行人唯一ID
+	BirthDate            *string          `json:"birth_date,omitempty"`             // 出生日期
+	CardList             []TravelCardInfo `json:"card_list,omitempty"`              // 身份证件信息
+	ForceClearFields     []string         `json:"force_clear_fields,omitempty"`     // 强制清空字段;目前只支持传 card_list
+	Type                 *int32           `json:"type,omitempty"`                   // 外部出行人类型，枚举值数字：0-公司维护（默认），3-项目维度外部出行人
+	BelongEnterpriseName *string          `json:"belong_enterprise_name,omitempty"` // 归属企业名称（集团账户），company_id传集团公司ID时确定处理哪个子公司的数据
+	TaxpayerNo           *string          `json:"taxpayer_no,omitempty"`            // 纳税人识别号（集团账户），与belong_enterprise_name任选一个传值
 }
 
 type TravelerInfoBuilder struct {
-	travelerId          string // 滴滴侧出行人ID;更新的时候必填
-	travelerIdSet       bool
-	phone               string // 外部出行人 手机号
-	phoneSet            bool
-	name                string // 外部出行人姓名
-	nameSet             bool
-	englishSurname      string // 英文姓
-	englishSurnameSet   bool
-	englishName         string // 英文名
-	englishNameSet      bool
-	remark              string // 备注信息
-	remarkSet           bool
-	sex                 int32 // 性别
-	sexSet              bool
-	outTravelerId       string // 外部出行人唯一ID
-	outTravelerIdSet    bool
-	birthDate           string // 出生日期
-	birthDateSet        bool
-	cardList            []TravelCardInfo // 身份证件信息
-	cardListSet         bool
-	forceClearFields    []string // 强制清空字段;目前只支持传 card_list
-	forceClearFieldsSet bool
+	travelerId              string // 滴滴侧出行人ID;更新的时候必填
+	travelerIdSet           bool
+	phone                   string // 外部出行人 手机号
+	phoneSet                bool
+	name                    string // 外部出行人姓名
+	nameSet                 bool
+	englishSurname          string // 英文姓
+	englishSurnameSet       bool
+	englishName             string // 英文名
+	englishNameSet          bool
+	remark                  string // 备注信息
+	remarkSet               bool
+	sex                     int32 // 性别
+	sexSet                  bool
+	outTravelerId           string // 外部出行人唯一ID
+	outTravelerIdSet        bool
+	birthDate               string // 出生日期
+	birthDateSet            bool
+	cardList                []TravelCardInfo // 身份证件信息
+	cardListSet             bool
+	forceClearFields        []string // 强制清空字段;目前只支持传 card_list
+	forceClearFieldsSet     bool
+	type_                   int32 // 外部出行人类型，枚举值数字：0-公司维护（默认），3-项目维度外部出行人
+	type_Set                bool
+	belongEnterpriseName    string // 归属企业名称（集团账户）
+	belongEnterpriseNameSet bool
+	taxpayerNo              string // 纳税人识别号（集团账户）
+	taxpayerNoSet           bool
 }
 
 func NewTravelerInfoBuilder() *TravelerInfoBuilder {
@@ -98,6 +107,21 @@ func (builder *TravelerInfoBuilder) ForceClearFields(forceClearFields []string) 
 	builder.forceClearFieldsSet = true
 	return builder
 }
+func (builder *TravelerInfoBuilder) Type(type_ int32) *TravelerInfoBuilder {
+	builder.type_ = type_
+	builder.type_Set = true
+	return builder
+}
+func (builder *TravelerInfoBuilder) BelongEnterpriseName(belongEnterpriseName string) *TravelerInfoBuilder {
+	builder.belongEnterpriseName = belongEnterpriseName
+	builder.belongEnterpriseNameSet = true
+	return builder
+}
+func (builder *TravelerInfoBuilder) TaxpayerNo(taxpayerNo string) *TravelerInfoBuilder {
+	builder.taxpayerNo = taxpayerNo
+	builder.taxpayerNoSet = true
+	return builder
+}
 
 func (builder *TravelerInfoBuilder) Build() *TravelerInfo {
 	data := &TravelerInfo{}
@@ -133,6 +157,15 @@ func (builder *TravelerInfoBuilder) Build() *TravelerInfo {
 	}
 	if builder.forceClearFieldsSet {
 		data.ForceClearFields = builder.forceClearFields
+	}
+	if builder.type_Set {
+		data.Type = &builder.type_
+	}
+	if builder.belongEnterpriseNameSet {
+		data.BelongEnterpriseName = &builder.belongEnterpriseName
+	}
+	if builder.taxpayerNoSet {
+		data.TaxpayerNo = &builder.taxpayerNo
 	}
 	return data
 }
