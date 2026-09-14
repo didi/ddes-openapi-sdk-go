@@ -2316,7 +2316,6 @@ func TestGetBudgetCenterV2ApiReqBuilder_Params(t *testing.T) {
 		Type(2).
 		IsExactName(1).
 		Name("项目A").
-		ThirdOutId("T1").
 		IsNeedLimitRule(1).
 		Length(100).
 		NextToken("N1").
@@ -2326,7 +2325,7 @@ func TestGetBudgetCenterV2ApiReqBuilder_Params(t *testing.T) {
 		Build()
 	for k, v := range map[string]string{
 		"id": "123", "out_budget_id": "OB1", "type": "2", "is_exact_name": "1",
-		"name": "项目A", "third_out_id": "T1", "is_need_limit_rule": "1",
+		"name": "项目A", "is_need_limit_rule": "1",
 		"length": "100", "next_token": "N1", "query_sub_company": "1",
 		"belong_enterprise_name": "某某集团", "taxpayer_no": "91110000XXXXXXXXXX",
 	} {
@@ -2456,8 +2455,8 @@ func TestBudgetCenterV2RecordBuilder_AllAndPartial(t *testing.T) {
 		LegalEntityId("1,2").
 		OutLegalEntityId("OUT_LE").
 		BudgetExtraInfo("{}").
-		LeaderItemList([]LeaderItem{*NewLeaderItemBuilder().Build()}).
-		LimitRuleList([]LimitRuleItem{*NewLimitRuleItemBuilder().Build()}).
+		LeaderItemList([]BudgetCenterV2LeaderItem{*NewBudgetCenterV2LeaderItemBuilder().Build()}).
+		LimitRuleList([]BudgetCenterV2LimitRuleItem{*NewBudgetCenterV2LimitRuleItemBuilder().Build()}).
 		Build()
 	if rec.CompanyId == nil || *rec.CompanyId != "777" {
 		t.Errorf("CompanyId = %v", rec.CompanyId)
@@ -2595,5 +2594,60 @@ func TestGetBudgetCenterV2_CustomHeader(t *testing.T) {
 	reqOption.Header.Set("X-Custom-Header", "custom-value")
 	if _, err := svc.GetBudgetCenterV2(context.Background(), NewGetBudgetCenterV2ApiReqBuilder().ClientId("c").Build(), reqOption); err != nil {
 		t.Fatalf("error = %v", err)
+	}
+}
+
+// --- v2 独立嵌套类型 Builder 测试（禁止与 /river 类型复用） ---
+
+func TestBudgetCenterV2LeaderItemBuilder(t *testing.T) {
+	item := NewBudgetCenterV2LeaderItemBuilder().
+		LeaderId("1125922289295589").
+		LeaderName("张三").
+		LeaderType("major").
+		Build()
+	if item.LeaderId == nil || *item.LeaderId != "1125922289295589" {
+		t.Errorf("LeaderId = %v", item.LeaderId)
+	}
+	if item.LeaderName == nil || *item.LeaderName != "张三" {
+		t.Errorf("LeaderName = %v", item.LeaderName)
+	}
+	if item.LeaderType == nil || *item.LeaderType != "major" {
+		t.Errorf("LeaderType = %v", item.LeaderType)
+	}
+	partial := NewBudgetCenterV2LeaderItemBuilder().LeaderId("1").Build()
+	if partial.LeaderName != nil || partial.LeaderType != nil {
+		t.Error("unset fields should be nil")
+	}
+}
+
+func TestBudgetCenterV2LimitRuleItemBuilder(t *testing.T) {
+	item := NewBudgetCenterV2LimitRuleItemBuilder().
+		RuleName("月限额").
+		BudgetCycle(1).
+		IsAccumulative(1).
+		TotalQuota(50000).
+		LimitManagementScope(0).
+		AvailableQuota("3000.00").
+		FreezeQuota("0.00").
+		Build()
+	if item.RuleName == nil || *item.RuleName != "月限额" {
+		t.Errorf("RuleName = %v", item.RuleName)
+	}
+	if item.BudgetCycle == nil || *item.BudgetCycle != 1 {
+		t.Errorf("BudgetCycle = %v", item.BudgetCycle)
+	}
+	if item.TotalQuota == nil || *item.TotalQuota != 50000 {
+		t.Errorf("TotalQuota = %v", item.TotalQuota)
+	}
+	if item.AvailableQuota == nil || *item.AvailableQuota != "3000.00" {
+		t.Errorf("AvailableQuota = %v", item.AvailableQuota)
+	}
+	// 容错反序列化：number 混存时 *string 字段可收 number
+	var parsed BudgetCenterV2LimitRuleItem
+	if err := json.Unmarshal([]byte(`{"rule_name":"r","available_quota":123.45,"freeze_quota":0}`), &parsed); err != nil {
+		t.Fatalf("SmartDecode unmarshal failed: %v", err)
+	}
+	if parsed.AvailableQuota == nil || *parsed.AvailableQuota != "123.45" {
+		t.Errorf("AvailableQuota = %v, want 123.45", parsed.AvailableQuota)
 	}
 }

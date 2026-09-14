@@ -75,10 +75,6 @@ func (builder *GetBudgetCenterV2ApiReqBuilder) Name(name string) *GetBudgetCente
 	builder.apiReq.QueryParams.Set("name", name)
 	return builder
 }
-func (builder *GetBudgetCenterV2ApiReqBuilder) ThirdOutId(thirdOutId string) *GetBudgetCenterV2ApiReqBuilder {
-	builder.apiReq.QueryParams.Set("third_out_id", thirdOutId)
-	return builder
-}
 func (builder *GetBudgetCenterV2ApiReqBuilder) IsNeedLimitRule(isNeedLimitRule int32) *GetBudgetCenterV2ApiReqBuilder {
 	builder.apiReq.QueryParams.Set("is_need_limit_rule", fmt.Sprint(isNeedLimitRule))
 	return builder

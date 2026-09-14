@@ -31,7 +31,7 @@ type UpdateBudgetCenterRequest struct {
 	ExtendFieldObj       []ExtendFieldItem  `json:"extend_field__obj__,omitempty"`      // 扩展字段对象，实际使用的时候会自动转换为json字符串赋值到extend_field
 	PoiList              *string            `json:"poi_list,omitempty"`                 // 仅type=2时有效，POI地点JSON数组字符串，最多20个
 	PoiListObj           []PoiItem          `json:"poi_list__obj__,omitempty"`          // POI地点对象，实际使用的时候会自动转换为json字符串赋值到poi_list
-	OutTravelers         *string            `json:"out_travelers,omitempty"`            // 仅type=2时有效，外部出行人JSON数组字符串，最多500个
+	OutTravelers         *string            `json:"out_travelers,omitempty"`            // 仅type=2时有效，外部出行人JSON数组字符串，最多 200 人
 	OutTravelersObj      []OutTravelerItem  `json:"out_travelers__obj__,omitempty"`     // 外部出行人对象，实际使用的时候会自动转换为json字符串赋值到out_travelers
 	OperateType          *string            `json:"operate_type,omitempty"`             // out_travelers操作方式：cover=覆盖，append=追加，remove=移除
 	BelongEnterpriseName *string            `json:"belong_enterprise_name,omitempty"`   // 归属企业名称（集团账户）

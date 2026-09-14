@@ -28,7 +28,6 @@ func ListMemberV2() {
 	for page := 1; ; page++ {
 		builder := v1.NewListMemberV2ApiReqBuilder().
 			CompanyId(companyId).
-			Length(10).
 			QuerySubCompany("1").        // 聚合下级公司数据；仅查当前公司可不传或传 0
 			BelongEnterpriseName("某某集团") // 与 taxpayer_no 任选其一；传子公司 company_id 时可不传
 		if nextToken != "" {

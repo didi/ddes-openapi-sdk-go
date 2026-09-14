@@ -1137,6 +1137,92 @@ func TestGetMemberDetailApiReply_Deserialization(t *testing.T) {
 	}
 }
 
+// 一人多企业场景：other_companies_list 元素=完整明细对象+belong_enterprise_name（依据服务端实现，文档无结构表）
+func TestGetMemberDetailReply_OtherCompaniesList(t *testing.T) {
+	jsonData := `{
+		"errno": 0,
+		"errmsg": "SUCCESS",
+		"data": {
+			"member_id": "1125916593600206",
+			"realname": "翁舒嵘",
+			"status": 1,
+			"belong_enterprise_name": "主公司A",
+			"other_companies_list": [
+				{
+					"member_id": "1125916593600999",
+					"realname": "翁舒嵘",
+					"status": 4,
+					"legal_entity_id": "112689540238402",
+					"belong_enterprise_name": "子公司B",
+					"card_list": [
+						{"card_type": "1", "card_no": "encrypted_no", "expire_date": "encrypted_date"}
+					]
+				},
+				{
+					"member_id": "1125916593600888",
+					"realname": "翁舒嵘",
+					"status": 1,
+					"belong_enterprise_name": "子公司C"
+				}
+			]
+		},
+		"request_id": "test_request_id"
+	}`
+
+	var reply GetMemberDetailApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	data := reply.Data
+	if data == nil {
+		t.Fatal("Data is nil")
+	}
+	// 主对象 belong_enterprise_name
+	if data.BelongEnterpriseName == nil || *data.BelongEnterpriseName != "主公司A" {
+		t.Errorf("BelongEnterpriseName = %v, want 主公司A", data.BelongEnterpriseName)
+	}
+	// other_companies_list
+	if len(data.OtherCompaniesList) != 2 {
+		t.Fatalf("OtherCompaniesList len = %d, want 2", len(data.OtherCompaniesList))
+	}
+	other0 := data.OtherCompaniesList[0]
+	if other0.MemberId == nil || *other0.MemberId != "1125916593600999" {
+		t.Errorf("OtherCompaniesList[0].MemberId = %v, want 1125916593600999", other0.MemberId)
+	}
+	if other0.Status == nil || *other0.Status != 4 {
+		t.Errorf("OtherCompaniesList[0].Status = %v, want 4", other0.Status)
+	}
+	if other0.BelongEnterpriseName == nil || *other0.BelongEnterpriseName != "子公司B" {
+		t.Errorf("OtherCompaniesList[0].BelongEnterpriseName = %v, want 子公司B", other0.BelongEnterpriseName)
+	}
+	// 嵌套结构与明细对象一致：card_list
+	if len(other0.CardList) != 1 || other0.CardList[0].CardType == nil || *other0.CardList[0].CardType != "1" {
+		t.Errorf("OtherCompaniesList[0].CardList parse failed: %v", other0.CardList)
+	}
+	other1 := data.OtherCompaniesList[1]
+	if other1.MemberId == nil || *other1.MemberId != "1125916593600888" {
+		t.Errorf("OtherCompaniesList[1].MemberId = %v, want 1125916593600888", other1.MemberId)
+	}
+	if other1.BelongEnterpriseName == nil || *other1.BelongEnterpriseName != "子公司C" {
+		t.Errorf("OtherCompaniesList[1].BelongEnterpriseName = %v, want 子公司C", other1.BelongEnterpriseName)
+	}
+}
+
+// 普通场景（非一人多企业）：无 belong_enterprise_name/other_companies_list 时解析不报错且为 nil
+func TestGetMemberDetailReply_WithoutOtherCompaniesList(t *testing.T) {
+	jsonData := `{"errno":0,"errmsg":"SUCCESS","data":{"member_id":"1125916593600206","realname":"张三"},"request_id":"r"}`
+	var reply GetMemberDetailApiReply
+	if err := json.Unmarshal([]byte(jsonData), &reply); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if reply.Data.BelongEnterpriseName != nil {
+		t.Errorf("BelongEnterpriseName should be nil, got %v", reply.Data.BelongEnterpriseName)
+	}
+	if reply.Data.OtherCompaniesList != nil {
+		t.Errorf("OtherCompaniesList should be nil, got %v", reply.Data.OtherCompaniesList)
+	}
+}
+
 func TestGetMemberDetailApiReply_ErrorResponse(t *testing.T) {
 	jsonData := `{
 		"errno": 10003,
@@ -1757,7 +1843,6 @@ func TestListMemberV2ApiReqBuilder_FullParams(t *testing.T) {
 		Status("1,4").
 		Length(100).
 		NextToken("TOKEN_1").
-		IsLastId(1).
 		QuerySubCompany("1").
 		BelongEnterpriseName("某某集团").
 		TaxpayerNo("91110000XXXXXXXXXX").
@@ -1766,7 +1851,7 @@ func TestListMemberV2ApiReqBuilder_FullParams(t *testing.T) {
 	wantKeys := map[string]string{
 		"client_id": "test_client", "email": "a@example.com",
 		"status": "1,4", "length": "100", "next_token": "TOKEN_1",
-		"is_last_id": "1", "query_sub_company": "1",
+		"query_sub_company":      "1",
 		"belong_enterprise_name": "某某集团", "taxpayer_no": "91110000XXXXXXXXXX",
 	}
 	for k, v := range wantKeys {
@@ -1777,20 +1862,20 @@ func TestListMemberV2ApiReqBuilder_FullParams(t *testing.T) {
 }
 
 func TestListMemberV2ApiReqBuilder_PartialAndZeroInt(t *testing.T) {
-	// 部分参数 + int 零值仍写入
+	// 部分参数 + int 零值/空值仍写入
 	req := NewListMemberV2ApiReqBuilder().
 		ClientId("c").
 		Length(0).
-		IsLastId(0).
+		NextToken("").
 		Build()
 	if got := req.apiReq.QueryParams.Get("length"); got != "0" {
 		t.Errorf("length = %q, want 0", got)
 	}
-	if got := req.apiReq.QueryParams.Get("is_last_id"); got != "0" {
-		t.Errorf("is_last_id = %q, want 0", got)
+	if got := req.apiReq.QueryParams.Get("next_token"); got != "" {
+		t.Errorf("next_token = %q, want empty", got)
 	}
 	// 未设置的不存在
-	for _, k := range []string{"email", "phone", "next_token", "belong_enterprise_name", "taxpayer_no", "query_sub_company"} {
+	for _, k := range []string{"email", "phone", "belong_enterprise_name", "taxpayer_no", "query_sub_company"} {
 		if _, ok := req.apiReq.QueryParams[k]; ok {
 			t.Errorf("%s should not exist", k)
 		}
@@ -2076,12 +2161,12 @@ func TestMemberV2RecordBuilder_AllFields(t *testing.T) {
 		MonthQuota("937.70").
 		BelongEnterpriseName("某某集团").
 		ConDepartmentIds([]string{"1", "2"}).
-		ResidentsList([]ResidentsListInfo{*NewResidentsListInfoBuilder().Build()}).
-		LimitRuleList([]LimitRuleInfo{*NewLimitRuleInfoBuilder().Build()}).
+		ResidentsList([]MemberV2ResidentsListInfo{*NewMemberV2ResidentsListInfoBuilder().Build()}).
+		LimitRuleList([]MemberV2LimitRuleInfo{*NewMemberV2LimitRuleInfoBuilder().Build()}).
 		UseCarConfig([]string{"r1"}).
 		RegulationId([]string{"g1"}).
 		GuestCarRight(0).
-		CardList([]CardInfo{*NewCardInfoBuilder().Build()}).
+		CardList([]MemberV2CardInfo{*NewMemberV2CardInfoBuilder().Build()}).
 		Build()
 
 	// 关键字段断言（覆盖各类型）
@@ -2304,5 +2389,36 @@ func TestUpdateMemberApiReply_Deserialization(t *testing.T) {
 	}
 	if failReply.Data.Status == nil || *failReply.Data.Status != 4 {
 		t.Errorf("Data.Status = %v, want 4", failReply.Data.Status)
+	}
+}
+
+// --- v2 独立嵌套类型 Builder 测试（禁止与 /river 类型复用） ---
+
+func TestMemberV2NestedTypesBuilders(t *testing.T) {
+	res := NewMemberV2ResidentsListInfoBuilder().Id("4").Name("青岛").Adcode("370200").Build()
+	if res.Id == nil || *res.Id != "4" || res.Name == nil || *res.Name != "青岛" || res.Adcode == nil || *res.Adcode != "370200" {
+		t.Errorf("MemberV2ResidentsListInfo build failed: %v", res)
+	}
+	// 容错反序列化：Id 收 number
+	var resParsed MemberV2ResidentsListInfo
+	if err := json.Unmarshal([]byte(`{"id":14,"name":"大连"}`), &resParsed); err != nil {
+		t.Fatalf("residents SmartDecode failed: %v", err)
+	}
+	if resParsed.Id == nil || *resParsed.Id != "14" {
+		t.Errorf("residents Id = %v, want 14", resParsed.Id)
+	}
+
+	limit := NewMemberV2LimitRuleInfoBuilder().RuleName("默认").BudgetCycle(1).TotalQuota(50000).AvailableQuota(50000).FreezeQuota(0).LimitManagementScope(0).Build()
+	if limit.RuleName == nil || *limit.RuleName != "默认" || limit.AvailableQuota == nil || *limit.AvailableQuota != 50000 {
+		t.Errorf("MemberV2LimitRuleInfo build failed: %v", limit)
+	}
+
+	card := NewMemberV2CardInfoBuilder().CardType("1").CardNo("enc_no").ExpireDate("enc_date").Build()
+	if card.CardType == nil || *card.CardType != "1" || card.CardNo == nil || *card.CardNo != "enc_no" {
+		t.Errorf("MemberV2CardInfo build failed: %v", card)
+	}
+	partial := NewMemberV2CardInfoBuilder().CardType("2").Build()
+	if partial.CardNo != nil || partial.ExpireDate != nil {
+		t.Error("unset fields should be nil")
 	}
 }

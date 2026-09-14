@@ -11,6 +11,7 @@ type UpdateLegalEntityRequest struct {
 	LegalEntityId        *string `json:"legal_entity_id,omitempty"`        // 公司主体编号
 	OutLegalEntityId     *string `json:"out_legal_entity_id,omitempty"`    // 外部公司主体编号，不可重复，滴滴后台有效的公司ID不重复
 	ParentId             *int32  `json:"parent_id,omitempty"`              // 上级公司id，新建公司信息之后，滴滴返回的公司ID
+	OutParentId          *string `json:"out_parent_id,omitempty"`          // 上级公司外部编号，与 parent_id 仅需传其中一组；不支持通过 parent_id 修改 out_parent_id 值
 	StartTime            *string `json:"start_time,omitempty"`             // 公司主体有效期开始日期，不传 默认为当前日期 格式：yyyy-MM-dd HH:mm:ss
 	EndTime              *string `json:"end_time,omitempty"`               // 公司主体有效期结束日期，不传默认为长期有效 格式：yyyy-MM-dd HH:mm:ss 需大于当前时间
 	TaxpayerNo           *string `json:"taxpayer_no,omitempty"`            // 纳税人识别号，长度为 15/18/20 位
@@ -40,6 +41,8 @@ type UpdateLegalEntityRequestBuilder struct {
 	outLegalEntityIdSet     bool
 	parentId                int32 // 上级公司id，新建公司信息之后，滴滴返回的公司ID
 	parentIdSet             bool
+	outParentId             string // 上级公司外部编号，与 parent_id 仅需传其中一组；不支持通过 parent_id 修改 out_parent_id 值
+	outParentIdSet          bool
 	startTime               string // 公司主体有效期开始日期，不传 默认为当前日期 格式：yyyy-MM-dd HH:mm:ss
 	startTimeSet            bool
 	endTime                 string // 公司主体有效期结束日期，不传默认为长期有效 格式：yyyy-MM-dd HH:mm:ss 需大于当前时间
@@ -104,6 +107,11 @@ func (builder *UpdateLegalEntityRequestBuilder) OutLegalEntityId(outLegalEntityI
 func (builder *UpdateLegalEntityRequestBuilder) ParentId(parentId int32) *UpdateLegalEntityRequestBuilder {
 	builder.parentId = parentId
 	builder.parentIdSet = true
+	return builder
+}
+func (builder *UpdateLegalEntityRequestBuilder) OutParentId(outParentId string) *UpdateLegalEntityRequestBuilder {
+	builder.outParentId = outParentId
+	builder.outParentIdSet = true
 	return builder
 }
 func (builder *UpdateLegalEntityRequestBuilder) StartTime(startTime string) *UpdateLegalEntityRequestBuilder {
@@ -175,6 +183,9 @@ func (builder *UpdateLegalEntityRequestBuilder) Build() *UpdateLegalEntityReques
 	}
 	if builder.parentIdSet {
 		data.ParentId = &builder.parentId
+	}
+	if builder.outParentIdSet {
+		data.OutParentId = &builder.outParentId
 	}
 	if builder.startTimeSet {
 		data.StartTime = &builder.startTime

@@ -3,33 +3,33 @@ package v1
 // BudgetCenterV2Record 部门/项目记录（/open-apis/v2/budgetCenter/get 响应 records 元素，契约依据 idl/budget-center.idl BudgetCenterInfo）。
 // v2 契约与 /river 版分叉：新增 company_id/belong_enterprise_name/create_time/update_time；无 poi_list/extend_field/department_id/out_department_id/scope。
 type BudgetCenterV2Record struct {
-	Id                   *string         `json:"id,omitempty"`                     // 滴滴内部项目或部门的ID
-	Name                 *string         `json:"name,omitempty"`                   // 名称
-	CompanyId            *string         `json:"company_id,omitempty"`             // 公司ID
-	BelongEnterpriseName *string         `json:"belong_enterprise_name,omitempty"` // 归属企业名称（集团账户）
-	Status               *string         `json:"status,omitempty"`                 // 状态
-	ThirdOutId           *string         `json:"third_out_id,omitempty"`           // 第三方外部ID
-	Type                 *string         `json:"type,omitempty"`                   // 类型，枚举值 1 部门 2 项目
-	BudgetCycle          *int32          `json:"budget_cycle,omitempty"`           // 预算周期，枚举值数字 0 不限期 1 自然月 2 自然季度 3 自然年
-	OutBudgetId          *string         `json:"out_budget_id,omitempty"`          // 外部成本中心id
-	TotalQuota           *string         `json:"total_quota,omitempty"`            // 总金额，单位元
-	IsLimitQuota         *int32          `json:"is_limit_quota,omitempty"`         // 是否限额，枚举值数字 0 不限制 1 限制
-	MemberNum            *int64          `json:"member_num,omitempty"`             // 在使用人数
-	AvailableQuota       *string         `json:"available_quota,omitempty"`        // 可用金额，单位元
-	FreezeQuota          *string         `json:"freeze_quota,omitempty"`           // 冻结金额，单位元
-	LeaderId             *string         `json:"leader_id,omitempty"`              // 主管
-	LeaderItemList       []LeaderItem    `json:"leader_item_list,omitempty"`       // 主管列表
-	ParentId             *string         `json:"parent_id,omitempty"`              // 上级部门或项目的id
-	OutParentId          *string         `json:"out_parent_id,omitempty"`          // 上级部门/项目外部编码
-	MemberUsed           *int32          `json:"member_used,omitempty"`            // 使用范围，枚举值数字 0 全员可见 1 项目成员可见 2 公司主体可见
-	StartDate            *string         `json:"start_date,omitempty"`             // 项目开始日期，当类型为项目时有效 格式：yyyy-MM-dd
-	ExpiryDate           *string         `json:"expiry_date,omitempty"`            // 项目结束日期，当类型为项目时有效 格式：yyyy-MM-dd，0为长期有效
-	CreateTime           *string         `json:"create_time,omitempty"`            // 创建时间
-	UpdateTime           *string         `json:"update_time,omitempty"`            // 更新时间
-	LegalEntityId        *string         `json:"legal_entity_id,omitempty"`        // 公司主体ID，多个英文逗号分开
-	OutLegalEntityId     *string         `json:"out_legal_entity_id,omitempty"`    // 项目所属公司主体外部编码
-	BudgetExtraInfo      *string         `json:"budget_extra_info,omitempty"`      // 项目拓展字段，仅项目有数据时返回
-	LimitRuleList        []LimitRuleItem `json:"limit_rule_list,omitempty"`        // 限额规则列表
+	Id                   *string                       `json:"id,omitempty"`                     // 滴滴内部项目或部门的ID
+	Name                 *string                       `json:"name,omitempty"`                   // 名称
+	CompanyId            *string                       `json:"company_id,omitempty"`             // 公司ID
+	BelongEnterpriseName *string                       `json:"belong_enterprise_name,omitempty"` // 归属企业名称（集团账户）
+	Status               *string                       `json:"status,omitempty"`                 // 状态
+	ThirdOutId           *string                       `json:"third_out_id,omitempty"`           // 第三方外部ID
+	Type                 *string                       `json:"type,omitempty"`                   // 类型，枚举值 1 部门 2 项目
+	BudgetCycle          *int32                        `json:"budget_cycle,omitempty"`           // 预算周期，枚举值数字 0 不限期 1 自然月 2 自然季度 3 自然年
+	OutBudgetId          *string                       `json:"out_budget_id,omitempty"`          // 外部成本中心id
+	TotalQuota           *string                       `json:"total_quota,omitempty"`            // 总金额，单位元
+	IsLimitQuota         *int32                        `json:"is_limit_quota,omitempty"`         // 是否限额，枚举值数字 0 不限制 1 限制
+	MemberNum            *int64                        `json:"member_num,omitempty"`             // 在使用人数
+	AvailableQuota       *string                       `json:"available_quota,omitempty"`        // 可用金额，单位元
+	FreezeQuota          *string                       `json:"freeze_quota,omitempty"`           // 冻结金额，单位元
+	LeaderId             *string                       `json:"leader_id,omitempty"`              // 主管
+	LeaderItemList       []BudgetCenterV2LeaderItem    `json:"leader_item_list,omitempty"`       // 主管列表
+	ParentId             *string                       `json:"parent_id,omitempty"`              // 上级部门或项目的id
+	OutParentId          *string                       `json:"out_parent_id,omitempty"`          // 上级部门/项目外部编码
+	MemberUsed           *int32                        `json:"member_used,omitempty"`            // 使用范围，枚举值数字 0 全员可见 1 项目成员可见 2 公司主体可见
+	StartDate            *string                       `json:"start_date,omitempty"`             // 项目开始日期，当类型为项目时有效 格式：yyyy-MM-dd
+	ExpiryDate           *string                       `json:"expiry_date,omitempty"`            // 项目结束日期，当类型为项目时有效 格式：yyyy-MM-dd，0为长期有效
+	CreateTime           *string                       `json:"create_time,omitempty"`            // 创建时间
+	UpdateTime           *string                       `json:"update_time,omitempty"`            // 更新时间
+	LegalEntityId        *string                       `json:"legal_entity_id,omitempty"`        // 公司主体ID，多个英文逗号分开
+	OutLegalEntityId     *string                       `json:"out_legal_entity_id,omitempty"`    // 项目所属公司主体外部编码
+	BudgetExtraInfo      *string                       `json:"budget_extra_info,omitempty"`      // 项目拓展字段，仅项目有数据时返回
+	LimitRuleList        []BudgetCenterV2LimitRuleItem `json:"limit_rule_list,omitempty"`        // 限额规则列表
 }
 
 type BudgetCenterV2RecordBuilder struct {
@@ -83,9 +83,9 @@ type BudgetCenterV2RecordBuilder struct {
 	outLegalEntityIdSet     bool
 	budgetExtraInfo         string
 	budgetExtraInfoSet      bool
-	leaderItemList          []LeaderItem
+	leaderItemList          []BudgetCenterV2LeaderItem
 	leaderItemListSet       bool
-	limitRuleList           []LimitRuleItem
+	limitRuleList           []BudgetCenterV2LimitRuleItem
 	limitRuleListSet        bool
 }
 
@@ -217,12 +217,12 @@ func (builder *BudgetCenterV2RecordBuilder) BudgetExtraInfo(budgetExtraInfo stri
 	builder.budgetExtraInfoSet = true
 	return builder
 }
-func (builder *BudgetCenterV2RecordBuilder) LeaderItemList(leaderItemList []LeaderItem) *BudgetCenterV2RecordBuilder {
+func (builder *BudgetCenterV2RecordBuilder) LeaderItemList(leaderItemList []BudgetCenterV2LeaderItem) *BudgetCenterV2RecordBuilder {
 	builder.leaderItemList = leaderItemList
 	builder.leaderItemListSet = true
 	return builder
 }
-func (builder *BudgetCenterV2RecordBuilder) LimitRuleList(limitRuleList []LimitRuleItem) *BudgetCenterV2RecordBuilder {
+func (builder *BudgetCenterV2RecordBuilder) LimitRuleList(limitRuleList []BudgetCenterV2LimitRuleItem) *BudgetCenterV2RecordBuilder {
 	builder.limitRuleList = limitRuleList
 	builder.limitRuleListSet = true
 	return builder

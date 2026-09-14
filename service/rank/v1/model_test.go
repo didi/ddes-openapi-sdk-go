@@ -1571,7 +1571,7 @@ func TestListRank_HttpError(t *testing.T) {
 }
 
 func TestListRank_WithEncryption_AES128(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"rank_id":"1125922289295589","name":"P7"}]},"request_id":"req_enc"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"id":"1125922289295589","name":"P7"}]},"request_id":"req_enc"}`
 	key := []byte("16byte-key-12345")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -1613,10 +1613,17 @@ func TestListRank_WithEncryption_AES128(t *testing.T) {
 	if len(resp.ListRankApiReply.Data.Records) != 1 {
 		t.Fatalf("Records len = %d, want 1", len(resp.ListRankApiReply.Data.Records))
 	}
+	rec := resp.ListRankApiReply.Data.Records[0]
+	if rec.Id == nil || *rec.Id != "1125922289295589" {
+		t.Errorf("Records[0].Id = %v, want 1125922289295589", rec.Id)
+	}
+	if rec.Name == nil || *rec.Name != "P7" {
+		t.Errorf("Records[0].Name = %v, want P7", rec.Name)
+	}
 }
 
 func TestListRank_WithEncryption_AES256(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"rank_id":"1125922289295589"}]},"request_id":"req_enc256"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"id":"1125922289295589"}]},"request_id":"req_enc256"}`
 	key := []byte("32byte-key-1234567890abcdefghijk")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -1653,6 +1660,9 @@ func TestListRank_WithEncryption_AES256(t *testing.T) {
 	if len(resp.ListRankApiReply.Data.Records) != 1 {
 		t.Fatalf("Records len = %d, want 1", len(resp.ListRankApiReply.Data.Records))
 	}
+	if rec := resp.ListRankApiReply.Data.Records[0]; rec.Id == nil || *rec.Id != "1125922289295589" {
+		t.Errorf("Records[0].Id = %v, want 1125922289295589", rec.Id)
+	}
 }
 
 func TestListRank_EncryptionNoEncryptData(t *testing.T) {
@@ -1660,7 +1670,7 @@ func TestListRank_EncryptionNoEncryptData(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"rank_id":"1125922289295589"}]},"request_id":"req_noenc"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"id":"1125922289295589"}]},"request_id":"req_noenc"}`))
 	}))
 	defer testServer.Close()
 
@@ -1685,6 +1695,9 @@ func TestListRank_EncryptionNoEncryptData(t *testing.T) {
 	}
 	if len(resp.ListRankApiReply.Data.Records) != 1 {
 		t.Fatalf("Records len = %d, want 1", len(resp.ListRankApiReply.Data.Records))
+	}
+	if rec := resp.ListRankApiReply.Data.Records[0]; rec.Id == nil || *rec.Id != "1125922289295589" {
+		t.Errorf("Records[0].Id = %v, want 1125922289295589", rec.Id)
 	}
 }
 

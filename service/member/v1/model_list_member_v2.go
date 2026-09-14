@@ -78,10 +78,6 @@ func (builder *ListMemberV2ApiReqBuilder) NextToken(nextToken string) *ListMembe
 	builder.apiReq.QueryParams.Set("next_token", nextToken)
 	return builder
 }
-func (builder *ListMemberV2ApiReqBuilder) IsLastId(isLastId int32) *ListMemberV2ApiReqBuilder {
-	builder.apiReq.QueryParams.Set("is_last_id", fmt.Sprint(isLastId))
-	return builder
-}
 func (builder *ListMemberV2ApiReqBuilder) QuerySubCompany(querySubCompany string) *ListMemberV2ApiReqBuilder {
 	builder.apiReq.QueryParams.Set("query_sub_company", querySubCompany)
 	return builder

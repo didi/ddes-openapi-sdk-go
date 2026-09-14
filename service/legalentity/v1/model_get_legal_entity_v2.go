@@ -66,10 +66,6 @@ func (builder *GetLegalEntityV2ApiReqBuilder) OutLegalEntityId(outlegalentityid 
 	builder.apiReq.QueryParams.Set("out_legal_entity_id", outlegalentityid)
 	return builder
 }
-func (builder *GetLegalEntityV2ApiReqBuilder) Status(status int32) *GetLegalEntityV2ApiReqBuilder {
-	builder.apiReq.QueryParams.Set("status", fmt.Sprint(status))
-	return builder
-}
 func (builder *GetLegalEntityV2ApiReqBuilder) Length(length int32) *GetLegalEntityV2ApiReqBuilder {
 	builder.apiReq.QueryParams.Set("length", fmt.Sprint(length))
 	return builder

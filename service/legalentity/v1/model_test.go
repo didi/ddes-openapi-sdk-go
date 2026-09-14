@@ -183,6 +183,33 @@ func TestCreateLegalEntityRequestBuilder_FullParams(t *testing.T) {
 	}
 }
 
+// out_parent_id：设置后以正确 tag 序列化，未设置不输出（add 与 parent_id 二选一组）
+func TestCreateLegalEntityRequestBuilder_OutParentId(t *testing.T) {
+	req := NewCreateLegalEntityRequestBuilder().
+		Name("测试公司").
+		OutParentId("OUT_P_001").
+		Build()
+	raw, err := json.Marshal(req)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if m["out_parent_id"] != "OUT_P_001" {
+		t.Errorf("out_parent_id = %v, want OUT_P_001", m["out_parent_id"])
+	}
+
+	reqN := NewCreateLegalEntityRequestBuilder().Name("测试公司").Build()
+	rawN, _ := json.Marshal(reqN)
+	var mN map[string]interface{}
+	_ = json.Unmarshal(rawN, &mN)
+	if _, ok := mN["out_parent_id"]; ok {
+		t.Error("out_parent_id should not exist when not set")
+	}
+}
+
 func TestCreateLegalEntityRequestBuilder_PartialParams(t *testing.T) {
 	req := NewCreateLegalEntityRequestBuilder().
 		ClientId("test_client").
@@ -924,6 +951,33 @@ func TestUpdateLegalEntityRequestBuilder_FullParams(t *testing.T) {
 	}
 	if req.BankCardNo == nil || *req.BankCardNo != "6222020200112345678" {
 		t.Errorf("BankCardNo = %v, want 6222020200112345678", req.BankCardNo)
+	}
+}
+
+// out_parent_id：设置后以正确 tag 序列化，未设置不输出（edit 与 parent_id 二选一组；不支持通过 parent_id 修改 out_parent_id）
+func TestUpdateLegalEntityRequestBuilder_OutParentId(t *testing.T) {
+	req := NewUpdateLegalEntityRequestBuilder().
+		Name("测试公司").
+		OutParentId("OUT_P_002").
+		Build()
+	raw, err := json.Marshal(req)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if m["out_parent_id"] != "OUT_P_002" {
+		t.Errorf("out_parent_id = %v, want OUT_P_002", m["out_parent_id"])
+	}
+
+	reqN := NewUpdateLegalEntityRequestBuilder().Name("测试公司").Build()
+	rawN, _ := json.Marshal(reqN)
+	var mN map[string]interface{}
+	_ = json.Unmarshal(rawN, &mN)
+	if _, ok := mN["out_parent_id"]; ok {
+		t.Error("out_parent_id should not exist when not set")
 	}
 }
 
@@ -2453,7 +2507,6 @@ func TestGetLegalEntityV2ApiReqBuilder_Params(t *testing.T) {
 		Keyword("测试").
 		LegalEntityId("123").
 		OutLegalEntityId("OUT_108").
-		Status(1).
 		Length(100).
 		NextToken("T1").
 		QuerySubCompany("1").
@@ -2461,7 +2514,7 @@ func TestGetLegalEntityV2ApiReqBuilder_Params(t *testing.T) {
 		TaxpayerNo("91110000XXXXXXXXXX").
 		Build()
 	for k, v := range map[string]string{
-		"keyword": "测试", "out_legal_entity_id": "OUT_108", "status": "1",
+		"keyword": "测试", "out_legal_entity_id": "OUT_108",
 		"length": "100", "next_token": "T1", "query_sub_company": "1",
 		"belong_enterprise_name": "某某集团", "taxpayer_no": "91110000XXXXXXXXXX",
 	} {
@@ -2469,11 +2522,8 @@ func TestGetLegalEntityV2ApiReqBuilder_Params(t *testing.T) {
 			t.Errorf("query[%s] = %q, want %q", k, got, v)
 		}
 	}
-	// status 零值仍写入
-	req0 := NewGetLegalEntityV2ApiReqBuilder().Status(0).Length(0).Build()
-	if got := req0.apiReq.QueryParams.Get("status"); got != "0" {
-		t.Errorf("status(0) = %q, want 0", got)
-	}
+	// length 零值仍写入
+	req0 := NewGetLegalEntityV2ApiReqBuilder().Length(0).Build()
 	if got := req0.apiReq.QueryParams.Get("length"); got != "0" {
 		t.Errorf("length(0) = %q, want 0", got)
 	}
