@@ -6,12 +6,13 @@
 
 ### 破坏性变更
 
-以下为相对 `master` 仍保留的公开类型变更，共涉及 1 个响应模型字段类型。已有调用方如果直接引用，需要同步调整代码：
+以下为相对 `master` 仍保留的公开类型变更，共 3 处（2 个响应模型字段类型 + 1 组字段/Builder 方法更名）。已有调用方如果直接引用，需要同步调整代码：
 
 | 接口/模型 | 变更 | 说明 |
 | --- | --- | --- |
 | `/river/Rank/getRanks` — `ListRankReply` | `Records`：`[]RankInfo` → `[]RankRecord` | 修复性变更：服务端响应字段为 `id`，原复用请求侧 `RankInfo`（`rank_id`）导致职级 ID 永远解析为空；`RankRecord` 字段为 `Id`/`Name`/`OutRankId`。请求侧 `RankInfo`（create/update/del）不受影响 |
 | `/river/Member/edit` — `UpdateMemberApiReply` | `Data`：`interface{}` → `*UpdateMemberReply` | 修复性变更：原 `UpdateMemberReply` 为空结构体、Data 无类型语义；现补齐 `MemberId`/`Phone`/`Status`（员工信息更新失败场景返回），对 Data 做类型断言的调用方需同步调整 |
+| `/river/Member/single`、`/river/Member/edit` 请求 — `MemberInfo` | 字段及 Builder 方法更名：`RedisentsIds` → `ResidentsIds`，json key `redisents_ids` → `residents_ids` | 修复性变更：原拼写 `redisents_ids` 服务端不识别，该参数此前实际不生效；引用旧字段 `RedisentsIds` 或调用 `MemberInfoBuilder.RedisentsIds()` 的代码需改为 `ResidentsIds`/`.ResidentsIds()`，序列化 key 同步变更 |
 
 ### 新增
 
@@ -40,7 +41,7 @@
 ### 修复
 
 - 修复 `/river/Rank/getRanks` 响应职级 ID 解析为空的问题（见破坏性变更）。
-- 修复 `/river/Member/single`、`/river/Member/edit` 常驻地 ID 不生效的问题：`MemberInfo` 字段 `RedisentsIds` 更名为 `ResidentsIds`，json key 由 `redisents_ids` 修正为服务端实际读取的 `residents_ids`。
+- 修复 `/river/Member/single`、`/river/Member/edit` 常驻地 ID 不生效的问题：`MemberInfo` 字段 `RedisentsIds` 更名为 `ResidentsIds`，json key 由 `redisents_ids` 修正为服务端实际读取的 `residents_ids`（见破坏性变更）。
 
 ### 测试与工程化
 
