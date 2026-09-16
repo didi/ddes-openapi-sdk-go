@@ -15,7 +15,7 @@ type MemberInfo struct {
 	ImmediateSuperiorMemberID       *int32            `json:"immediate_superior_memberID,omitempty"`        // 直属上级 ID
 	ClearImmediateSuperior          *int32            `json:"clear_immediate_superior,omitempty"`           // 清除上级；数字1 清除；【更新参数】
 	Residentsname                   *string           `json:"residentsname,omitempty"`                      // 常驻地中文
-	ResidentsIds                    *string           `json:"residents_ids,omitempty"`                      // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
+	RedisentsIds                    *string           `json:"redisents_ids,omitempty"`                      // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
 	ResidentsAdcode                 *string           `json:"residents_adcode,omitempty"`                   // 常驻地行政区划代码，多个使用英文逗号分隔，与residents_ids二选一
 	UseCompanyMoney                 *int32            `json:"use_company_money,omitempty"`                  // 是否企业支付余额，枚举值数字 0 否，1 是
 	TotalQuota                      *string           `json:"total_quota,omitempty"`                        // 每月配额，单位元 0 不限
@@ -71,8 +71,8 @@ type MemberInfoBuilder struct {
 	clearImmediateSuperiorSet          bool
 	residentsname                      string // 常驻地中文
 	residentsnameSet                   bool
-	residentsIds                       string // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
-	residentsIdsSet                    bool
+	redisentsIds                       string // 常驻地ID，不传不更新，传“”清空，多个使用“_”连接；
+	redisentsIdsSet                    bool
 	residentsAdcode                    string // 常驻地行政区划代码，多个使用英文逗号分隔，与residents_ids二选一
 	residentsAdcodeSet                 bool
 	homeAddress                        []HomeAddressInfo // 家庭住址信息，用于用车管控
@@ -195,9 +195,9 @@ func (builder *MemberInfoBuilder) Residentsname(residentsname string) *MemberInf
 	builder.residentsnameSet = true
 	return builder
 }
-func (builder *MemberInfoBuilder) ResidentsIds(residentsIds string) *MemberInfoBuilder {
-	builder.residentsIds = residentsIds
-	builder.residentsIdsSet = true
+func (builder *MemberInfoBuilder) RedisentsIds(redisentsIds string) *MemberInfoBuilder {
+	builder.redisentsIds = redisentsIds
+	builder.redisentsIdsSet = true
 	return builder
 }
 func (builder *MemberInfoBuilder) ResidentsAdcode(residentsAdcode string) *MemberInfoBuilder {
@@ -372,8 +372,8 @@ func (builder *MemberInfoBuilder) Build() *MemberInfo {
 	if builder.residentsnameSet {
 		data.Residentsname = &builder.residentsname
 	}
-	if builder.residentsIdsSet {
-		data.ResidentsIds = &builder.residentsIds
+	if builder.redisentsIdsSet {
+		data.RedisentsIds = &builder.redisentsIds
 	}
 	if builder.residentsAdcodeSet {
 		data.ResidentsAdcode = &builder.residentsAdcode

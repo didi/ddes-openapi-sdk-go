@@ -50,7 +50,7 @@
 - **正确值**：`id`
 - **证据**：文档 11253 响应字段 `data.records.id`；PHP `models/Rank.php:65` `'id' => strval(...)`
 - **影响**：`ListRankApiReply.Records` 反序列化时职级滴滴侧 ID 永远为空
-- **修法**：按「禁止复用类型」规则，为 getRanks 响应新建独立 `RankRecord`（`id`/`name`/`out_rank_id`）+ Builder；请求侧 `RankInfo`（create/update/del 用）不动
+- **修法**：已定位（响应字段 `id`）；修复涉及公开响应类型调整，为保持 1.3.0 纯增量无破坏性变更，随 2.0.0 以独立响应字段方案修复（原计划新建独立 `RankRecord`，一并延后）
 
 ### 2.2 Member single/edit 常驻地 `redisents_ids` tag 拼写错误
 
@@ -58,7 +58,7 @@
 - **正确值**：`residents_ids`
 - **证据**：文档 11155 data 字段 `residents_ids`；PHP `controllers/Member/Single.php:195` `isset($data['residents_ids'])`
 - **影响**：`Member/single`、`Member/edit` 传常驻地 ID 时，服务端读不到该 key，常驻地设置不生效
-- **修法**：json tag 改为 `residents_ids`（bug 修复，不算行为变更）
+- **修法**：已定位（服务端读取 `residents_ids`）；修复涉及公开字段更名，为保持 1.3.0 纯增量无破坏性变更，随 2.0.0 以字段更名方案修复（`RedisentsIds` → `ResidentsIds`，届时原字段移除）
 
 ## 3. P1 — 集团账户参数缺失（模式 B：belong_enterprise_name + taxpayer_no）
 
@@ -186,7 +186,7 @@ type ExtendFieldArchiveItem struct {
 
 ## 9. 修复批次建议
 
-1. **批次一（P0）**：两个 tag bug —— rank getRanks 响应独立 RankRecord；residents_ids 拼写修正
+1. **批次一（P0）**：两个 tag bug —— 已定位，因涉及公开类型变更（响应独立类型/字段更名），延至 2.0.0 修复，1.3.0 保持无破坏性变更
 2. **批次二（P1）**：13 处集团参数（§3 表）—— 模式统一、风险低、直接解锁集团客户（老路径场景）
 3. **批次三（P1.5）**：4 个域新增 v2 集团路径方法 + ApiReq/Builder/Reply + 单测 —— 工作量最大，独立 change 推进
 4. **批次四（P2+P4）**：文档新增字段 + Member/del 多标识

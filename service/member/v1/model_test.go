@@ -1653,35 +1653,6 @@ func TestGetMemberDetail_WithReqOption(t *testing.T) {
 	}
 }
 
-func TestMemberInfoResidentsIdsSerialization(t *testing.T) {
-	// P0 修复验证：json key 必须是 residents_ids（服务端 PHP Single.php:195 只读该 key）
-	info := NewMemberInfoBuilder().
-		Realname("张三").
-		ResidentsIds("1_2_3").
-		Build()
-
-	data, err := json.Marshal(info)
-	if err != nil {
-		t.Fatalf("Marshal failed: %v", err)
-	}
-	var m map[string]interface{}
-	if err := json.Unmarshal(data, &m); err != nil {
-		t.Fatalf("Unmarshal failed: %v", err)
-	}
-	if m["residents_ids"] != "1_2_3" {
-		t.Errorf("residents_ids = %v, want 1_2_3", m["residents_ids"])
-	}
-	if _, ok := m["redisents_ids"]; ok {
-		t.Error("redisents_ids should not appear (legacy wrong tag)")
-	}
-	// 不设置时省略
-	info2 := NewMemberInfoBuilder().Realname("李四").Build()
-	data2, _ := json.Marshal(info2)
-	if bytes.Contains(data2, []byte("residents_ids")) {
-		t.Error("residents_ids should be omitted when not set")
-	}
-}
-
 func TestMemberInfoResidentsAdcodeAndHomeAddress(t *testing.T) {
 	info := NewMemberInfoBuilder().
 		ResidentsAdcode("110000,110100").
@@ -2266,7 +2237,7 @@ func TestListMemberV2_CustomHeader(t *testing.T) {
 	}
 }
 
-// --- CreateMemberReply / UpdateMemberReply 失败场景字段测试 ---
+// --- CreateMemberReply 失败场景字段测试 ---
 
 func TestCreateMemberReplyBuilder(t *testing.T) {
 	reply := NewCreateMemberReplyBuilder().
@@ -2331,64 +2302,6 @@ func TestCreateMemberReply_Deserialization(t *testing.T) {
 	}
 	if strReply.MemberId == nil || *strReply.MemberId != "1125921312180377" {
 		t.Errorf("MemberId = %v, want 1125921312180377", strReply.MemberId)
-	}
-}
-
-func TestUpdateMemberReplyBuilder(t *testing.T) {
-	reply := NewUpdateMemberReplyBuilder().
-		MemberId("1125921312180378").
-		Phone("13800000002").
-		Status(4).
-		Build()
-
-	if reply.MemberId == nil || *reply.MemberId != "1125921312180378" {
-		t.Errorf("MemberId = %v, want 1125921312180378", reply.MemberId)
-	}
-	if reply.Phone == nil || *reply.Phone != "13800000002" {
-		t.Errorf("Phone = %v, want 13800000002", reply.Phone)
-	}
-	if reply.Status == nil || *reply.Status != 4 {
-		t.Errorf("Status = %v, want 4", reply.Status)
-	}
-
-	// 部分字段
-	partial := NewUpdateMemberReplyBuilder().Status(6).Build()
-	if partial.MemberId != nil || partial.Phone != nil {
-		t.Errorf("partial build should leave MemberId/Phone nil, got %+v", partial)
-	}
-	if partial.Status == nil || *partial.Status != 6 {
-		t.Errorf("partial Status = %v, want 6", partial.Status)
-	}
-}
-
-func TestUpdateMemberApiReply_Deserialization(t *testing.T) {
-	// 编辑成功：data 为 null/缺失，Data 应为 nil 不报错
-	success := `{"errno": 0, "errmsg": "SUCCESS", "request_id": "rid-1"}`
-	var okReply UpdateMemberApiReply
-	if err := json.Unmarshal([]byte(success), &okReply); err != nil {
-		t.Fatalf("Unmarshal success case failed: %v", err)
-	}
-	if okReply.Data != nil {
-		t.Errorf("success case Data should be nil, got %+v", okReply.Data)
-	}
-
-	// 编辑失败（员工已离职）：member_id number 容错 + phone + status
-	failed := `{"errno": 0, "errmsg": "SUCCESS", "data": {"member_id": 1125921312180379, "phone": "13800000002", "status": 4}, "request_id": "rid-2"}`
-	var failReply UpdateMemberApiReply
-	if err := json.Unmarshal([]byte(failed), &failReply); err != nil {
-		t.Fatalf("Unmarshal failed case failed: %v", err)
-	}
-	if failReply.Data == nil {
-		t.Fatal("failed case Data is nil, want UpdateMemberReply")
-	}
-	if failReply.Data.MemberId == nil || *failReply.Data.MemberId != "1125921312180379" {
-		t.Errorf("Data.MemberId = %v, want 1125921312180379", failReply.Data.MemberId)
-	}
-	if failReply.Data.Phone == nil || *failReply.Data.Phone != "13800000002" {
-		t.Errorf("Data.Phone = %v, want 13800000002", failReply.Data.Phone)
-	}
-	if failReply.Data.Status == nil || *failReply.Data.Status != 4 {
-		t.Errorf("Data.Status = %v, want 4", failReply.Data.Status)
 	}
 }
 

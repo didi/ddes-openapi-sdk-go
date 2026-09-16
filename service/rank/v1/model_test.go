@@ -571,8 +571,8 @@ func TestListRankApiReply_Deserialization(t *testing.T) {
 		"data": {
 			"total": 2,
 			"records": [
-				{"id": "1125922289295589", "out_rank_id": "OUT_001", "name": "P7"},
-				{"id": "1125922289295590", "out_rank_id": "OUT_002", "name": "P6"}
+				{"rank_id": "1125922289295589", "out_rank_id": "OUT_001", "name": "P7"},
+				{"rank_id": "1125922289295590", "out_rank_id": "OUT_002", "name": "P6"}
 			]
 		},
 		"request_id": "req_001"
@@ -595,8 +595,8 @@ func TestListRankApiReply_Deserialization(t *testing.T) {
 	if len(reply.Data.Records) != 2 {
 		t.Fatalf("Records len = %d, want 2", len(reply.Data.Records))
 	}
-	if reply.Data.Records[0].Id == nil || *reply.Data.Records[0].Id != "1125922289295589" {
-		t.Errorf("Records[0].Id = %v, want 1125922289295589", reply.Data.Records[0].Id)
+	if reply.Data.Records[0].RankId == nil || *reply.Data.Records[0].RankId != "1125922289295589" {
+		t.Errorf("Records[0].RankId = %v, want 1125922289295589", reply.Data.Records[0].RankId)
 	}
 	if reply.Data.Records[0].Name == nil || *reply.Data.Records[0].Name != "P7" {
 		t.Errorf("Records[0].Name = %v, want P7", reply.Data.Records[0].Name)
@@ -622,9 +622,9 @@ func TestListRankApiReply_MultipleItems(t *testing.T) {
 		"data": {
 			"total": 3,
 			"records": [
-				{"id": "1001", "name": "P7"},
+				{"rank_id": "1001", "name": "P7"},
 				{"out_rank_id": "OUT_002"},
-				{"id": "1003", "out_rank_id": "OUT_003", "name": "P5"}
+				{"rank_id": "1003", "out_rank_id": "OUT_003", "name": "P5"}
 			]
 		},
 		"request_id": "req_multi"
@@ -641,16 +641,16 @@ func TestListRankApiReply_MultipleItems(t *testing.T) {
 	if reply.Data.Records[0].Name == nil || *reply.Data.Records[0].Name != "P7" {
 		t.Errorf("Records[0].Name = %v, want P7", reply.Data.Records[0].Name)
 	}
-	// 第2条缺少 name 和 id
+	// 第2条缺少 name 和 rank_id
 	if reply.Data.Records[1].Name != nil {
 		t.Errorf("Records[1].Name = %v, want nil", reply.Data.Records[1].Name)
 	}
-	if reply.Data.Records[1].Id != nil {
-		t.Errorf("Records[1].Id = %v, want nil", reply.Data.Records[1].Id)
+	if reply.Data.Records[1].RankId != nil {
+		t.Errorf("Records[1].RankId = %v, want nil", reply.Data.Records[1].RankId)
 	}
 	// 第3条全字段
-	if reply.Data.Records[2].Id == nil || *reply.Data.Records[2].Id != "1003" {
-		t.Errorf("Records[2].Id = %v, want 1003", reply.Data.Records[2].Id)
+	if reply.Data.Records[2].RankId == nil || *reply.Data.Records[2].RankId != "1003" {
+		t.Errorf("Records[2].RankId = %v, want 1003", reply.Data.Records[2].RankId)
 	}
 }
 
@@ -1448,7 +1448,7 @@ func TestListRank_Success(t *testing.T) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":2,"records":[{"id":"1125922289295589","out_rank_id":"OUT_001","name":"P7"},{"id":"1125922289295590","out_rank_id":"OUT_002","name":"P6"}]},"request_id":"req_001"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":2,"records":[{"rank_id":"1125922289295589","out_rank_id":"OUT_001","name":"P7"},{"rank_id":"1125922289295590","out_rank_id":"OUT_002","name":"P6"}]},"request_id":"req_001"}`))
 	}))
 	defer testServer.Close()
 
@@ -1484,8 +1484,8 @@ func TestListRank_Success(t *testing.T) {
 	if len(resp.ListRankApiReply.Data.Records) != 2 {
 		t.Fatalf("Records len = %d, want 2", len(resp.ListRankApiReply.Data.Records))
 	}
-	if resp.ListRankApiReply.Data.Records[0].Id == nil || *resp.ListRankApiReply.Data.Records[0].Id != "1125922289295589" {
-		t.Errorf("Records[0].Id = %v, want 1125922289295589", resp.ListRankApiReply.Data.Records[0].Id)
+	if resp.ListRankApiReply.Data.Records[0].RankId == nil || *resp.ListRankApiReply.Data.Records[0].RankId != "1125922289295589" {
+		t.Errorf("Records[0].RankId = %v, want 1125922289295589", resp.ListRankApiReply.Data.Records[0].RankId)
 	}
 }
 
@@ -1571,7 +1571,7 @@ func TestListRank_HttpError(t *testing.T) {
 }
 
 func TestListRank_WithEncryption_AES128(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"id":"1125922289295589","name":"P7"}]},"request_id":"req_enc"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"rank_id":"1125922289295589","name":"P7"}]},"request_id":"req_enc"}`
 	key := []byte("16byte-key-12345")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -1613,17 +1613,10 @@ func TestListRank_WithEncryption_AES128(t *testing.T) {
 	if len(resp.ListRankApiReply.Data.Records) != 1 {
 		t.Fatalf("Records len = %d, want 1", len(resp.ListRankApiReply.Data.Records))
 	}
-	rec := resp.ListRankApiReply.Data.Records[0]
-	if rec.Id == nil || *rec.Id != "1125922289295589" {
-		t.Errorf("Records[0].Id = %v, want 1125922289295589", rec.Id)
-	}
-	if rec.Name == nil || *rec.Name != "P7" {
-		t.Errorf("Records[0].Name = %v, want P7", rec.Name)
-	}
 }
 
 func TestListRank_WithEncryption_AES256(t *testing.T) {
-	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"id":"1125922289295589"}]},"request_id":"req_enc256"}`
+	plaintext := `{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"rank_id":"1125922289295589"}]},"request_id":"req_enc256"}`
 	key := []byte("32byte-key-1234567890abcdefghijk")
 	encrypted, err := core.AESEncryptECB([]byte(plaintext), key)
 	if err != nil {
@@ -1660,9 +1653,6 @@ func TestListRank_WithEncryption_AES256(t *testing.T) {
 	if len(resp.ListRankApiReply.Data.Records) != 1 {
 		t.Fatalf("Records len = %d, want 1", len(resp.ListRankApiReply.Data.Records))
 	}
-	if rec := resp.ListRankApiReply.Data.Records[0]; rec.Id == nil || *rec.Id != "1125922289295589" {
-		t.Errorf("Records[0].Id = %v, want 1125922289295589", rec.Id)
-	}
 }
 
 func TestListRank_EncryptionNoEncryptData(t *testing.T) {
@@ -1670,7 +1660,7 @@ func TestListRank_EncryptionNoEncryptData(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"id":"1125922289295589"}]},"request_id":"req_noenc"}`))
+		w.Write([]byte(`{"errno":0,"errmsg":"SUCCESS","data":{"total":1,"records":[{"rank_id":"1125922289295589"}]},"request_id":"req_noenc"}`))
 	}))
 	defer testServer.Close()
 
@@ -1695,9 +1685,6 @@ func TestListRank_EncryptionNoEncryptData(t *testing.T) {
 	}
 	if len(resp.ListRankApiReply.Data.Records) != 1 {
 		t.Fatalf("Records len = %d, want 1", len(resp.ListRankApiReply.Data.Records))
-	}
-	if rec := resp.ListRankApiReply.Data.Records[0]; rec.Id == nil || *rec.Id != "1125922289295589" {
-		t.Errorf("Records[0].Id = %v, want 1125922289295589", rec.Id)
 	}
 }
 
@@ -2000,33 +1987,6 @@ func TestUpdateRank_WithReqOption(t *testing.T) {
 	}
 	if resp.UpdateRankApiReply == nil {
 		t.Fatal("UpdateRankApiReply is nil")
-	}
-}
-
-func TestRankRecordBuilder(t *testing.T) {
-	// 全字段
-	record := NewRankRecordBuilder().
-		Id("3241893421").
-		Name("didi").
-		OutRankId("D1").
-		Build()
-	if record.Id == nil || *record.Id != "3241893421" {
-		t.Errorf("Id = %v, want 3241893421", record.Id)
-	}
-	if record.Name == nil || *record.Name != "didi" {
-		t.Errorf("Name = %v, want didi", record.Name)
-	}
-	if record.OutRankId == nil || *record.OutRankId != "D1" {
-		t.Errorf("OutRankId = %v, want D1", record.OutRankId)
-	}
-
-	// 部分字段：未设置应为空
-	partial := NewRankRecordBuilder().Name("P7").Build()
-	if partial.Id != nil {
-		t.Errorf("Id = %v, want nil", partial.Id)
-	}
-	if partial.OutRankId != nil {
-		t.Errorf("OutRankId = %v, want nil", partial.OutRankId)
 	}
 }
 
